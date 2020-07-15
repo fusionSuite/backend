@@ -1,0 +1,38 @@
+[
+  {
+    "itemName": "Knowledge base",
+    "propertygroups": [
+      {
+        "name": "Classification",
+        "properties": [
+          {
+            "name": "Knowledge type",
+            "valuetype": "list",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": ["Known solution", "Known workaround", "Known error"]
+          },
+          {
+            "name": "Description",
+            "valuetype": "string",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      },
+      {
+        "name": "Knowledge",
+        "properties": [
+          {
+            "name": "Knowledge",
+            "valuetype": "text",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      }
+    ]
+  }
+]

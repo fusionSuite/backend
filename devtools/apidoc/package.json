@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "apidoc": "^0.25.0",
+    "install": "^0.13.0"
+  }
+}

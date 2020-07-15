@@ -1,0 +1,179 @@
+[
+  {
+    "itemName": "Incident task",
+    "propertygroups": [
+      {
+        "name": "Main",
+        "properties": []
+      }
+    ]
+  },
+  {
+    "itemName": "Incident solution",
+    "propertygroups": [
+      {
+        "name": "Main",
+        "properties": []
+      }
+    ]
+  },
+  {
+    "itemName": "Incident",
+    "propertygroups": [
+      {
+        "name": "State",
+        "properties": [
+          {
+            "name": "Priority",
+            "valuetype": "list",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": ["Very low", "Low", "Medium", "High", "Critical"]
+          },
+          {
+            "name": "Major incident",
+            "valuetype": "boolean",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          },
+          {
+            "name": "Incident status",
+            "valuetype": "list",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": ["New", "Assigned", "In progress", "Pending", "Resolved", "Closed"]
+          }
+        ]
+      },
+      {
+        "name": "People",
+        "properties": [
+          {
+            "name": "Service desk agent",
+            "valuetype": "itemlink",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          },
+          {
+            "name": "Requester",
+            "valuetype": "itemlink",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          },
+          {
+            "name": "Affected user",
+            "valuetype": "itemlink",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          },
+          {
+            "name": "Affected service",
+            "valuetype": "itemlink",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      },
+      {
+        "name": "Information",
+        "properties": [
+          {
+            "name": "Description of symptoms",
+            "valuetype": "text",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      },
+      {
+        "name": "Classification",
+        "properties": [
+          {
+            "name": "Urgency",
+            "valuetype": "list",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": ["Low", "Medium", "High"]
+          },
+          {
+            "name": "Impact",
+            "valuetype": "list",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": ["Low", "Medium", "High"]
+          },
+          {
+            "name": "Location",
+            "valuetype": "list",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          },
+          {
+            "name": "Category",
+            "valuetype": "string",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          },
+          {
+            "name": "Provenance",
+            "valuetype": "string",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      },
+      {
+        "name": "Links",
+        "properties": [
+          {
+            "name": "Incident links",
+            "valuetype": "itemlinks",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          },
+          {
+            "name": "Relationships to CIs",
+            "valuetype": "itemlinks",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      },
+      {
+        "name": "Follow-ups",
+        "properties": [
+          {
+            "name": "Incident tasks",
+            "valuetype": "itemlinks",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      },
+      {
+        "name": "Solution",
+        "properties": [
+          {
+            "name": "Incident solutions",
+            "valuetype": "itemlinks",
+            "regexformat": "",
+            "unit": "",
+            "listvalues": []
+          }
+        ]
+      }
+    ]
+  }
+]
