@@ -17,8 +17,9 @@ It's written in PHP and use:
 
 ## Install
 
-This is the steps to install the backend:
+Here are the steps to install the backend:
 
+* install dependencies `composer install`
 * configure into phinx.php the database information
 * run command `./vendor/bin/phinx migrate`
 
