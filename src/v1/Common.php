@@ -43,10 +43,13 @@ namespace App\v1;
 class Common
 {
 
-  static function getFieldsToHide($allFields, $visibles) {
+  static function getFieldsToHide($allFields, $visibles)
+  {
     $fieldsToHide = [];
-    foreach ($allFields as $field) {
-      if (!in_array($field, $visibles)) {
+    foreach ($allFields as $field)
+    {
+      if (!in_array($field, $visibles))
+      {
         $fieldsToHide[] = $field;
       }
     }

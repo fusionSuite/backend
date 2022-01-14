@@ -124,7 +124,7 @@ final class Type
       throw new \Exception("Post data not conform (value not allowed in field 'name'), check the documentation", 400);
     }
 
-   // TODO manage modeling
+    // TODO manage modeling
 
     $type = new \App\v1\Models\CMDB\Type;
     $type->name = $data->name;

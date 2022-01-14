@@ -44,18 +44,21 @@ class Type extends Model {
 
   protected static function booted()
   {
-    static::retrieved(function ($type) {
+    static::retrieved(function ($type)
+    {
       // This code works ;)
       // $type->name = "xxxxx";
     });
 
-    static::saving(function ($type) {
+    static::saving(function ($type)
+    {
       // $type = \App\v1\Controllers\Rule::runRules($type);
       // This code works ;)
       // $type->name = "xxxxx";
     });
 
-    static::saved(function ($type) {
+    static::saved(function ($type)
+    {
       // This code works ;)
       // $type->name = "xxxxx";
     });

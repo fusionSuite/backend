@@ -23,7 +23,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        tools: phpstan
+        tools: phpstan, cs2pr, phpcs
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -42,3 +42,6 @@ jobs:
 
     - name: Run PHPStan
       run: phpstan analyse src
+
+    - name: Run phpcs
+      run: phpcs -q --report=checkstyle src | cs2pr

@@ -38,112 +38,96 @@ final class Fusioninventory
 
   public function getConfig(Request $request, Response $response, $args): Response
   {
-// need deviceid
+    // need deviceid
 
-      $res = [
-          'modules' => [
-              [
-                  'name'      => 'Inventory',
-                  'frequency' => 24,
-                  'endpoints' => [
-                      'main' => 'localinventory'
-                  ]
-              ],
-              [
-                  'name'      => 'Deploy',
-                  'frequency' => 2,
-                  'endpoints'  => [
-                      'main'      => 'deploy',
-                      'filepart'  => 'deploy/filepart',
-                      'userevent' => 'deploy/userevent'
-                  ]
-              ],
-              [
-                  'name'      => 'NetDiscovery',
-                  'frequency' => 500,
-                  'endpoints' => [
-                      'main' => 'networkdiscovery'
-                  ]
-              ],
-              [
-                  'name'      => 'NetInventory',
-                  'frequency' => 2,
-                  'endpoints' => [
-                      'main'          => 'networkinventory',
-                      'sendInventory' => 'networkinventory'
-                  ]
-              ],
-              [
-                  'name'      => 'Collect',
-                  'frequency' => 24,
-                  'endpoints' => [
-                      'main' => 'collect'
-                  ]
-              ],
-              [
-                  'name'      => 'WMI',
-                  'frequency' => 24,
-                  'endpoints' => [
-                      'main' => 'wmi'
-                  ]
-              ],
-              [
-                  'name'      => 'ESX',
-                  'frequency' => 24,
-                  'endpoints' => [
-                      'main' => 'esx'
-                  ]
-              ],
-              [
-                  'name'      => 'WakeOnLan',
-                  'frequency' => 24,
-                  'endpoints' => [
-                      'main' => 'wakeonlan'
-                  ]
-              ]
+    $res = [
+      'modules' => [
+        [
+          'name'      => 'Inventory',
+          'frequency' => 24,
+          'endpoints' => [
+            'main' => 'localinventory'
           ]
-      ];
-      $payload = json_encode($res);
-      $response->getBody()->write($payload);
-      return $response->withHeader('Content-Type', 'application/json');
+        ],
+        [
+          'name'      => 'Deploy',
+          'frequency' => 2,
+          'endpoints'  => [
+            'main'      => 'deploy',
+            'filepart'  => 'deploy/filepart',
+            'userevent' => 'deploy/userevent'
+          ]
+        ],
+        [
+          'name'      => 'NetDiscovery',
+          'frequency' => 500,
+          'endpoints' => [
+            'main' => 'networkdiscovery'
+          ]
+        ],
+        [
+          'name'      => 'NetInventory',
+          'frequency' => 2,
+          'endpoints' => [
+            'main'          => 'networkinventory',
+            'sendInventory' => 'networkinventory'
+          ]
+        ],
+        [
+          'name'      => 'Collect',
+          'frequency' => 24,
+          'endpoints' => [
+            'main' => 'collect'
+          ]
+        ],
+        [
+          'name'      => 'WMI',
+          'frequency' => 24,
+          'endpoints' => [
+            'main' => 'wmi'
+          ]
+        ],
+        [
+          'name'      => 'ESX',
+          'frequency' => 24,
+          'endpoints' => [
+            'main' => 'esx'
+          ]
+        ],
+        [
+          'name'      => 'WakeOnLan',
+          'frequency' => 24,
+          'endpoints' => [
+            'main' => 'wakeonlan'
+          ]
+        ]
+      ]
+    ];
+    $payload = json_encode($res);
+    $response->getBody()->write($payload);
+    return $response->withHeader('Content-Type', 'application/json');
   }
 
 
   public function getLocalinventoryConfiguration(Request $request, Response $response, $args): Response
   {
-      $res = [
-          'noCategories'  => ['printer'],
-          'scanHomedirs' => false,
-          'scanProfiles' => false
-      ];
-      $payload = json_encode($res);
-      $response->getBody()->write($payload);
-      return $response->withHeader('Content-Type', 'application/json');
+    $res = [
+      'noCategories'  => ['printer'],
+      'scanHomedirs' => false,
+      'scanProfiles' => false
+    ];
+    $payload = json_encode($res);
+    $response->getBody()->write($payload);
+    return $response->withHeader('Content-Type', 'application/json');
   }
 
   public function postLocalinventoryInventory(Request $request, Response $response, $args): Response
   {
-      $data = json_decode($request->getBody(), false);
-      $this->manageInventory($data);
-      $response->getBody()->write("Received, bye!");
-      return $response;
+    $data = json_decode($request->getBody(), false);
+    $this->manageInventory($data);
+    $response->getBody()->write("Received, bye!");
+    return $response;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -159,7 +143,7 @@ final class Fusioninventory
 
 
 
-   //  // Add laptop
+    //  // Add laptop
     // $item = new \App\v1\Models\CMDB\Item;
     // $item->name = $data->content->hardware->name;
     // $item->type_id = 2;
@@ -347,9 +331,6 @@ final class Fusioninventory
         // get in inventory and not in DB
         [$toDelete, $toAdd] = $this->filterData($inventoryItems, $dbItems);
 
-print_r($toDelete);
-print_r($toAdd);
-
         foreach($toDelete as $data)
         {
           $itemToDel = \App\v1\Models\CMDB\Item::find($data['id']);
@@ -473,7 +454,11 @@ print_r($toAdd);
     foreach ($inventoryItems as $idx => $item)
     {
       // $key = array_search($item['name'], array_column($dbItems, 'name'));
-      $key = array_search($item['name'], array_map(function($data) {return $data['name'];}, $dbItems));
+      $key = array_search($item['name'], array_map(function($data)
+      {
+        return $data['name'];
+      }, $dbItems));
+      
       if ($key == False)
       {
         continue;

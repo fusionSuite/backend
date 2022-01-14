@@ -39,7 +39,8 @@ trait Read
     return $queryParams;
   }
 
-  public function paramFilters($params, $items) {
+  public function paramFilters($params, $items)
+  {
     /*
     Examples:
       name=toto
@@ -53,33 +54,38 @@ trait Read
       date[before]=2010-01-01
       date[after]=2010-01-01
 
-see https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests
+      see https://docs.github.com/en/search-github/searching-on-github/searching-issues-and-pull-requests
 
-name:portable
-port in:name
-memory:>1024
+      name:portable
+      port in:name
+      memory:>1024
 
 
 
 
     */
-    foreach ($params as $key=>$value) {
-      if (in_array($key, ['page', 'per_page'])) {
+    foreach ($params as $key=>$value)
+    {
+      if (in_array($key, ['page', 'per_page']))
+      {
         continue;
       }
-      if ($key == 'name') {
+      if ($key == 'name')
+      {
         $items->where('name', $value);
         continue;
       }
       // manage search on properties
-      $items->whereHas('properties', function ($q) use ($value) {
+      $items->whereHas('properties', function ($q) use ($value)
+      {
         $q->where('item_property.value', $value);
       });
     }
     return $items;
   }
 
-  private function paramSorting($params) {
+  private function paramSorting($params)
+  {
     /*
     Examples:
       sort_by=email
@@ -88,22 +94,26 @@ memory:>1024
 
     // By default order by id
     $order = ['id'];
-    if (isset($params['sort_by'])) {
+    if (isset($params['sort_by']))
+    {
       $order = [];
       $fields = explode(',', $params['sort_by']);
       // TODO check if field exist and have the right
-      foreach ($fields as $field) {
-          if ($field[0] == '-') {
-            $order[] = substr($field, 1)." DESC";
-          } else {
-            $order[] = $field;
-          }
+      foreach ($fields as $field)
+      {
+        if ($field[0] == '-')
+        {
+          $order[] = substr($field, 1)." DESC";
+        } else {
+          $order[] = $field;
+        }
       }
     }
     return $order;
   }
 
-  public function paramPagination($params) {
+  public function paramPagination($params)
+  {
     /*
     Examples:
       page=3
@@ -116,18 +126,21 @@ memory:>1024
       'take' => 100
     ];
     if (isset($params['page'])
-          && is_numeric($params['page'])) {
+          && is_numeric($params['page']))
+    {
         $pagination['skip'] = $params['page'];
     }
     if (isset($params['per_page'])
           && is_numeric($params['per_page'])          
-          && $params['per_page'] <= 990) {
+          && $params['per_page'] <= 990)
+    {
         $pagination['take'] = $params['per_page'];
     }
     return $pagination;
   }
 
-  public function createLink($request, $pagination, $totalCnt) {
+  public function createLink($request, $pagination, $totalCnt)
+  {
    
     // next	The link relation for the immediate next page of results.
     // last	The link relation for the last page of results.
@@ -151,13 +164,15 @@ memory:>1024
 
     $currentMaxItems = ($pagination['skip'] + 1) * $pagination['take'];
 
-    if ($currentMaxItems < $totalCnt) {
+    if ($currentMaxItems < $totalCnt)
+    {
       $paramsQuery['page'] = ($pagination['skip'] + 1);
       $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="next"';
       $paramsQuery['page'] = (ceil($totalCnt / $pagination['take']));
       $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="last"';
     }
-    if ($pagination['skip'] > 0) {
+    if ($pagination['skip'] > 0)
+    {
       $paramsQuery['page'] = 0;
       $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="first"';
       $paramsQuery['page'] = ($pagination['skip'] - 1);

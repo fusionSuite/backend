@@ -71,8 +71,8 @@ class Item extends Model {
 
   public function getItems()
   {
-   //  return $this->belongsToMany('App\v1\Models\CMDB\Item', null, 'parent_item_id', 'child_item_id')->withPivot(['relationshiptype_id', 'logical', 'physicalinternal', 'propagate'])->withTimestamps();
-   return $this->belongsToMany('App\v1\Models\CMDB\Item', null, 'parent_item_id', 'child_item_id')->withTimestamps();
+    //  return $this->belongsToMany('App\v1\Models\CMDB\Item', null, 'parent_item_id', 'child_item_id')->withPivot(['relationshiptype_id', 'logical', 'physicalinternal', 'propagate'])->withTimestamps();
+    return $this->belongsToMany('App\v1\Models\CMDB\Item', null, 'parent_item_id', 'child_item_id')->withTimestamps();
   }
 
 
@@ -83,25 +83,25 @@ class Item extends Model {
 
   public function scopeofSort($query, $params)
   {
-     if (isset($params['ORDER']))
-     {
-        foreach ($params['ORDER'] as $order) {
-           if (strstr($order, ' DESC')) {
-              $order = str_replace(' DESC', '', $order);
-              if (isset($this->inverseMutators[$order]))
-              {
-                 $order = $this->inverseMutators[$order];
-              }
-              $query->orderBy($order, 'desc');
-           } else {
-              if (isset($this->inverseMutators[$order]))
-              {
-                 $order = $this->inverseMutators[$order];
-              }                  
-              $query->orderBy($order, 'asc');
-           }
+    if (isset($params['ORDER']))
+    {
+      foreach ($params['ORDER'] as $order) {
+        if (strstr($order, ' DESC')) {
+          $order = str_replace(' DESC', '', $order);
+          if (isset($this->inverseMutators[$order]))
+          {
+            $order = $this->inverseMutators[$order];
+          }
+          $query->orderBy($order, 'desc');
+        } else {
+          if (isset($this->inverseMutators[$order]))
+          {
+            $order = $this->inverseMutators[$order];
+          }                  
+          $query->orderBy($order, 'asc');
         }
-     }
-     return $query;
+      }
+    }
+    return $query;
   }
 }

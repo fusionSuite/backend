@@ -69,7 +69,7 @@ final class TypePropertygroup
 
 
 
-// TODO
+  // TODO
   public function patchItem(Request $request, Response $response, $args): Response
   {
     $response->getBody()->write(json_encode([]));

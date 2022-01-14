@@ -35,7 +35,8 @@ final class SearchItem
     $context['uuid'] = $input['uuid'];
 
     // special case for regex
-    $ruler->getDefaultAsserter()->setOperator('regex', function ($input, $regex) {
+    $ruler->getDefaultAsserter()->setOperator('regex', function ($input, $regex)
+    {
       if (is_null($input))
       {
         return false;
@@ -74,7 +75,8 @@ final class SearchItem
             $doSearchInDB = true;
             $propertyId = $matches[2];
             $value = $context[str_replace('input.', '', $criterium->field)];
-            $items->whereHas('properties', function ($q) use ($propertyId, $value) {
+            $items->whereHas('properties', function ($q) use ($propertyId, $value)
+            {
               $q->where('property_id', $propertyId)
                 ->where('item_property.value', $value);
             });
@@ -122,61 +124,5 @@ final class SearchItem
       }
     }
     return false;
-
-
-
-
-
-// TODO OLD CODE, MUST BE DELETED    
-    // $ruler             = new \Hoa\Ruler\Ruler();
-    // $rule              = "name = 'test20200913 - 02'";
-    // $context           = new \Hoa\Ruler\Context();
-    // $arr = $item->toArray();
-    // foreach ($arr as $key => $value) {
-    //   $context[$key] = $value;
-    // }
-    
-    // // Nothing in the database.
-    // // if (null === $serialized = $database->get($ruleId)) {
-    //   // We transform the rule into an object model.
-    //   $model = \Hoa\Ruler\Ruler::interpret($rule);
-
-    //   // We serialize and save the object model.
-    //   // $database->save($ruleId, serialize($model));
-    // // } else {
-    //   // We have a serialization! We unserialize it to get the object model.
-    //   // $model = unserialize($serialized);
-    // // }
-
-    // // We can assert by using a model instead of a rule!
-    // if ($ruler->assert($model, $context)) {
-    //   $item->name = 'Rewrited';
-    // }
-
-    // return $item;
   }
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
 }

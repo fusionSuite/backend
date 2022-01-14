@@ -28,10 +28,12 @@ final class Rule
   {
     $ruler   = new \Hoa\Ruler\Ruler();
     $context = new \Hoa\Ruler\Context();
-    $context['item'] = function () use ($context, $item) {
+    $context['item'] = function () use ($context, $item)
+    {
       return $item;
     };
-    $context['properties'] = function () use ($context, $properties) {
+    $context['properties'] = function () use ($context, $properties)
+    {
       return $properties;
     };
     $context['name'] = $item->name;
@@ -40,7 +42,8 @@ final class Rule
     if ($ruleType == 'searchitem')
     {
       // special case for search in DB
-      $ruler->getDefaultAsserter()->setOperator('searchindb', function ($item, $field, $values, $properties) {
+      $ruler->getDefaultAsserter()->setOperator('searchindb', function ($item, $field, $values, $properties)
+      {
         // search in DB
         [$typeId, $propertyId] = explode('.', $field);
         if ($item->type_id != $typeId)
@@ -79,7 +82,8 @@ final class Rule
           // echo $propertyId." - ".$value."\n";
           // print_r($values);
           // print_r($item);
-          $items->whereHas('properties', function ($q) use ($propertyId, $value) {
+          $items->whereHas('properties', function ($q) use ($propertyId, $value)
+          {
             $q->where('property_id', $propertyId)
               ->where('item_property.value', $value);
           });
@@ -141,8 +145,8 @@ final class Rule
       } else {
         if ($ruleType == 'searchitem')
         {
-// print_r($criteria);
-// echo "NOT FOUND :(\n";
+          // print_r($criteria);
+          // echo "NOT FOUND :(\n";
           // next
 
 
@@ -168,41 +172,7 @@ final class Rule
     {
       return false;
     }
-
     return $item;
-
-
-
-
-
-
-// TODO OLD CODE, MUST BE DELETED    
-    // $ruler             = new \Hoa\Ruler\Ruler();
-    // $rule              = "name = 'test20200913 - 02'";
-    // $context           = new \Hoa\Ruler\Context();
-    // $arr = $item->toArray();
-    // foreach ($arr as $key => $value) {
-    //   $context[$key] = $value;
-    // }
-    
-    // // Nothing in the database.
-    // // if (null === $serialized = $database->get($ruleId)) {
-    //   // We transform the rule into an object model.
-    //   $model = \Hoa\Ruler\Ruler::interpret($rule);
-
-    //   // We serialize and save the object model.
-    //   // $database->save($ruleId, serialize($model));
-    // // } else {
-    //   // We have a serialization! We unserialize it to get the object model.
-    //   // $model = unserialize($serialized);
-    // // }
-
-    // // We can assert by using a model instead of a rule!
-    // if ($ruler->assert($model, $context)) {
-    //   $item->name = 'Rewrited';
-    // }
-
-    // return $item;
   }
 
   /**
@@ -400,9 +370,11 @@ final class Rule
     return $response->withHeader('Content-Type', 'application/json');
   }
 
-  public function serializeRule($ruleId) {
+  public function serializeRule($ruleId)
+  {
     $item = \App\v1\Models\Rule::find($ruleId);
-    if (is_null($item)) {
+    if (is_null($item))
+    {
       return null;
     }
     $criteria = \App\v1\Models\Rule::find($ruleId)->criteria()->get();
@@ -410,10 +382,12 @@ final class Rule
     // criteria
     $crits = [];
       
-    foreach ($criteria as $criterium) {
+    foreach ($criteria as $criterium)
+    {
       $crits[] = $criterium->field." ".$criterium->comparator." '".$criterium->values."'";
     }
-    if (count($crits) == 0) {
+    if (count($crits) == 0)
+    {
       return null;
     }
 

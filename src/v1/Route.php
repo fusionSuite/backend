@@ -24,15 +24,18 @@ use Slim\Routing\RouteCollectorProxy;
 
 final class Route
 {
-  static function setRoutes(&$app, $prefix) {
+  static function setRoutes(&$app, $prefix)
+  {
 
     // Enable OPTIONS method for all routes
-    $app->options($prefix.'/{routes:.+}', function ($request, $response, $args) {
+    $app->options($prefix.'/{routes:.+}', function ($request, $response, $args)
+    {
       return $response;
     });
 
     // The ping - pong ;)
-    $app->get($prefix.'/ping', function (Request $request, Response $response, array $args) {
+    $app->get($prefix.'/ping', function (Request $request, Response $response, array $args)
+    {
       $name = $args['name'];
       $response->getBody()->write("pong");
       return $response;
@@ -98,13 +101,13 @@ final class Route
       });
 
       // CMDB
-      
-/*
-* itemstate: get/post/put/delete 
-* property: get/post/put/delete
-* propertylistvalue: get/post/put/delete
-* item_property: put
-*/
+
+      /*
+      * itemstate: get/post/put/delete 
+      * property: get/post/put/delete
+      * propertylistvalue: get/post/put/delete
+      * item_property: put
+      */
 
       $v1->group("/rules/{type:searchitem|rewritefield|notification}", function (RouteCollectorProxy $rule)
       {
