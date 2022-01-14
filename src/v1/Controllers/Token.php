@@ -161,7 +161,8 @@ final class Token
   }
 
   // get rights of this user.
-  private function getScope($userId) {
+  private function getScope($userId)
+  {
     $scope = [
       'tickets' => [
         'readAll'    => false,

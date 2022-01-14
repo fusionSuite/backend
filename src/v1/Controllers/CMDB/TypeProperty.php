@@ -154,7 +154,7 @@ final class TypeProperty
 
 
 
-// TODO
+  // TODO
   /**
    * @api {patch} /v1/cmdb/type/:id PATCH - Update an existing type of items
    * @apiName PatchCMDBTypes

@@ -28,11 +28,13 @@ final class GetType
   {
     $ruler   = new \Hoa\Ruler\Ruler();
     $context = new \Hoa\Ruler\Context();
-    $context['inventoryData'] = function () use ($context, $inventoryData) {
+    $context['inventoryData'] = function () use ($context, $inventoryData)
+    {
       return $inventoryData->{'content'};
     };
 
-    $ruler->getDefaultAsserter()->setOperator('searchvalue', function ($inventoryData, $field, $value) {
+    $ruler->getDefaultAsserter()->setOperator('searchvalue', function ($inventoryData, $field, $value)
+    {
       $keys = explode(".", $field);
       $path = $inventoryData;
       foreach ($keys as $key)
@@ -71,29 +73,8 @@ final class GetType
     return False;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  public function serializeRule($ruleId) {
+  public function serializeRule($ruleId)
+  {
     $item = \App\v1\Models\Rule::find($ruleId);
     if (is_null($item)) {
       return null;
