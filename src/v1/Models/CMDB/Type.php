@@ -50,7 +50,7 @@ class Type extends Model {
     });
 
     static::saving(function ($type) {
-      $type = \App\v1\Controllers\Rule::runRules($type);
+      // $type = \App\v1\Controllers\Rule::runRules($type);
       // This code works ;)
       // $type->name = "xxxxx";
     });
