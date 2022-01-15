@@ -44,6 +44,7 @@ final class Route
     $app->group($prefix.'/v1', function (RouteCollectorProxy $v1)
     {
       $v1->post("/token", \App\v1\Controllers\Token::class . ':postToken');
+      $v1->get("/status", \App\v1\Controllers\Status::class . ':getStatus');
 
       $v1->group('/fusioninventory', function (RouteCollectorProxy $fusion)
       {
