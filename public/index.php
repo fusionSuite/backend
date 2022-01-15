@@ -50,7 +50,7 @@ if (strstr($_SERVER['REQUEST_URI'], 'index.php')) {
 }
 
 $app->add(new Tuupola\Middleware\JwtAuthentication([
-   "ignore" => [$prefix."/v1/token", $prefix."/ping", $prefix."/v1/fusioninventory"],
+   "ignore" => [$prefix."/v1/token", $prefix."/ping", $prefix."/v1/fusioninventory", $prefix."/v1/status"],
    "secure" => false,
    "secret" => "123456789helo_secret",
    // "callback" => function ($request, $response, $arguments) use ($container) { ???
