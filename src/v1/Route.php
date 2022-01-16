@@ -34,12 +34,7 @@ final class Route
     });
 
     // The ping - pong ;)
-    $app->get($prefix.'/ping', function (Request $request, Response $response, array $args)
-    {
-      $name = $args['name'];
-      $response->getBody()->write("pong");
-      return $response;
-    });
+    $app->get($prefix.'/ping', \App\v1\Controllers\Ping::class . ':getPing');
 
     $app->group($prefix.'/v1', function (RouteCollectorProxy $v1)
     {

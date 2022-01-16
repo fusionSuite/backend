@@ -1,1 +1,4 @@
 /vendor
+/documentation
+/devtools/apidoc/node_modules
+
