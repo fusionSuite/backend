@@ -25,10 +25,10 @@ final class TypePropertygroup
 {
 
   /**
-   * @api {post} /v1/cmdb/types/:id/propertygroups POST - Create a typepropertygroup
+   * @api {post} /v1/cmdb/types/:id/propertygroups Create a typepropertygroup
    * @apiName GetCMDBTypePropertygroups
    * @apiGroup CMDBTypepropertygroups
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     

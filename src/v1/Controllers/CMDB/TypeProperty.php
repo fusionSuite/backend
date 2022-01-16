@@ -25,10 +25,10 @@ final class TypeProperty
 {
 
   /**
-   * @api {get} /v1/cmdb/typeproperty GET - Get all typeproperties
+   * @api {get} /v1/cmdb/typeproperty Get all typeproperties
    * @apiName GetCMDBTypeProperties
    * @apiGroup CMDBTypeproperties
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     
@@ -74,10 +74,10 @@ final class TypeProperty
   }
 
   /**
-   * @api {post} /v1/cmdb/typeproperty POST - Create a typeproperty
+   * @api {post} /v1/cmdb/typeproperty Create a typeproperty
    * @apiName GetCMDBTypeProperties
    * @apiGroup CMDBTypeproperties
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     
@@ -156,10 +156,10 @@ final class TypeProperty
 
   // TODO
   /**
-   * @api {patch} /v1/cmdb/type/:id PATCH - Update an existing type of items
+   * @api {patch} /v1/cmdb/type/:id Update an existing type of items
    * @apiName PatchCMDBTypes
    * @apiGroup CMDBTypes
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     

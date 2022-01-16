@@ -25,10 +25,10 @@ final class Type
 {
 
   /**
-   * @api {get} /v1/cmdb/types GET - Get all types of items in the CMDB
+   * @api {get} /v1/cmdb/types Get all types of items in the CMDB
    * @apiName GetCMDBTypes
    * @apiGroup CMDBTypes
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
@@ -37,7 +37,7 @@ final class Type
    * @apiSuccess {String}       created_at                    Date of the item creation.
    * @apiSuccess {String|null}  updated_at                    Date of the last item modification.
    *
-   * @apiSuccessExample Success-Response:
+   * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
    *   {
@@ -57,10 +57,10 @@ final class Type
   }
 
   /**
-   * @api {get} /v1/cmdb/types/:id GET - Get one type
+   * @api {get} /v1/cmdb/types/:id Get one type
    * @apiName GetCMDBType
    * @apiGroup CMDBTypes
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
@@ -73,7 +73,7 @@ final class Type
    * @apiSuccess {Integer}      properties.id           The property id.
    * 
    *
-   * @apiSuccessExample Success-Response:
+   * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
    *   "name": "memory",
@@ -83,8 +83,6 @@ final class Type
    *     }
    *   ]
    * }
-   *
-   * @apiUse AutorizationError
    *
    */
   public function getOne(Request $request, Response $response, $args): Response
@@ -100,10 +98,10 @@ final class Type
 
 
   /**
-   * @api {post} /v1/cmdb/type POST - Create a new type of items
+   * @api {post} /v1/cmdb/type Create a new type of items
    * @apiName PostCMDBTypes
    * @apiGroup CMDBTypes
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
@@ -135,10 +133,10 @@ final class Type
   }
 
   /**
-   * @api {patch} /v1/cmdb/type/:id PATCH - Update an existing type of items
+   * @api {patch} /v1/cmdb/type/:id Update an existing type of items
    * @apiName PatchCMDBTypes
    * @apiGroup CMDBTypes
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
@@ -171,10 +169,10 @@ final class Type
   }
 
   /**
-   * @api {post} /v1/cmdb/type/:id/property/:propertyid POST - Associate a property of this type
+   * @api {post} /v1/cmdb/type/:id/property/:propertyid Associate a property of this type
    * @apiName PostCMDBTypesProperty
    * @apiGroup CMDBTypes
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
