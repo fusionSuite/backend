@@ -186,10 +186,10 @@ final class Rule
 
 
   /**
-   * @api {get} /v1/rules/:type GET - Get all rules with type defined
-   * @apiName GetRules//
+   * @api {get} /v1/rules/:type Get all rules with type defined
+   * @apiName GetRules
    * @apiGroup Rules
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
@@ -199,7 +199,7 @@ final class Rule
    * @apiSuccess {String}   name    The name of the item.
    * @apiSuccess {String}   comment The comment of the item.
    * 
-   * @apiSuccessExample Success-Response:
+   * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
    *   {
@@ -219,10 +219,10 @@ final class Rule
 
 
   /**
-   * @api {get} /v1/rules/:type/:id GET - Get one rule
+   * @api {get} /v1/rules/:type/:id Get one rule
    * @apiName GetRule
    * @apiGroup Rules
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
@@ -244,7 +244,7 @@ final class Rule
    * @apiSuccess {String}   actions.values        The rewritten value.
    * @apiSuccess {String}   actions.comment       The criteria comment.
    *
-   * @apiSuccessExample Success-Response:
+   * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
    *   "name": "Rewrite wrong serial number",
@@ -269,8 +269,6 @@ final class Rule
    *   ]
    * }
    *
-   * @apiUse AutorizationError
-   *
    */
   public function getOne(Request $request, Response $response, $args): Response
   {
@@ -284,10 +282,10 @@ final class Rule
   }
 
   /**
-   * @api {post} /v1/rules/:type POST - Create a new rule
+   * @api {post} /v1/rules/:type Create a new rule
    * @apiName PostRule
    * @apiGroup Rules
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     
@@ -310,10 +308,10 @@ final class Rule
   }
 
   /**
-   * @api {post} /v1/rules/:type/:id/criteria POST - Create a new criteria for the rule
+   * @api {post} /v1/rules/:type/:id/criteria Create a new criteria for the rule
    * @apiName PostRuleCriteria
    * @apiGroup Rules
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     
@@ -341,10 +339,10 @@ final class Rule
   }
 
   /**
-   * @api {post} /v1/rules/:type/:id/action POST - Create a new action for the rule
+   * @api {post} /v1/rules/:type/:id/action Create a new action for the rule
    * @apiName PostRuleActions
    * @apiGroup Rules
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     

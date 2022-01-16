@@ -1,0 +1,44 @@
+on:
+  push:
+    branches:
+      - master
+
+env:
+  NODE_VERSION: '16.x'
+
+jobs:
+  buildAndDeploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'yarn'
+        cache-dependency-path: devtools/apidoc/yarn.lock
+
+    - name: yarn install
+      run: |
+        cd devtools/apidoc/
+        yarn install
+    
+    - name: generate the documentation
+      run: |
+        cd devtools/
+        ./generate_apidoc.sh
+
+    - name: Deploy with rsync
+      uses: "Pendect/action-rsyncer@v1.1.0"
+      env: 
+        DEPLOY_KEY: ${{ secrets.SSH_DOCUMENTATION_KEY }}
+      with:
+        flags: '-avzr --delete'
+        options: ''
+        ssh_options: ''
+        src: 'documentation/'
+        dest: '${{ secrets.SSH_DOCUMENTATION_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DOCUMENTATION_RESTAPI_PATH }}'
+
+    - name: Display status from deploy
+      run: echo "${{ steps.deploy.outputs.status }}"

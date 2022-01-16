@@ -29,10 +29,10 @@ final class Token
 {
 
   /**
-   * @api {post} /v1/token POST - Request a JWT token for autentication
+   * @api {post} /v1/token Request a JWT token for authentication
    * @apiName PostToken
-   * @apiGroup Autentication
-   * @apiVersion 1.0.0
+   * @apiGroup Authentication
+   * @apiVersion 1.0.0-draft
    *
    * @apiParam (Request body - option 1) {String} login         The username to login.
    * @apiParam (Request body - option 1) {String} password      The password of the login.
