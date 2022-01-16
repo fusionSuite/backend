@@ -27,10 +27,10 @@ final class Item
   use \App\v1\Read;
 
   /**
-   * @api {get} /v1/cmdb/items/:type GET - Get all items of CMDB with type defined
+   * @api {get} /v1/cmdb/items/:type Get all items of CMDB with type defined
    * @apiName GetCMDBItems
    * @apiGroup CMDBItems
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     
@@ -54,7 +54,7 @@ final class Item
    * @apiSuccess {String}         properties.name             property name
    * @apiSuccess {String}         properties.value            property value
    * 
-   * @apiSuccessExample Success-Response:
+   * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
    *   {
@@ -121,10 +121,10 @@ final class Item
 
 
   /**
-   * @api {post} /v1/cmdb/items/:typeid/items POST - Create a new items
+   * @api {post} /v1/cmdb/items/:typeid/items Create a new items
    * @apiName PostCMDBItems
    * @apiGroup CMDBItems
-   * @apiVersion 1.0.0
+   * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     

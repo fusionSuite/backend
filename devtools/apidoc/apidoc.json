@@ -1,5 +1,11 @@
 {
-  "name": "REST API GLPI plugin",
-  "version": "1.0.0",
-  "description": "The documentation of the v1 of REST API"
+  "name": "REST API FusionSuite backend documentation",
+  "version": "1.0.0-draft",
+  "description": "The documentation of REST API (backend FusionSuite)",
+  "title": "REST API FusionSuite backend documentation",
+  "order": [
+    "Ping",
+    "Status",
+    "Authentication"
+  ]
 }

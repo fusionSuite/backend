@@ -19,24 +19,21 @@
 namespace App\v1;
 
 /**
- * @apiDefine AutorizationError
- * @apiError (Error 401) AutorizationFailure The JWT token is not valid.
- *
- * @apiErrorExample (Error 401) Error-Response:
- *     HTTP/1.1 401 Not Found
- *     {
- *         "status": "error",
- *         "message": "Signature verification of the token failed"
- *     }
- */
-
-/**
  * @apiDefine AutorizationHeader
  * @apiError (Error 401) AutorizationFailure The JWT token is not valid.
  *
  * @apiHeader {String} Authorization The JWT token.
  * @apiHeaderExample {Header} Header-Example
  *     "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODUxMjg3NzUsImV4cCI6MTU4NTIxNTE3NSwianRpIjoiNGwyYlZFVmF2VlpNaDdOZWlFSXVMQyIsInN1YiI6IiIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSIsImRlbGV0ZSJdLCJ1c2VyX2lkIjoyLCJmaXJzdG5hbWUiOm51bGwsImxhc3RuYW1lIjpudWxsLCJhcGl2ZXJzaW9uIjoidjEifQ.prsGpbZbQRlA9JTkgLLSbjOSZDhtjrTLmPPpxUhRMXs"
+ *
+ * @apiError (Error 401) AutorizationFailure The JWT token is not valid.
+ *
+ * @apiErrorExample {json} (Error 401) Error-Response:
+ *     HTTP/1.1 401 Not Found
+ *     {
+ *         "status": "error",
+ *         "message": "Signature verification of the token failed"
+ *     }
  */
 
 

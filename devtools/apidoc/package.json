@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "apidoc": "^0.25.0",
-    "install": "^0.13.0"
+    "apidoc": "^0.50.3",
+    "esbuild-loader": "^2.18.0",
+    "install": "^0.13.0",
+    "webpack": "^5.66.0"
   }
 }

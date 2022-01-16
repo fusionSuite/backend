@@ -20,43 +20,24 @@ namespace App\v1\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Illuminate\Database\Capsule\Manager as DB;
 
-final class Status
+final class Ping
 {
 
   /**
-   * @api {get} /v1/status Get the status of the elements of the backend
-   * @apiName GetStatus
-   * @apiGroup Status
+   * @api {get} /ping Check if backend answer
+   * @apiName GetPing
+   * @apiGroup Ping
    * @apiVersion 1.0.0-draft
    *
-   * @apiSuccess {Object[]}  connections            The status of the connections.
-   * @apiSuccess {Boolean}   connections.database   true if the connection to the database is OK
-   *
-   * @apiSuccessExample {json} Success-Response:
+   * @apiSuccessExample {text} Success-Response:
    * HTTP/1.1 200 OK
-   * {
-   *   "connections":
-   *   {
-   *     "database": true
-   *   }
-   * }
+   * pong
    *
    */
-  public function getStatus(Request $request, Response $response, $args): Response
+  public function getPing(Request $request, Response $response, $args): Response
   {
-    $status = [
-      "connections" => [
-        "database" => true
-      ]
-    ];
-    try {
-      DB::connection()->getPdo();
-    } catch (\Exception $e) {
-      $status['connections']['database'] = false;
-    }
-    $response->getBody()->write(json_encode($status));
-    return $response->withHeader('Content-Type', 'application/json');
+    $response->getBody()->write('pong');
+    return $response;
   }
 }
