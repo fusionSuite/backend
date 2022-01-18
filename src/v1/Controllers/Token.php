@@ -36,7 +36,7 @@ final class Token
    *
    * @apiParam (Request body - option 1) {String} login         The username to login.
    * @apiParam (Request body - option 1) {String} password      The password of the login.
-   * @apiParam (Request body - option 2) {String} refresh_token The token (refresh_token) sent previously when you post in this endpoint to get the token.
+   * @apiParam (Request body - option 2) {String} refreshtoken  The token (refresh_token) sent previously when you post in this endpoint to get the token.
    *
    * @apiParamExample {json} Request-Example:
    *     {
@@ -45,14 +45,14 @@ final class Token
    *     }
    *
    * @apiSuccess {String} token         The token string.
-   * @apiSuccess {String} refresh_token The token string can be used to refresh / regenerate a new token when this token expire.
+   * @apiSuccess {String} refreshtoken  The token string can be used to refresh / regenerate a new token when this token expire.
    * @apiSuccess {Integer} expires      The expiration timestamp.
    *
    * @apiSuccessExample Success-Response:
    *     HTTP/1.1 200 OK
    *     {
    *       "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODMxMzQ0NzIsImV4cCI6MTU4MzIyMDg3MiwianRpIjoiNE5odXg0RWY5WmdEVk9FVXRDNFg2ViIsInN1YiI6IiIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSIsImRlbGV0ZSJdfQ.m4qf3e9M3Nwrl5A3wCrZ2l84HO1wB3d4oJr_1ZekYVk",
-   *       "refresh_token": "zE6vnZIyeWubw1X1toEbZ2yErdK9f5oYbcuFxzSf",
+   *       "refreshtoken": "zE6vnZIyeWubw1X1toEbZ2yErdK9f5oYbcuFxzSf",
    *       "expires": 1583220872
    *     }
    *

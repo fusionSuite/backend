@@ -16,27 +16,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Models\CMDB;
+namespace App\v1\Models\Config;
 
 use Illuminate\Database\Eloquent\Model as Model;
 
-class Propertygroup extends Model
-{  
+class Propertylist extends Model {  
 
   protected $appends = [];
   protected $visible = [
     'id', 
-    'name',
-    'position',
-    'properties',
+    'value',
+    'listvalues',
+    'unit',
+    'property_id',
     'created_at',
     'updated_at'
   ];
-  protected $hidden = [];
-
-  public function getPropertiesAttribute()
-  {
-    return json_decode($this->attributes['properties']);
-  }
+  protected $hidden = [
+    'is_type',
+  ];
 
 }

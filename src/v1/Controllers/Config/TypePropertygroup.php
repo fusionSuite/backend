@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Controllers\CMDB;
+namespace App\v1\Controllers\Config;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -25,16 +25,16 @@ final class TypePropertygroup
 {
 
   /**
-   * @api {post} /v1/cmdb/types/:id/propertygroups Create a typepropertygroup
-   * @apiName GetCMDBTypePropertygroups
-   * @apiGroup CMDBTypepropertygroups
+   * @api {post} /v1/config/types/:id/propertygroups Create a typepropertygroup
+   * @apiName GetConfigTypePropertygroups
+   * @apiGroup Config/Typepropertygroups
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *     
    * @apiSuccess {String}      name          The name of the type of items.
    * @apiSuccess {Integer}     [position]    The TODO.
-   * @apiSuccess {Interger[]}  properties   The regexformat to verify the value is conform (works only with valuetype is string or list).
+   * @apiSuccess {Integer[]}  properties     The regexformat to verify the value is conform (works only with valuetype is string or list).
    * 
    */
   public function postItem(Request $request, Response $response, $args): Response
@@ -42,18 +42,15 @@ final class TypePropertygroup
     $token = $request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $keys = ['name', 'properties'];
-    if (\App\v1\Post::PostHasProperties($data, $keys) === false)
-    {
-      throw new \Exception('Post data not conform (missing fields), check the documentation', 400);
-    }
 
-    if (\App\v1\Common::checkValueRight($data->name, "string") === false)
-    {
-      throw new \Exception("Post data not conform (value not allowed in field 'name'), check the documentation", 400);
-    }
+    // Validate the data format
+    $dataFormat = [
+      'name' => 'required',
+      'properties' => 'required|array'
+    ];
+    \App\v1\Common::validateData($data, $dataFormat);
 
-    $propertygroup = new \App\v1\Models\CMDB\Propertygroup;
+    $propertygroup = new \App\v1\Models\Config\Propertygroup;
     $propertygroup->name = $data->name;
     if (\App\v1\Post::PostHasProperties($data, ['position']) === true)
     {

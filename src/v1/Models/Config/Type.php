@@ -16,13 +16,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Models\CMDB;
+namespace App\v1\Models\Config;
 
 use Illuminate\Database\Eloquent\Model as Model;
 use App\v1\Controllers\Rule as Rule;
 use Illuminate\Events\Dispatcher as Dispatcher;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Type extends Model {  
+class Type extends Model { 
+  
+  use SoftDeletes;
 
   protected $appends = [
     'properties',
@@ -77,12 +80,12 @@ class Type extends Model {
 
   public function properties()
   {
-    return $this->belongsToMany('App\v1\Models\CMDB\Property')->withTimestamps();
+    return $this->belongsToMany('App\v1\Models\Config\Property')->withTimestamps();
   }
 
   public function propertygroups()
   {
-    return $this->hasMany('App\v1\Models\CMDB\Propertygroup');
+    return $this->hasMany('App\v1\Models\Config\Propertygroup');
   }
 
 }

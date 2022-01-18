@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Controllers\CMDB;
+namespace App\v1\Controllers\Config;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -25,9 +25,9 @@ final class TypeProperty
 {
 
   /**
-   * @api {get} /v1/cmdb/typeproperty Get all typeproperties
-   * @apiName GetCMDBTypeProperties
-   * @apiGroup CMDBTypeproperties
+   * @api {get} /v1/config/typeproperty Get all typeproperties
+   * @apiName GetConfigTypeProperties
+   * @apiGroup Config/Typeproperties
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
@@ -68,15 +68,15 @@ final class TypeProperty
    */
   public function getAll(Request $request, Response $response, $args): Response
   {
-    $items = \App\v1\Models\CMDB\Property::all();
+    $items = \App\v1\Models\Config\Property::all();
     $response->getBody()->write($items->toJson());
     return $response->withHeader('Content-Type', 'application/json');
   }
 
   /**
-   * @api {post} /v1/cmdb/typeproperty Create a typeproperty
-   * @apiName GetCMDBTypeProperties
-   * @apiGroup CMDBTypeproperties
+   * @api {post} /v1/config/typeproperty Create a typeproperty
+   * @apiName GetConfigTypeProperties
+   * @apiGroup Config/Typeproperties
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
@@ -109,7 +109,7 @@ final class TypeProperty
       $errors[] = "Post data not conform (not allowed values in field 'valuetype'), check the documentation";
     }
 
-    $property = new \App\v1\Models\CMDB\Property;
+    $property = new \App\v1\Models\Config\Property;
     $property->name = $data->name;
     $property->valuetype = $data->valuetype;
     $property->regexformat = $data->regexformat;
@@ -125,7 +125,7 @@ final class TypeProperty
     {
       foreach ($data->listvalues as $value)
       {
-        $propertylist = new \App\v1\Models\CMDB\Propertylist;
+        $propertylist = new \App\v1\Models\Config\Propertylist;
         $propertylist->property_id = $property->id;
         $propertylist->value = $value;
         $propertylist->save();
@@ -138,10 +138,10 @@ final class TypeProperty
       foreach ($data->listvalues as $value)
       {
         // search the type with the name
-        $prop = \App\v1\Models\CMDB\Type::where('name', $value)->get();
+        $prop = \App\v1\Models\Config\Type::where('name', $value)->get();
         if (!is_null($prop))
         {
-          $propertylist = new \App\v1\Models\CMDB\Propertylist;
+          $propertylist = new \App\v1\Models\Config\Propertylist;
           $propertylist->property_id = $property->id;
           $propertylist->value = $prop->id;
           $propertylist->save();
@@ -156,9 +156,9 @@ final class TypeProperty
 
   // TODO
   /**
-   * @api {patch} /v1/cmdb/type/:id Update an existing type of items
-   * @apiName PatchCMDBTypes
-   * @apiGroup CMDBTypes
+   * @api {patch} /v1/config/type/:id Update an existing type of items
+   * @apiName PatchConfigTypes
+   * @apiGroup Config/Typeproperties
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
@@ -172,7 +172,7 @@ final class TypeProperty
     $token = $request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $type = \App\v1\Models\CMDB\Type::find($args['id']);
+    $type = \App\v1\Models\Config\Type::find($args['id']);
 
     if (is_null($type))
     {

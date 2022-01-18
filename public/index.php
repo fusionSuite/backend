@@ -48,6 +48,14 @@ if (strstr($_SERVER['REQUEST_URI'], 'index.php')) {
    $uri_spl = explode('index.php', $_SERVER['REQUEST_URI']);
    $prefix = $uri_spl[0]."index.php";
 }
+if (strstr($_SERVER['REQUEST_URI'], '/v1/')) {
+   $uri_spl = explode('/v1/', $_SERVER['REQUEST_URI']);
+   $prefix = $uri_spl[0];
+}
+if (strstr($_SERVER['REQUEST_URI'], '/ping')) {
+   $uri_spl = explode('/ping', $_SERVER['REQUEST_URI']);
+   $prefix = $uri_spl[0];
+}
 
 $app->add(new Tuupola\Middleware\JwtAuthentication([
    "ignore" => [$prefix."/v1/token", $prefix."/ping", $prefix."/v1/fusioninventory", $prefix."/v1/status"],
@@ -57,7 +65,7 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
    "before" => function ($request, $arguments) {
       $myUser = \App\v1\Models\User::find($arguments['decoded']['user_id']);
       if ($myUser['jwtid'] != $arguments['decoded']['jti']) {
-         throw new Exception("jti changed, ask for a new token", 401);
+         throw new Exception("jti changed, ask for a new token ".$myUser['jwtid'].' != '.$arguments['decoded']['jti'], 401);
       }
    },
    "error" => function ($response, $arguments) {

@@ -54,49 +54,63 @@ final class Route
       // Manage users
       // $v1->get('/users', \App\v1\Controllers\User::class . ':getAll');
 
-      $v1->group("/cmdb", function (RouteCollectorProxy $cmdb)
+      // Manage items
+      $v1->group("/items", function (RouteCollectorProxy $item)
       {
-        $cmdb->group("/items/{id:[0-9]+}", function (RouteCollectorProxy $item)
+        $item->map(['GET'], '/type/{typeid:[0-9]+}', \App\v1\Controllers\Item::class . ':getAll');
+        $item->map(['POST'], '', \App\v1\Controllers\Item::class . ':postItem');
+
+        $item->group("/{id:[0-9]+}", function (RouteCollectorProxy $itemId)
         {
-          $item->map(['GET'], '', \App\v1\Controllers\CMDB\Item::class . ':getOne');
-          $item->map(['PATCH'], '', \App\v1\Controllers\CMDB\Item::class . ':updateItem');
-        });
-        $cmdb->group("/types", function (RouteCollectorProxy $type)
-        {
-          $type->map(['GET'], '', \App\v1\Controllers\CMDB\Type::class . ':getAll');
-          $type->map(['POST'], '', \App\v1\Controllers\CMDB\Type::class . ':postItem');
-          $type->map(['PATCH'], '', \App\v1\Controllers\CMDB\Type::class . ':patchItem');
-          $type->group("/{id:[0-9]+}", function (RouteCollectorProxy $typeid)
+          $itemId->map(['GET'], '', \App\v1\Controllers\Item::class . ':getOne');
+          $itemId->map(['PATCH'], '', \App\v1\Controllers\Item::class . ':patchItem');
+          $itemId->map(['DELETE'], '', \App\v1\Controllers\Item::class . ':deleteItem');
+
+          $itemId->group("/property", function (RouteCollectorProxy $property)
           {
-            $typeid->map(['GET'], '', \App\v1\Controllers\CMDB\Type::class . ':getOne');
-            $typeid->group("/property", function (RouteCollectorProxy $property)
+            $property->map(['POST'], '', \App\v1\Controllers\Item::class . ':postProperty');
+            $property->group("/{propertyid:[0-9]+}", function (RouteCollectorProxy $propertyId)
             {
-              $property->map(['POST'], '/{propertyid:[0-9]+}', \App\v1\Controllers\CMDB\Type::class . ':postProperty');
-              $property->map(['DELETE'], '/{propertyid:[0-9]+}', \App\v1\Controllers\CMDB\Type::class . ':deleteProperty');
-            });
-
-            $typeid->group("/items", function (RouteCollectorProxy $item)
-            {
-              $item->map(['GET'], '', \App\v1\Controllers\CMDB\Item::class . ':getAll');
-              $item->map(['POST'], '', \App\v1\Controllers\CMDB\Item::class . ':postItem');
-            });
-
-            $typeid->group("/propertygroups", function (RouteCollectorProxy $propertygroup)
-            {
-              $propertygroup->map(['POST'], '', \App\v1\Controllers\CMDB\TypePropertygroup::class . ':postItem');
-              // $propertygroup->map(['PATCH'], '/propertygroupid:[0-9]+', \App\v1\Controllers\CMDB\TypePropertygroup::class . ':patchItem');
+              $propertyId->map(['PATCH'], '', \App\v1\Controllers\Item::class . ':patchProperty');
+              $propertyId->map(['DELETE'], '', \App\v1\Controllers\Item::class . ':deleteProperty');
             });
           });
         });
-        $cmdb->group("/typeproperties", function (RouteCollectorProxy $type)
+      });
+      $v1->group("/config", function (RouteCollectorProxy $config)
+      {
+        // Manage types
+        $config->group("/types", function (RouteCollectorProxy $type)
         {
-          $type->map(['GET'], '', \App\v1\Controllers\CMDB\TypeProperty::class . ':getAll');
-          $type->map(['POST'], '', \App\v1\Controllers\CMDB\TypeProperty::class . ':postItem');
-          $type->map(['PATCH'], '', \App\v1\Controllers\CMDB\TypeProperty::class . ':patchItem');
+          $type->map(['GET'], '', \App\v1\Controllers\Config\Type::class . ':getAll');
+          $type->map(['POST'], '', \App\v1\Controllers\Config\Type::class . ':postItem');
+          $type->group("/{id:[0-9]+}", function (RouteCollectorProxy $typeid)
+          {
+            $typeid->map(['GET'], '', \App\v1\Controllers\Config\Type::class . ':getOne');
+            $typeid->map(['PATCH'], '', \App\v1\Controllers\Config\Type::class . ':patchItem');
+            $typeid->map(['DELETE'], '', \App\v1\Controllers\Config\Type::class . ':deleteItem');
+            $typeid->group("/property", function (RouteCollectorProxy $property)
+            {
+              $property->map(['POST'], '/{propertyid:[0-9]+}', \App\v1\Controllers\Config\Type::class . ':postProperty');
+              $property->map(['DELETE'], '/{propertyid:[0-9]+}', \App\v1\Controllers\Config\Type::class . ':deleteProperty');
+            });
+
+            // TODO Must have route to delete a property
+
+            $typeid->group("/propertygroups", function (RouteCollectorProxy $propertygroup)
+            {
+              $propertygroup->map(['POST'], '', \App\v1\Controllers\Config\TypePropertygroup::class . ':postItem');
+              // $propertygroup->map(['PATCH'], '/propertygroupid:[0-9]+', \App\v1\Controllers\Config\TypePropertygroup::class . ':patchItem');
+            });
+          });
+        });
+        $config->group("/typeproperties", function (RouteCollectorProxy $type)
+        {
+          $type->map(['GET'], '', \App\v1\Controllers\Config\TypeProperty::class . ':getAll');
+          $type->map(['POST'], '', \App\v1\Controllers\Config\TypeProperty::class . ':postItem');
+          $type->map(['PATCH'], '', \App\v1\Controllers\Config\TypeProperty::class . ':patchItem');
         });
       });
-
-      // CMDB
 
       /*
       * itemstate: get/post/put/delete 
