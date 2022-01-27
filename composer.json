@@ -15,7 +15,8 @@
         "tuupola/base62": "^2.0",
         "spatie/array-to-xml": "^2.12",
         "hoa/ruler": "^2.17.05.16",
-        "illuminate/events": "^8.73"
+        "illuminate/events": "^8.73",
+        "rakit/validation": "^1.4"
     },
     "autoload": {
         "psr-4": {

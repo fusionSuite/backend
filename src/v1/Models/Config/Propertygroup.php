@@ -16,58 +16,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Models\CMDB;
+namespace App\v1\Models\Config;
 
 use Illuminate\Database\Eloquent\Model as Model;
 
-class Property extends Model
+class Propertygroup extends Model
 {  
 
-  protected $appends = [
-    'listvalues',
-    'value',
-    'byfusioninventory' 
-  ];
+  protected $appends = [];
   protected $visible = [
     'id', 
     'name',
-    'valuetype',
-    'listvalues',
-    'unit',
+    'position',
+    'properties',
     'created_at',
-    'updated_at',
-    'value',
-    'byfusioninventory'
+    'updated_at'
   ];
-
   protected $hidden = [];
-  protected $with = [
-  ];
 
-  public function getListvaluesAttribute()
+  public function getPropertiesAttribute()
   {
-    return [];
-  }
-
-  public function getValueAttribute()
-  {
-    if (isset($this->pivot->value)) {
-      return $this->pivot->value;
-    }
-    return '';
-  }
-
-  public function getByfusioninventoryAttribute()
-  {
-    if (isset($this->pivot->byfusioninventory)) {
-      return $this->pivot->byfusioninventory;
-    }
-    return 0;
-  }
-
-  public function listvalues()
-  {
-    return $this->hasMany('\App\v1\Models\CMDB\Propertylist');
+    return json_decode($this->attributes['properties']);
   }
 
 }

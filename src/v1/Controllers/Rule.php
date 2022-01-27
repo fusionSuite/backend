@@ -62,7 +62,7 @@ final class Rule
           $value = $item[$values[1]];
         }
 
-        $items = \App\v1\Models\CMDB\Item::where('type_id', $typeId);
+        $items = \App\v1\Models\Item::where('type_id', $typeId);
         if ($propertyId == 0)
         {
           $items->where('name', $item->name);
@@ -102,7 +102,7 @@ final class Rule
     // $context['name'] = $item->name;
     // foreach ($item->properties as $property)
     // {
-    //   $prop = \App\v1\Models\CMDB\Property::find($property->property_id)->get();
+    //   $prop = \App\v1\Models\Config\Property::find($property->property_id)->get();
     //   $context[$prop->name] = $property->value;
     // }
 

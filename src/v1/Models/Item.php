@@ -16,13 +16,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Models\CMDB;
+namespace App\v1\Models;
 
 use Illuminate\Database\Eloquent\Model as Model;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Item extends Model {  
+
+  use SoftDeletes;
 
   protected $appends = [
     'properties',
@@ -50,7 +53,7 @@ class Item extends Model {
 
   public function getPropertygroupsAttribute()
   {
-    return \App\v1\Models\CMDB\Type::find($this->attributes['type_id'])->propertygroups()->get();
+    return \App\v1\Models\Config\Type::find($this->attributes['type_id'])->propertygroups()->get();
   }
 
   public function getChildItemsAttribute()
@@ -61,18 +64,18 @@ class Item extends Model {
 
   public function properties()
   {
-    return $this->belongsToMany('App\v1\Models\CMDB\Property')->withPivot('value', 'byfusioninventory')->withTimestamps();
+    return $this->belongsToMany('App\v1\Models\Config\Property')->withPivot('value', 'byfusioninventory')->withTimestamps();
   }
 
   public function propertygroups()
   {
-    // return $this->belongsToMany('App\v1\Models\CMDB\Propertygroup', 'id', 'type_id');
+    // return $this->belongsToMany('App\v1\Models\Config\Propertygroup', 'id', 'type_id');
   }
 
   public function getItems()
   {
-    //  return $this->belongsToMany('App\v1\Models\CMDB\Item', null, 'parent_item_id', 'child_item_id')->withPivot(['relationshiptype_id', 'logical', 'physicalinternal', 'propagate'])->withTimestamps();
-    return $this->belongsToMany('App\v1\Models\CMDB\Item', null, 'parent_item_id', 'child_item_id')->withTimestamps();
+    //  return $this->belongsToMany('App\v1\Models\Item', null, 'parent_item_id', 'child_item_id')->withPivot(['relationshiptype_id', 'logical', 'physicalinternal', 'propagate'])->withTimestamps();
+    return $this->belongsToMany('App\v1\Models\Item', null, 'parent_item_id', 'child_item_id')->withTimestamps();
   }
 
 

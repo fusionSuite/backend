@@ -144,7 +144,7 @@ final class Fusioninventory
 
 
     //  // Add laptop
-    // $item = new \App\v1\Models\CMDB\Item;
+    // $item = new \App\v1\Models\Item;
     // $item->name = $data->content->hardware->name;
     // $item->type_id = 2;
     // $item->owner_user_id = 0;
@@ -239,10 +239,10 @@ final class Fusioninventory
           return;
         }
 
-        $item = new \App\v1\Models\CMDB\Item;
+        $item = new \App\v1\Models\Item;
         if ($item_id != 'import')
         {
-          $item = \App\v1\Models\CMDB\Item::find($item_id);
+          $item = \App\v1\Models\Item::find($item_id);
         }
         $item->name = $this->getValueWithMarkupName($markups, $path);
         $item->type_id = $fusionItem->type_id;
@@ -333,14 +333,14 @@ final class Fusioninventory
 
         foreach($toDelete as $data)
         {
-          $itemToDel = \App\v1\Models\CMDB\Item::find($data['id']);
+          $itemToDel = \App\v1\Models\Item::find($data['id']);
           $itemToDel->delete();
         }
 
         foreach($toAdd as $data)
         {
           $rootMarkup = $data["brut"];
-          $itemToAdd = new \App\v1\Models\CMDB\Item;
+          $itemToAdd = new \App\v1\Models\Item;
           $itemToAdd->name = $data['name'];
           $itemToAdd->type_id = $fusionItem->type_id;
           $itemToAdd->owner_user_id = 0;

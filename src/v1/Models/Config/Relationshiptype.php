@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Models\CMDB;
+namespace App\v1\Models\Config;
 
 use Illuminate\Database\Eloquent\Model as Model;
 

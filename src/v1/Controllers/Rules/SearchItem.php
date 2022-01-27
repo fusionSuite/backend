@@ -57,7 +57,7 @@ final class SearchItem
       $criteria = [];
       $doSearchInDB = false;
       $criteria[] = '1 = 1';
-      $items = \App\v1\Models\CMDB\Item::where('type_id', $type_id);
+      $items = \App\v1\Models\Item::where('type_id', $type_id);
       foreach ($rule->criteria as $criterium)
       {
         // TODO if values == \d.\d => create a query run after standard rules

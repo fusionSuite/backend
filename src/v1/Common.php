@@ -36,6 +36,7 @@ namespace App\v1;
  *     }
  */
 
+use Rakit\Validation\Validator;
 
 class Common
 {
@@ -91,5 +92,52 @@ class Common
       }
     }
     return true;
+  }
+
+  /**
+   * This function is used to validate the data format (for API)
+   * and catch an exception if not validate
+   */
+  static function validateData($dataStream, $dataFormat)
+  {
+    $data = [];
+    foreach ($dataFormat as $fieldName=>$rule)
+    {
+      if (\App\v1\Post::PostHasProperties($dataStream, [$fieldName]))
+      {
+        $data[$fieldName] = $dataStream->{$fieldName};
+      }
+      if (strstr($rule, 'integer'))
+      {
+        $dataFormat[$fieldName] .= '|type:integer';
+        // $dataType[$fieldName] = 'integer';
+      }
+      else if (strstr($rule, 'boolean'))
+      {
+        $dataFormat[$fieldName] .= '|type:boolean';
+        // $dataType[$fieldName] = 'boolean';
+      }
+      else if (strstr($rule, 'array'))
+      {
+        $dataFormat[$fieldName] .= '|type:array';
+        // $dataType[$fieldName] = 'array';
+      }
+      else
+      {
+        $dataFormat[$fieldName] .= '|type:string';
+        // $dataType[$fieldName] = 'string';
+      }
+    }
+
+    $validator = new Validator;
+    $validator->addValidator('type', new \App\v1\ValidatorType());
+    $validation = $validator->validate($data, $dataFormat);
+
+    // manage errors
+    $errors = $validation->errors();
+    if ($errors->count() > 0)
+    {
+      throw new \Exception(implode(', ', $errors->all()), 400);
+    }
   }
 }
