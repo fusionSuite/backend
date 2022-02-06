@@ -60,324 +60,402 @@ final class FusioninventoryDataModel extends AbstractMigration
 
     // Create Address
     $dataProp = [
-      'name'      => 'Address',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Address',
+      'internalname' => 'address',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Postal code
     $dataProp = [
-      'name'      => 'Postal code',
-      'valuetype' => 'integer',
-      'unit'      => null
+      'name'         => 'Postal code',
+      'internalname' => 'postalcode',
+      'valuetype'    => 'integer',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create City
     $dataProp = [
-      'name'      => 'City',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'City',
+      'internalname' => 'city',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Country
     $dataProp = [
-      'name'      => 'Country',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Country',
+      'internalname' => 'country',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Serial number
     $dataProp = [
-      'name'      => 'Serial number',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Serial number',
+      'internalname' => 'serialnumber',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Inventory number
     $dataProp = [
-      'name'      => 'Inventory number',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Inventory number',
+      'internalname' => 'inventorynumber',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Screen size
     $dataProp = [
-      'name'      => 'Screen size',
-      'valuetype' => 'integer',
-      'unit'      => '"'
+      'name'         => 'Screen size',
+      'internalname' => 'screensize',
+      'valuetype'    => 'integer',
+      'unit'         => '"',
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Manufacturer
     $dataProp = [
-      'name'      => 'Manufacturer',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Manufacturer',
+      'internalname' => 'manufacturer',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Model
     $dataProp = [
-      'name'      => 'Model',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Model',
+      'internalname' => 'model',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Type
     $dataProp = [
-      'name'      => 'Type',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Type',
+      'internalname' => 'type',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Version
     $dataProp = [
-      'name'      => 'Version',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Version',
+      'internalname' => 'version',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Buy date
     $dataProp = [
-      'name'      => 'Buy date',
-      'valuetype' => 'date',
-      'unit'      => null
+      'name'         => 'Buy date',
+      'internalname' => 'buydate',
+      'valuetype'    => 'date',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Manufacturing date
     $dataProp = [
-      'name'      => 'Manufacturing date',
-      'valuetype' => 'date',
-      'unit'      => null
+      'name'         => 'Manufacturing date',
+      'internalname' => 'manufacturingdate',
+      'valuetype'    => 'date',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Warrantly duration
     $dataProp = [
-      'name'      => 'Warrantly duration',
-      'valuetype' => 'integer',
-      'unit'      => 'months'
+      'name'         => 'Warrantly duration',
+      'internalname' => 'warrantlyduration',
+      'valuetype'    => 'integer',
+      'unit'         => 'months',
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Date
     $dataProp = [
-      'name'      => 'Date',
-      'valuetype' => 'date',
-      'unit'      => null
+      'name'         => 'Date',
+      'internalname' => 'date',
+      'valuetype'    => 'date',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Enabled
     $dataProp = [
-      'name'      => 'Enabled',
-      'valuetype' => 'boolean',
-      'unit'      => null
+      'name'         => 'Enabled',
+      'internalname' => 'enabled',
+      'valuetype'    => 'boolean',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Uptodate
     $dataProp = [
-      'name'      => 'Uptodate',
-      'valuetype' => 'boolean',
-      'unit'      => null
+      'name'         => 'Uptodate',
+      'internalname' => 'uptodate',
+      'valuetype'    => 'boolean',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Base version
     $dataProp = [
-      'name'      => 'Base version',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Base version',
+      'internalname' => 'baseversion',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Chemistry
     $dataProp = [
-      'name'      => 'Chemistry',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Chemistry',
+      'internalname' => 'chemistry',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Capacity
     $dataProp = [
-      'name'      => 'Capacity',
-      'valuetype' => 'integer',
-      'unit'      => 'mWh'
+      'name'         => 'Capacity',
+      'internalname' => 'capacity',
+      'valuetype'    => 'integer',
+      'unit'         => 'mWh',
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Voltage
     $dataProp = [
-      'name'      => 'Voltage',
-      'valuetype' => 'integer',
-      'unit'      => 'mV'
+      'name'         => 'Voltage',
+      'internalname' => 'voltage',
+      'valuetype'    => 'integer',
+      'unit'         => 'mV',
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Core
     $dataProp = [
-      'name'      => 'Core',
-      'valuetype' => 'integer',
-      'unit'      => null
+      'name'         => 'Core',
+      'internalname' => 'core',
+      'valuetype'    => 'integer',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Thread
     $dataProp = [
-      'name'      => 'Thread',
-      'valuetype' => 'integer',
-      'unit'      => null
+      'name'         => 'Thread',
+      'internalname' => 'thread',
+      'valuetype'    => 'integer',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Speed
     $dataProp = [
-      'name'      => 'Speed',
-      'valuetype' => 'integer',
-      'unit'      => null
+      'name'         => 'Speed',
+      'internalname' => 'speed',
+      'valuetype'    => 'integer',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Architecture
     $dataProp = [
-      'name'      => 'Architecture',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Architecture',
+      'internalname' => 'architecture',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Description
     $dataProp = [
-      'name'      => 'Description',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Description',
+      'internalname' => 'description',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Folder
     $dataProp = [
-      'name'      => 'Folder',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Folder',
+      'internalname' => 'folder',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create URL
     $dataProp = [
-      'name'      => 'URL',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'URL',
+      'internalname' => 'url',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create URL help
     $dataProp = [
-      'name'      => 'URL help',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'URL help',
+      'internalname' => 'urlhelp',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create GUID
     $dataProp = [
-      'name'      => 'GUID',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'GUID',
+      'internalname' => 'guid',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Software category
     $dataProp = [
-      'name'      => 'Software category',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Software category',
+      'internalname' => 'softwarecategory',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Uninstall command
     $dataProp = [
-      'name'      => 'Uninstall command',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Uninstall command',
+      'internalname' => 'uninstallcommand',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Installation date
     $dataProp = [
-      'name'      => 'Installation date',
-      'valuetype' => 'date',
-      'unit'      => null
+      'name'         => 'Installation date',
+      'internalname' => 'installationdate',
+      'valuetype'    => 'date',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Information source (for software)
     $dataProp = [
-      'name'      => 'Information source',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Information source',
+      'internalname' => 'informationsource',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Last boot datetime
     $dataProp = [
-      'name'      => 'Last boot',
-      'valuetype' => 'date',
-      'unit'      => null
+      'name'         => 'Last boot',
+      'internalname' => 'lastboot',
+      'valuetype'    => 'date',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Service pack
     $dataProp = [
-      'name'      => 'Service pack',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Service pack',
+      'internalname' => 'servicepack',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Complete name
     $dataProp = [
-      'name'      => 'Complete name',
-      'valuetype' => 'string',
-      'unit'      => null
+      'name'         => 'Complete name',
+      'internalname' => 'completename',
+      'valuetype'    => 'string',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
 
     // Create Kernel version
     $dataProp = [
-      'name'      => 'Kernel version',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Kernel version',
+      'internalname' => 'kernelversion',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
 
     // Create Kernel name
     $dataProp = [
-      'name'      => 'Kernel name',
-      'valuetype' => 'list',
-      'unit'      => null
+      'name'         => 'Kernel name',
+      'internalname' => 'kernelname',
+      'valuetype'    => 'list',
+      'unit'         => null,
+      'default'      => ''
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -387,7 +465,10 @@ final class FusioninventoryDataModel extends AbstractMigration
 
     // Create organization
 
-    $this->insertType(['name' => 'Organization']);
+    $this->insertType([
+      'name'         => 'Organization',
+      'internalname' => 'organization'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Organization', 'Address');
@@ -396,7 +477,11 @@ final class FusioninventoryDataModel extends AbstractMigration
       $this->attachPropertyToType('Organization', 'Country');
 
     // Create Laptop
-    $this->insertType(['name' => 'Laptop', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'Laptop',
+      'internalname' => 'laptop',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Laptop', 'Serial number');
@@ -406,14 +491,22 @@ final class FusioninventoryDataModel extends AbstractMigration
 
 
     // Create BIOS
-    $this->insertType(['name' => 'BIOS', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'BIOS',
+      'internalname' => 'bios',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('BIOS', 'Version');
       $this->attachPropertyToType('BIOS', 'Date');
 
     // Create Antivirus
-    $this->insertType(['name' => 'Antivirus', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'Antivirus',
+      'internalname' => 'antivirus',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Antivirus', 'Serial number');
@@ -424,7 +517,11 @@ final class FusioninventoryDataModel extends AbstractMigration
       $this->attachPropertyToType('Antivirus', 'Manufacturer');
 
     // Create Battery
-    $this->insertType(['name' => 'Battery', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'Battery',
+      'internalname' => 'battery',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Battery', 'Chemistry');
@@ -435,7 +532,11 @@ final class FusioninventoryDataModel extends AbstractMigration
       $this->attachPropertyToType('Battery', 'Voltage');
 
     // Create Processor
-    $this->insertType(['name' => 'Processor', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'Processor',
+      'internalname' => 'processor',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Processor', 'Serial number');
@@ -447,7 +548,11 @@ final class FusioninventoryDataModel extends AbstractMigration
       $this->attachPropertyToType('Processor', 'Architecture');
 
     // Create Software
-    $this->insertType(['name' => 'Software', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'Software',
+      'internalname' => 'software',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Software', 'Version');
@@ -464,7 +569,11 @@ final class FusioninventoryDataModel extends AbstractMigration
       $this->attachPropertyToType('Software', 'Software category');
 
     // create Operating system
-    $this->insertType(['name' => 'Operating system', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'Operating system',
+      'internalname' => 'operatinsystem',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Operating system', 'Kernel name');
@@ -477,14 +586,15 @@ final class FusioninventoryDataModel extends AbstractMigration
       $this->attachPropertyToType('Operating system', 'Last boot');
 
     // create Controller
-    $this->insertType(['name' => 'Controller', 'modeling' => 'physical']);
+    $this->insertType([
+      'name'         => 'Controller',
+      'internalname' => 'controller',
+      'modeling'     => 'physical'
+    ]);
 
       // Attach properties
       $this->attachPropertyToType('Controller', 'Manufacturer');
-
-
   }
-
 
 
   private function createFusionInventoryMapping()
@@ -917,6 +1027,7 @@ final class FusioninventoryDataModel extends AbstractMigration
   private function insertFusioninventoryData($data)
   {
     $data['item']['created_at'] = date('Y-m-d H:i:s');
+    $data['item']['updated_at'] = date('Y-m-d H:i:s');
     $tableItem = $this->table('fusioninventoryitems');
     $tableItem->insert($data['item'])
               ->save();
@@ -928,6 +1039,7 @@ final class FusioninventoryDataModel extends AbstractMigration
     foreach ($data['properties'] as $property)
     {
       $property['created_at'] = date('Y-m-d H:i:s');
+      $property['updated_at'] = date('Y-m-d H:i:s');
       $property['fusioninventoryitem_id'] = $itemId;
       $tableItem = $this->table('fusioninventoryproperties');
       $tableItem->insert($property)
@@ -938,6 +1050,7 @@ final class FusioninventoryDataModel extends AbstractMigration
   private function insertType($data)
   {
     $data['created_at'] = date('Y-m-d H:i:s');
+    $data['updated_at'] = date('Y-m-d H:i:s');
 
     $table = $this->table('types');
     $table->insert($data)
@@ -952,6 +1065,7 @@ final class FusioninventoryDataModel extends AbstractMigration
   private function insertProperty($data)
   {
     $data['created_at'] = date('Y-m-d H:i:s');
+    $data['updated_at'] = date('Y-m-d H:i:s');
 
     $table = $this->table('properties');
     $table->insert($data)
@@ -968,7 +1082,8 @@ final class FusioninventoryDataModel extends AbstractMigration
     $data = [
       'type_id'     => $this->myData['types'][$typeName]['id'],
       'property_id' => $this->myData['properties'][$propertyName]['id'],
-      'created_at'  => date('Y-m-d H:i:s')
+      'created_at'  => date('Y-m-d H:i:s'),
+      'updated_at'  => date('Y-m-d H:i:s')
     ];
 
     $table = $this->table('property_type');
@@ -981,6 +1096,7 @@ final class FusioninventoryDataModel extends AbstractMigration
   private function insertRelationshiptypes($data)
   {
     $data['created_at'] = date('Y-m-d H:i:s');
+    $data['updated_at'] = date('Y-m-d H:i:s');
 
     $table = $this->table('relationshiptypes');
     $table->insert($data)
@@ -994,6 +1110,7 @@ final class FusioninventoryDataModel extends AbstractMigration
   private function insertItem($data)
   {
     $data['created_at'] = date('Y-m-d H:i:s');
+    $data['updated_at'] = date('Y-m-d H:i:s');
 
     $table = $this->table('items');
     $table->insert($data)
@@ -1007,6 +1124,7 @@ final class FusioninventoryDataModel extends AbstractMigration
   private function attacheItemToitem($data)
   {
     $data['created_at'] = date('Y-m-d H:i:s');
+    $data['updated_at'] = date('Y-m-d H:i:s');
 
     $table = $this->table('item_item');
     $table->insert($data)

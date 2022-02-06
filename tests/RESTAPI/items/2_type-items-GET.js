@@ -12,7 +12,6 @@ describe('Endpoint /v1/items/type/2 (GET all)', function() {
   it('Get the items of the type', function(done) {
     request
     .get('/v1/items/type/2')
-    .send({name: 'L0014',properties:[{property_id:3,value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)

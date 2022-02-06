@@ -38,11 +38,13 @@ final class Types extends AbstractMigration
     // create the table
     $table = $this->table('types');
     $table->addColumn('name', 'string')
+          ->addColumn('internalname', 'string')
           ->addColumn('modeling', 'string', ['default' => 'logical'])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
           ->addIndex(['name'], ['unique' => true])
+          ->addIndex(['internalname'], ['unique' => true])
           ->create();
   }
 }

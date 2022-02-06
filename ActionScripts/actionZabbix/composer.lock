@@ -1,0 +1,59 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "37b8649b602f9e76ebdef4ccbbcbaafe",
+    "packages": [
+        {
+            "name": "intellitrend/zabbixapi",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/intellitrend/zabbixapi-php.git",
+                "reference": "5bf9d1eca455d40922cf4b7ae492e90f27381676"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/intellitrend/zabbixapi-php/zipball/5bf9d1eca455d40922cf4b7ae492e90f27381676",
+                "reference": "5bf9d1eca455d40922cf4b7ae492e90f27381676",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "IntelliTrend\\Zabbix\\": "/src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "IntelliTrend",
+                    "email": "support@intellitrend.de",
+                    "homepage": "https://www.intellitrend.de"
+                }
+            ],
+            "description": "Zabbix API client for PHP with session cache and SSL management",
+            "time": "2021-09-14T15:09:30+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "intellitrend/zabbixapi": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
+}

@@ -68,7 +68,6 @@ final class Route
 
           $itemId->group("/property", function (RouteCollectorProxy $property)
           {
-            $property->map(['POST'], '', \App\v1\Controllers\Item::class . ':postProperty');
             $property->group("/{propertyid:[0-9]+}", function (RouteCollectorProxy $propertyId)
             {
               $propertyId->map(['PATCH'], '', \App\v1\Controllers\Item::class . ':patchProperty');
@@ -103,6 +102,7 @@ final class Route
               // $propertygroup->map(['PATCH'], '/propertygroupid:[0-9]+', \App\v1\Controllers\Config\TypePropertygroup::class . ':patchItem');
             });
           });
+          $type->map(['POST'], '/templates', \App\v1\Controllers\Config\Type::class . ':postTemplate');
         });
         $config->group("/typeproperties", function (RouteCollectorProxy $type)
         {
@@ -119,7 +119,7 @@ final class Route
       * item_property: put
       */
 
-      $v1->group("/rules/{type:searchitem|rewritefield|notification}", function (RouteCollectorProxy $rule)
+      $v1->group("/rules/{type:searchitem|rewritefield|actionscript}", function (RouteCollectorProxy $rule)
       {
         $rule->map(['GET'], '', \App\v1\Controllers\Rule::class . ':getAll');
         $rule->map(['POST'], '', \App\v1\Controllers\Rule::class . ':postRule');
@@ -127,6 +127,7 @@ final class Route
         {
           $ruleOne->map(['GET'], '', \App\v1\Controllers\Rule::class . ':getOne');
           $ruleOne->map(['PATCH'], '', \App\v1\Controllers\Rule::class . ':updateOne');
+          $ruleOne->map(['DELETE'], '', \App\v1\Controllers\Rule::class . ':deleteItem');
           $ruleOne->map(['POST'], '/criteria', \App\v1\Controllers\Rule::class . ':postCriterium');
           $ruleOne->group('/criteria/{idCriterium:[0-9]+}', function (RouteCollectorProxy $ruleCriteria)
           {

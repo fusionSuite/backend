@@ -1,4 +1,6 @@
 /vendor
+**/vendor
 /documentation
 /devtools/apidoc/node_modules
 /tests/RESTAPI/node_modules
+tests/RESTAPI/mb*

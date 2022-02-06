@@ -1,6 +1,6 @@
 <?php
 /**
- * FusionSuite - Frontend
+ * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
  *
  * This program is free software: you can redistribute it and/or modify
@@ -193,7 +193,7 @@ final class Rule
    *
    * @apiUse AutorizationHeader
    *
-   * @apiParam {String="searchitem","rewritefield","notification","fusioninventorygettype"} type The type of the rules.
+   * @apiParam {String="searchitem","rewritefield","actionscript","fusioninventorygettype"} type The type of the rules.
    *     
    * @apiSuccess {Integer}  id      The id of the item.
    * @apiSuccess {String}   name    The name of the item.
@@ -226,7 +226,7 @@ final class Rule
    *
    * @apiUse AutorizationHeader
    *
-   * @apiParam {String="fusioninventorysearchitem","rewritefield","notification","fusioninventorygettype"} type The type of the rules.
+   * @apiParam {String="fusioninventorysearchitem","rewritefield","actionscript","fusioninventorygettype"} type The type of the rules.
    * @apiParam {Number} id Rule unique ID.
    *
    * @apiSuccess {String}   name                  The name of the item.
@@ -240,7 +240,7 @@ final class Rule
    * @apiSuccess {Object[]} actions               The actions list.
    * @apiSuccess {Integer}  actions.id            The action id.
    * @apiSuccess {string=\d+\.\d+|null}  actions.field        The field to update. The format is type_id.property_id
-   * @apiSuccess {String="replace","append","import","notimport","sendnotification"}     actions.type   The type of action.
+   * @apiSuccess {String="replace","append","import","notimport","runscript"}     actions.type   The type of action.
    * @apiSuccess {String}   actions.values        The rewritten value.
    * @apiSuccess {String}   actions.comment       The criteria comment.
    *
@@ -308,6 +308,49 @@ final class Rule
   }
 
   /**
+   * @api {delete} /v1/type/:id delete an item
+   * @apiName DeleteRule
+   * @apiGroup Rules
+   * @apiVersion 1.0.0-draft
+   * @apiDescription The first delete request will do a soft delete. The second delete request will permanently delete the rule
+   *
+   * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id        Unique ID of the item.
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   * 
+   */
+  public function deleteItem(Request $request, Response $response, $args): Response
+  {
+    $token = $request->getAttribute('token');
+
+    $rule = \App\v1\Models\Rule::withTrashed()->find($args['id']);
+
+    if (is_null($rule))
+    {
+      throw new \Exception("The rule has not be found", 404);
+    }
+
+    // If in soft trash, delete permanently
+    if ($rule->trashed())
+    {
+      $rule->forceDelete();
+    }
+    else
+    {
+      $rule->delete();
+    }
+
+    $response->getBody()->write(json_encode([]));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+
+  /**
    * @api {post} /v1/rules/:type/:id/criteria Create a new criteria for the rule
    * @apiName PostRuleCriteria
    * @apiGroup Rules
@@ -361,7 +404,7 @@ final class Rule
     $item->type = $data->type;
     $item->values = $data->values;
     $item->comment = $data->comment;
-    $item->serialized = '';
+    // $item->serialized = '';
     $item->save();
 
     $response->getBody()->write(json_encode(["id" => intval($item->id)]));

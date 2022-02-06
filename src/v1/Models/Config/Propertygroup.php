@@ -23,6 +23,12 @@ use Illuminate\Database\Eloquent\Model as Model;
 class Propertygroup extends Model
 {  
 
+  protected $fillable = [
+    'name',
+    'type_id',
+    'position',
+    'properties'
+  ];
   protected $appends = [];
   protected $visible = [
     'id', 

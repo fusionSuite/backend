@@ -31,9 +31,12 @@ class Property extends Model
   protected $visible = [
     'id', 
     'name',
+    'internalname',
     'valuetype',
     'listvalues',
     'unit',
+    'default',
+    'description',
     'created_at',
     'updated_at',
     'value',
@@ -52,7 +55,14 @@ class Property extends Model
   public function getValueAttribute()
   {
     if (isset($this->pivot->value)) {
-      return $this->pivot->value;
+      if ($this->valuetype == 'integer')
+      {
+        return intval($this->pivot->value);
+      }
+      else
+      {
+        return $this->pivot->value;
+      }
     }
     return '';
   }

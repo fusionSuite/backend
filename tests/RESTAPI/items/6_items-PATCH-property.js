@@ -39,7 +39,7 @@ describe('Patch item property /v1/items/xx/property/zz', function() {
     .expect(function(response) {
       assert(is.not.empty(response.body));
       assert(is.array(response.body.properties));
-      assert(is.equal(1, response.body.properties.length))
+      assert(is.equal(4, response.body.properties.length))
 
       // Test the first property
       firstProperty = response.body.properties[0];

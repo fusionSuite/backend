@@ -1,0 +1,5 @@
+{
+    "require": {
+        "woeler/phpdiscord": "^3.0"
+    }
+}

@@ -38,13 +38,16 @@ final class Properties extends AbstractMigration
     // create the table
     $table = $this->table('properties');
     $table->addColumn('name', 'string')
+          ->addColumn('internalname', 'string')
           ->addColumn('valuetype', 'string')
           ->addColumn('regexformat', 'string', ['null' => true])
           ->addColumn('unit', 'string', ['null' => true])
+          ->addColumn('default', 'string')
+          ->addColumn('description', 'text', ['null' => true])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
-          ->addIndex(['name'], ['unique' => true])
+          ->addIndex(['internalname'], ['unique' => true])
           ->create();
   }
 }

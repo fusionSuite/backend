@@ -107,26 +107,6 @@ class Common
       {
         $data[$fieldName] = $dataStream->{$fieldName};
       }
-      if (strstr($rule, 'integer'))
-      {
-        $dataFormat[$fieldName] .= '|type:integer';
-        // $dataType[$fieldName] = 'integer';
-      }
-      else if (strstr($rule, 'boolean'))
-      {
-        $dataFormat[$fieldName] .= '|type:boolean';
-        // $dataType[$fieldName] = 'boolean';
-      }
-      else if (strstr($rule, 'array'))
-      {
-        $dataFormat[$fieldName] .= '|type:array';
-        // $dataType[$fieldName] = 'array';
-      }
-      else
-      {
-        $dataFormat[$fieldName] .= '|type:string';
-        // $dataType[$fieldName] = 'string';
-      }
     }
 
     $validator = new Validator;

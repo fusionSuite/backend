@@ -19,8 +19,11 @@
 namespace App\v1\Models;
 
 use Illuminate\Database\Eloquent\Model as Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Rule extends Model {  
+
+  use SoftDeletes;
 
   protected $appends = [
     'criteria',

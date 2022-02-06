@@ -27,6 +27,7 @@ class Type extends Model {
   
   use SoftDeletes;
 
+  protected $fillable = ['name', 'internalname'];
   protected $appends = [
     'properties',
     'propertygroups'
@@ -34,6 +35,7 @@ class Type extends Model {
   protected $visible = [
     'id', 
     'name',
+    'internalname',
     'modeling',
     'properties',
     'propertygroups',

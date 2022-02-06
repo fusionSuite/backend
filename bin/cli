@@ -1,0 +1,44 @@
+#!/usr/bin/env php
+<?php
+/**
+ * FusionSuite - Frontend
+ * Copyright (C) 2022 FusionSuite
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$cursor = new Ahc\Cli\Output\Cursor;
+echo $cursor->clear();
+
+$logo = "
+    ______           _            _____       _ __     
+   / ____/_  _______(_)___  ____ / ___/__  __(_) /____ 
+  / /_  / / / / ___/ / __ \/ __ \\__ \/ / / / / __/ _ \
+ / __/ / /_/ (__  ) / /_/ / / / /__/ / /_/ / / /_/  __/
+/_/    \__,_/____/_/\____/_/ /_/____/\__,_/_/\__/\___/ 
+                     
+FusionSuite Backend cli tool
+============================
+";
+$version = '1.0.0';
+$app = new Ahc\Cli\Application('cli', $version);
+
+$app->add(new \App\v1\Controllers\Cli\Install);
+$app->add(new \App\v1\Controllers\Cli\ActionScript);
+
+$app->logo($logo)->handle($_SERVER['argv']);
+
+$app->handle($_SERVER['argv']);

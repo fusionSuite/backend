@@ -18,7 +18,7 @@ describe('Endpoint /v1/config/types', function() {
     .expect('Content-Type', /json/)
     .expect(function(response) {
       const secondItem = response.body[1];
-      assert(is.propertyCount(secondItem, 7));
+      assert(is.propertyCount(secondItem, 8));
       assert(validator.equals('' + secondItem.id, '2'));
       assert(validator.equals(secondItem.name, 'Laptop'));
       assert(validator.equals(secondItem.modeling, 'physical'));

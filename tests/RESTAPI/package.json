@@ -3,6 +3,8 @@
     "assert": "^2.0.0",
     "is_js": "^0.9.0",
     "mocha": "^9.1.4",
+    "mountebank": "^2.5.0",
+    "nock": "^13.2.4",
     "supertest": "^6.2.1",
     "validator": "^13.7.0"
   }

@@ -1,0 +1,220 @@
+{
+  "license": [
+    " FusionSuite - Backend                                                       ",
+    " Copyright (C) 2022 FusionSuite                                              ",
+    "                                                                             ",
+    " This program is free software: you can redistribute it and/or modify        ",
+    " it under the terms of the GNU Affero General Public License as published by ",
+    " the Free Software Foundation, either version 3 of the License, or           ",
+    " any later version.                                                          ",
+    "                                                                             ",
+    " This program is distributed in the hope that it will be useful,             ",
+    " but WITHOUT ANY WARRANTY; without even the implied warranty of              ",
+    " MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                ",
+    " GNU Affero General Public License for more details.                         ",
+    "                                                                             ",
+    " You should have received a copy of the GNU Affero General Public License    ",
+    " along with this program.  If not, see <http://www.gnu.org/licenses/>.       "
+  ],
+  "types": [
+    {
+      "name": "RuleAction Zabbix API configuration",
+      "internalname": "ruleaction.zabbix.apiconfiguration",
+      "propertygroups": [
+        {
+          "name": "Configuration",
+          "properties": [
+            {
+              "name": "url",
+              "internalname": "url",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "username",
+              "internalname": "username",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "password",
+              "internalname": "password",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RuleAction Zabbix templates",
+      "internalname": "ruleaction.zabbix.templates",
+      "propertygroups": [
+        {
+          "name": "Main",
+          "properties": [
+            {
+              "name": "templateId",
+              "internalname": "action.zabbix.templateid",
+              "valuetype": "integer",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RuleAction Zabbix macros",
+      "internalname": "ruleaction.zabbix.macros",
+      "propertygroups": [
+        {
+          "name": "Main",
+          "properties": [
+            {
+              "name": "Macro name",
+              "internalname": "action.zabbix.macro.name",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Effective value",
+              "internalname": "action.zabbix.macro.value",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RuleAction Zabbix create host",
+      "internalname": "ruleaction.zabbix.createhost",
+      "propertygroups": [
+        {
+          "name": "Configuration",
+          "properties": [
+            {
+              "name": "Zabbix configuration",
+              "internalname": "action.zabbix.apiconfiguration",
+              "valuetype": "itemlink",
+              "regexformat": "",
+              "listvalues": ["ruleaction.zabbix.apiconfiguration"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "RuleAction class name",
+              "internalname": "action.classname",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": ["actionZabbix"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "RuleAction associated action",
+              "internalname": "action.associatedaction",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": ["addHost","updateHost","deleteHost"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "name": "Values",
+          "properties": [
+            {
+              "name": "hostname",
+              "internalname": "action.zabbix.hostnameid",
+              "valuetype": "propertyId",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "0",
+              "description": ""
+            },
+            {
+              "name": "ip",
+              "internalname": "ip",
+              "valuetype": "itemlink",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "groupId",
+              "internalname": "action.zabbix.groupid",
+              "valuetype": "integer",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "0",
+              "description": ""
+            },
+            {
+              "name": "zabbixHostId (for update and delete)",
+              "internalname": "action.zabbix.hostid",
+              "valuetype": "propertyId",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },            
+            {
+              "name": "RuleAction Zabbix templates",
+              "internalname": "action.zabbix.templates",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": ["ruleaction.zabbix.templates"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "RuleAction Zabbix macros",
+              "internalname": "action.zabbix.macros",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": ["ruleaction.zabbix.macros"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
