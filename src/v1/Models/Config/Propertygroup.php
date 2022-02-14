@@ -1,6 +1,6 @@
 <?php  
 /**
- * FusionSuite - Frontend
+ * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
  *
  * This program is free software: you can redistribute it and/or modify
