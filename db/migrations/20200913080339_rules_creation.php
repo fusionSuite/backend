@@ -66,6 +66,7 @@ final class RulesCreation extends AbstractMigration
           ->addColumn('field', 'string', ['null' => true])
           ->addColumn('type', 'string')
           ->addColumn('values', 'text')
+          ->addColumn('res_in_property_id', 'integer', ['null' => true])
           ->addColumn('comment', 'text', ['null' => true])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])

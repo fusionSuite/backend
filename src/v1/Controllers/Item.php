@@ -244,8 +244,8 @@ final class Item
 
     // Validate the data format
     $dataFormat = [
-      'name'    => 'required',
-      'type_id' => 'required|integer'
+      'name'    => 'required|type:string',
+      'type_id' => 'required|type:integer|integer'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
     // validate for each properties
@@ -254,17 +254,16 @@ final class Item
       foreach ($data->properties as $property)
       {
         $dataFormat = [
-          'property_id' => 'required|integer|min:1',
-          'value'       => 'required'
+          'property_id' => 'required|type:integer|integer|min:1',
+          'value'       => 'present|type:string'
         ];
         \App\v1\Common::validateData($property, $dataFormat);
       }
     }
-
-
-    // TODO run rules for rewrite value
-    // $data = $this->runRules($data);
-   
+  
+    $ruleData = [
+      'name' => $data->name
+    ];
 
     $item = new \App\v1\Models\Item;
     $item->name = $data->name;
@@ -273,14 +272,33 @@ final class Item
     $item->owner_group_id = 0;
     $item->state_id = 0;
     $item->save();
+    $ruleData['id'] = $item->id;
+    $ruleData['name'] = $data->name;
 
+    $propertiesId = [];
     if (property_exists($data, 'properties'))
     {
       foreach ($data->properties as $property)
       {
+        $propertiesId[] = $property->property_id;
+        $ruleData[$property->property_id] = $property->value;
         $item->properties()->attach($property->property_id, ['value' => $property->value]);
       }
     }
+
+    // Define the properties not in post with the default value
+    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    foreach ($type->properties()->get() as $prop)
+    {
+      if (in_array($prop->id, $propertiesId))
+      {
+        continue;
+      }
+      $item->properties()->attach($prop->id, ['value' => $prop->default]);
+    }
+
+    // run rules
+    $item_id = \App\v1\Controllers\Rules\ActionScript::runRules($ruleData);
 
     $response->getBody()->write(json_encode(["id" => intval($item->id)]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -330,7 +348,7 @@ final class Item
 
     // Validate the data format
     $dataFormat = [
-      'name' => 'required'
+      'name' => 'required|type:string'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
@@ -388,64 +406,6 @@ final class Item
   // ***************************************
 
   /**
-   * @api {post} /v1/items/:id/property Add a property to the item
-   * @apiName PostItemProperty
-   * @apiGroup Items/property
-   * @apiVersion 1.0.0-draft
-   * @apiDescription You can only add a property with id defined in the type of the item
-   *
-   * @apiUse AutorizationHeader
-   *
-   * @apiParam {Number}    id        Unique ID of the item.
-   * 
-   * @apiSuccess {Number}    property_id  The id of the property.
-   * @apiSuccess {String[]}  value        The value of the property for the item.
-   * 
-   * @apiParamExample {json} Request-Example:
-   * {
-   *   "property_id": 3,
-   *   "value": "pro val ok"
-   * } 
-   * 
-   * @apiSuccessExample {json} Success-Response:
-   * HTTP/1.1 200 OK
-   * {
-   *   "id":10
-   * }
-   * 
-   * @apiErrorExample {json} Error-Response:
-   * HTTP/1.1 400 Bad Request
-   * {
-   *   "status: "error",
-   *   "message": "The Value is required"
-   * }
-   * 
-   */
-  public function postProperty(Request $request, Response $response, $args): Response
-  {
-    $token = $request->getAttribute('token');
-
-    $data = json_decode($request->getBody());
-    $item = \App\v1\Models\Item::with('properties')->find($args['id']);
-    if (is_null($item))
-    {
-      throw new \Exception("The item has not be found", 404);
-    }
-
-    // Validate the data format
-    $dataFormat = [
-      'property_id' => 'required|integer|min:1',
-      'value'       => 'required'
-    ];
-    \App\v1\Common::validateData($data, $dataFormat);
-
-    $item->properties()->attach($data->property_id, ['value' => $data->value]);
-
-    $response->getBody()->write(json_encode(["id" => intval($data->property_id)]));
-    return $response->withHeader('Content-Type', 'application/json');
-  }
-
-  /**
    * @api {patch} /v1/items/:id/property/:propertyid Update the value of the property
    * @apiName PatchItemProperty
    * @apiGroup Items/property
@@ -489,7 +449,7 @@ final class Item
     
     // Validate the data format
     $dataFormat = [
-      'value' => 'required'
+      'value' => 'required|type:string'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
@@ -506,7 +466,7 @@ final class Item
    * @apiName DeleteItemProperty
    * @apiGroup Items/property
    * @apiVersion 1.0.0-draft
-   * @apiDescription Be careful, not have soft delete on this item
+   * @apiDescription Reset the property to the default value
    *
    * @apiUse AutorizationHeader
    *
@@ -523,13 +483,21 @@ final class Item
   {
     $token = $request->getAttribute('token');
 
-    $item = \App\v1\Models\Item::withTrashed()->find($args['id']);
+    $item = \App\v1\Models\Item::find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("The item has not be found", 404);
     }
 
-    $item->properties()->detach($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    if (is_null($property))
+    {
+      throw new \Exception("The property has not be found", 404);
+    }
+
+    $item->properties()->updateExistingPivot($args['propertyid'], [
+      'value' => $property->default,
+    ]);
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');

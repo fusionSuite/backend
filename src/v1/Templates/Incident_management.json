@@ -1,179 +1,252 @@
-[
-  {
-    "itemName": "Incident task",
-    "propertygroups": [
-      {
-        "name": "Main",
-        "properties": []
-      }
-    ]
-  },
-  {
-    "itemName": "Incident solution",
-    "propertygroups": [
-      {
-        "name": "Main",
-        "properties": []
-      }
-    ]
-  },
-  {
-    "itemName": "Incident",
-    "propertygroups": [
-      {
-        "name": "State",
-        "properties": [
-          {
-            "name": "Priority",
-            "valuetype": "list",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": ["Very low", "Low", "Medium", "High", "Critical"]
-          },
-          {
-            "name": "Major incident",
-            "valuetype": "boolean",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          },
-          {
-            "name": "Incident status",
-            "valuetype": "list",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": ["New", "Assigned", "In progress", "Pending", "Resolved", "Closed"]
-          }
-        ]
-      },
-      {
-        "name": "People",
-        "properties": [
-          {
-            "name": "Service desk agent",
-            "valuetype": "itemlink",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          },
-          {
-            "name": "Requester",
-            "valuetype": "itemlink",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          },
-          {
-            "name": "Affected user",
-            "valuetype": "itemlink",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          },
-          {
-            "name": "Affected service",
-            "valuetype": "itemlink",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          }
-        ]
-      },
-      {
-        "name": "Information",
-        "properties": [
-          {
-            "name": "Description of symptoms",
-            "valuetype": "text",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          }
-        ]
-      },
-      {
-        "name": "Classification",
-        "properties": [
-          {
-            "name": "Urgency",
-            "valuetype": "list",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": ["Low", "Medium", "High"]
-          },
-          {
-            "name": "Impact",
-            "valuetype": "list",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": ["Low", "Medium", "High"]
-          },
-          {
-            "name": "Location",
-            "valuetype": "list",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          },
-          {
-            "name": "Category",
-            "valuetype": "string",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          },
-          {
-            "name": "Provenance",
-            "valuetype": "string",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          }
-        ]
-      },
-      {
-        "name": "Links",
-        "properties": [
-          {
-            "name": "Incident links",
-            "valuetype": "itemlinks",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          },
-          {
-            "name": "Relationships to CIs",
-            "valuetype": "itemlinks",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          }
-        ]
-      },
-      {
-        "name": "Follow-ups",
-        "properties": [
-          {
-            "name": "Incident tasks",
-            "valuetype": "itemlinks",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          }
-        ]
-      },
-      {
-        "name": "Solution",
-        "properties": [
-          {
-            "name": "Incident solutions",
-            "valuetype": "itemlinks",
-            "regexformat": "",
-            "unit": "",
-            "listvalues": []
-          }
-        ]
-      }
-    ]
-  }
-]
+{
+  "license": [
+    " FusionSuite - Backend                                                       ",
+    " Copyright (C) 2022 FusionSuite                                              ",
+    "                                                                             ",
+    " This program is free software: you can redistribute it and/or modify        ",
+    " it under the terms of the GNU Affero General Public License as published by ",
+    " the Free Software Foundation, either version 3 of the License, or           ",
+    " any later version.                                                          ",
+    "                                                                             ",
+    " This program is distributed in the hope that it will be useful,             ",
+    " but WITHOUT ANY WARRANTY; without even the implied warranty of              ",
+    " MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                ",
+    " GNU Affero General Public License for more details.                         ",
+    "                                                                             ",
+    " You should have received a copy of the GNU Affero General Public License    ",
+    " along with this program.  If not, see <http://www.gnu.org/licenses/>.       "
+  ],
+  "types": [
+    {
+      "name": "Incident task",
+      "internalname": "incident.task",
+      "propertygroups": [
+        {
+          "name": "Main",
+          "properties": []
+        }
+      ]
+    },
+    {
+      "name": "Incident solution",
+      "internalname": "incident.solution",
+      "propertygroups": [
+        {
+          "name": "Main",
+          "properties": []
+        }
+      ]
+    },
+    {
+      "itemName": "Incident",
+      "internalname": "incident",
+      "propertygroups": [
+        {
+          "name": "State",
+          "properties": [
+            {
+              "name": "Priority",
+              "internalname": "incident.priority",
+              "valuetype": "list",
+              "regexformat": "",
+              "listvalues": ["Very low", "Low", "Medium", "High", "Critical"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Major incident",
+              "internalname": "incident.major",
+              "valuetype": "boolean",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Incident status",
+              "internalname": "incident.status",
+              "valuetype": "list",
+              "regexformat": "",
+              "listvalues": ["New", "Assigned", "In progress", "Pending", "Resolved", "Closed"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "name": "People",
+          "properties": [
+            {
+              "name": "Service desk agent",
+              "internalname": "technician",
+              "valuetype": "itemlink",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Requester",
+              "internalname": "user",
+              "valuetype": "itemlink",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Affected user",
+              "internalname": "user",
+              "valuetype": "itemlink",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Affected service",
+              "internalname": "userservice",
+              "valuetype": "itemlink",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "name": "Information",
+          "properties": [
+            {
+              "name": "Description",
+              "internalname": "description",
+              "valuetype": "text",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "name": "Classification",
+          "properties": [
+            {
+              "name": "Urgency",
+              "internalname": "urgency",
+              "valuetype": "list",
+              "regexformat": "",
+              "listvalues": ["Low", "Medium", "High"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Impact",
+              "internalname": "impact",
+              "valuetype": "list",
+              "regexformat": "",
+              "listvalues": ["Low", "Medium", "High"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Location",
+              "internalname": "location",
+              "valuetype": "list",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Category",
+              "internalname": "incident.category",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Provenance",
+              "internalname": "provenance",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "name": "Links",
+          "properties": [
+            {
+              "name": "Incident links",
+              "internalname": "incident.link",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "Relationships to CIs",
+              "internalname": "ci.link",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "name": "Follow-ups",
+          "properties": [
+            {
+              "name": "Incident tasks",
+              "internalname": "incident.task",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": ["incident.solution"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        },
+        {
+          "name": "Solution",
+          "properties": [
+            {
+              "name": "Incident solutions",
+              "internalname": "incident.solution",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": ["incident.task"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

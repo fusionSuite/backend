@@ -1,0 +1,72 @@
+{
+  "port": 10800,
+  "protocol": "http",
+  "name": "Zabbix API",
+  "recordRequests": true,
+  "requests": [
+    {
+      "requestFrom": "127.0.0.1",
+      "ip": "127.0.0.1"
+    }
+  ],
+  "stubs": [
+    {
+      "predicates": [{
+        "contains": {
+          "body": "user.login"
+        }
+      }],      
+      "responses": [
+        {
+          "is": {
+            "body": {
+              "jsonrpc": "2.0",
+              "result": "0424bd59b807674191e7d77572075f33",
+              "id": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "predicates": [{
+        "contains": {
+          "body": "apiinfo.version"
+        }
+      }],      
+      "responses": [
+        {
+          "is": {
+            "body": {
+              "jsonrpc": "2.0",
+              "result": "5.4.2",
+              "id": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "predicates": [{
+        "contains": {
+          "body": "host.create"
+        }
+      }],      
+      "responses": [
+        {
+          "is": {
+            "body": {
+              "jsonrpc": "2.0",
+              "result": {
+                "hostids": [
+                  "107819"
+                ]
+              },
+              "id": "1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

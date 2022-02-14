@@ -46,11 +46,26 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
+    - name: Install dependencies into each rule action script
+      run: |
+        cd ActionScripts 
+        for d in */ ; do
+          cd $d
+          composer install --prefer-dist --no-progress
+          cd ..
+        done
+
     - name: Run PHPStan
       run: phpstan analyse src
 
+    - name: Run PHPStan on rule action scripts
+      run: phpstan analyse ActionScripts
+
     - name: Run phpcs
       run: phpcs -q --report=checkstyle src | cs2pr
+
+    - name: Run phpcs on rule action scripts
+      run: phpcs -q --report=checkstyle --ignore="ActionScripts/*/vendor/*" ActionScripts | cs2pr
 
     - name: Setup php-fpm
       env:
@@ -83,6 +98,9 @@ jobs:
         sed -i "s/''/'root'/g" phinx.php
         ./vendor/bin/phinx migrate
 
+    - name: install the action scripts
+      run: ./bin/cli actionscript
+
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
@@ -99,6 +117,11 @@ jobs:
       run: |
         pwd
         ls -l
+
+    - name: run mountebank
+      run: |
+        cd tests/RESTAPI/
+        ./node_modules/.bin/mb --configfile mountebank/imposters.ejs &
 
     - name: run REST API tests
       run: |

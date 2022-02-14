@@ -1,0 +1,7 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "^6.5",
+        "mustache/mustache": "^2.14",
+        "html2text/html2text": "^4.3"
+    }
+}

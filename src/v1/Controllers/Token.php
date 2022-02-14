@@ -357,7 +357,9 @@ final class Token
     return $scope;
   }
 
-  /* ************ private functions ************ */
+  /********************
+   * Private functions
+   ********************/
 
   private function generateToken()
   {

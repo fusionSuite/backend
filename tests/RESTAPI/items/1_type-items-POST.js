@@ -9,10 +9,34 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 * /v1/types endpoint
 */
 describe('Endpoint /v1/items', function() {
+
+  it('Get serial number property id', function(done) {
+    request
+    .get('/v1/config/typeproperties')
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + global.token)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function(response) {
+      response.body.forEach(property => {
+        if (property.internalname === 'serialnumber') {
+          global.propertyid = property.id;
+        }
+      });
+
+    })
+    .end(function(err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+  });
+  
   it('create a new item', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[{property_id:3,value:"serialxxxxxx"}]})
+    .send({name: 'L0014',type_id: 2,properties:[{property_id:global.propertyid,value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
@@ -148,7 +172,7 @@ describe('Endpoint /v1/items', function() {
     .expect(function(response) {
       assert(is.propertyCount(response.body, 2));
       assert(validator.equals(response.body.status, 'error'));
-      assert(validator.equals(response.body.message, 'The Value is required'));
+      assert(validator.equals(response.body.message, 'The Value must be present'));
     })
     .end(function(err, response) {
       if (err) {

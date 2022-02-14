@@ -1,23 +1,30 @@
 [
   {
     "itemName": "Knowledge base",
+    "internalname": "knowledgebase",
     "propertygroups": [
       {
         "name": "Classification",
         "properties": [
           {
             "name": "Knowledge type",
+            "internalname": "knowledgetype",
             "valuetype": "list",
             "regexformat": "",
+            "listvalues": ["Known solution", "Known workaround", "Known error"],
             "unit": "",
-            "listvalues": ["Known solution", "Known workaround", "Known error"]
-          },
+            "default": "",
+            "description": ""
+        },
           {
             "name": "Description",
+            "internalname": "description",
             "valuetype": "string",
             "regexformat": "",
+            "listvalues": [],
             "unit": "",
-            "listvalues": []
+            "default": "",
+            "description": ""
           }
         ]
       },
@@ -26,10 +33,13 @@
         "properties": [
           {
             "name": "Knowledge",
+            "internalname": "knowledge",
             "valuetype": "text",
             "regexformat": "",
+            "listvalues": [],
             "unit": "",
-            "listvalues": []
+            "default": "",
+            "description": ""
           }
         ]
       }

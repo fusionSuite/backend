@@ -45,8 +45,8 @@ final class TypePropertygroup
 
     // Validate the data format
     $dataFormat = [
-      'name' => 'required',
-      'properties' => 'required|array'
+      'name'       => 'required|type:string',
+      'properties' => 'required|type:string|array'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
@@ -71,6 +71,31 @@ final class TypePropertygroup
   {
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
+  }
+
+  /********************
+   * Private functions
+   ********************/
+
+  function _createPropertygroup($data, $typeId)
+  {
+    if (\App\v1\Post::PostHasProperties($data, ['position']) === false)
+    {
+      $data->position = 0;
+    }
+
+    $propertygroup = \App\v1\Models\Config\Propertygroup::firstOrCreate(
+      [
+        'name'    => $data->name,
+        'type_id' => $typeId
+      ],
+      [
+        'position'   => $data->position,
+        'properties' => json_encode($data->properties)
+      ]
+    );
+
+    return $propertygroup->id;
   }
 
 }

@@ -4,15 +4,33 @@ const assert = require('assert');
 const is = require('is_js');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
+const requestMb = supertest('http://127.0.0.1:2525');
 
 /**
 * /v1/types endpoint
 */
-describe('Post item property /v1/items/xx/property', function() {
+describe('actionscripts/actionZabbix - Test the rule', function() {
+
+  it('delete imposters of mountebank', function(done) {
+    requestMb
+    .delete('/imposters/10800/savedRequests')
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function(response) {
+      assert(is.propertyCount(response.body.requests, 0));
+    })
+    .end(function(err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+  });
+
   it('create a new item', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[]})
+    .send({name: 'Laptop 0025',type_id: 2,properties:[{property_id:5,value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
@@ -32,46 +50,24 @@ describe('Post item property /v1/items/xx/property', function() {
     });
   });
 
-  it('create a new item property', function(done) {
-    request
-    .post('/v1/items/' + global.id + '/property')
-    .send({property_id:3,value:"serialxxxx004"})
+  it('verify into Zabbix/HTTP mountbank requet done', function(done) {
+    requestMb
+    .get('/imposters/10800')
     .set('Accept', 'application/json')
-    .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
     .expect('Content-Type', /json/)
     .expect(function(response) {
-      assert(is.propertyCount(response.body, 1));
+      assert(is.string(response.body.protocol));
+      assert(validator.equals(response.body.protocol, 'http'));
 
-      assert(is.integer(response.body.id));
-      assert(validator.matches('' + response.body.id, /^\d+$/));
-      global.propertyid = response.body.id;
-    })
-    .end(function(err, response) {
-      if (err) {
-        return done(err + ' | Response: ' + response.text);
-      }
-      return done();
-    });
-  });
+      assert(is.integer(response.body.numberOfRequests));
+      assert(response.body.numberOfRequests === 3);
 
-    it('Get the item with the property added', function(done) {
-    request
-    .get('/v1/items/' + global.id)
-    .set('Accept', 'application/json')
-    .set('Authorization', 'Bearer ' + global.token)
-    .expect(200)
-    .expect('Content-Type', /json/)
-    .expect(function(response) {
-      assert(is.not.empty(response.body));
-      assert(is.array(response.body.properties));
-      assert(is.equal(1, response.body.properties.length))
+      let req = response.body.requests[2];
 
-      // Test the first property
-      firstProperty = response.body.properties[0];
-      assert(is.integer(firstProperty.id));
-      assert(is.string(firstProperty.value));
-      assert(validator.equals(firstProperty.value, 'serialxxxx004'));
+      assert(is.string(req.method));
+      assert(validator.equals(req.method, 'POST'));
+      assert(validator.matches(req.body, /Laptop 0025/));
     })
     .end(function(err, response) {
       if (err) {
@@ -82,3 +78,4 @@ describe('Post item property /v1/items/xx/property', function() {
   });
 
 });
+

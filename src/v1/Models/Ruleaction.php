@@ -29,6 +29,7 @@ class Ruleaction extends Model {
     'field',
     'type',
     'values',
+    'res_in_property_id',
     'comment',
     'created_at',
     'updated_at'
