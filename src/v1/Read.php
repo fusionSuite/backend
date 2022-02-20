@@ -128,7 +128,7 @@ trait Read
     if (isset($params['page'])
           && is_numeric($params['page']))
     {
-        $pagination['skip'] = $params['page'];
+        $pagination['skip'] = ($params['page'] - 1);
     }
     if (isset($params['per_page'])
           && is_numeric($params['per_page'])          
@@ -150,7 +150,6 @@ trait Read
     // <https://api.github.com/user/repos?page=3&per_page=100>; rel="next",
     // <https://api.github.com/user/repos?page=50&per_page=100>; rel="last"    
 
-    // $requestParams = $request->getQueryParams();
     $uri = $request->getUri();
     $path = $uri->getPath();
     $scheme = $uri->getScheme();
@@ -166,18 +165,29 @@ trait Read
 
     if ($currentMaxItems < $totalCnt)
     {
-      $paramsQuery['page'] = ($pagination['skip'] + 1);
+      $paramsQuery['page'] = ($pagination['skip'] + 2);
       $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="next"';
       $paramsQuery['page'] = (ceil($totalCnt / $pagination['take']));
       $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="last"';
     }
     if ($pagination['skip'] > 0)
     {
-      $paramsQuery['page'] = 0;
+      $paramsQuery['page'] = 1;
       $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="first"';
-      $paramsQuery['page'] = ($pagination['skip'] - 1);
+      $paramsQuery['page'] = ($pagination['skip']);
       $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="prev"';
     }
     return implode(', ', $links);
+  }
+
+  public function createContentRange($request, $pagination, $totalCnt)
+  {
+    $begin = ($pagination['skip'] * $pagination['take']) + 1;
+    $end = ($begin + $pagination['take']) - 1;
+    if ($end > $totalCnt)
+    {
+      $end = $totalCnt;
+    }
+    return 'items '.$begin.'-'.$end.'/'.$totalCnt;
   }
 }

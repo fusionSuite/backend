@@ -110,6 +110,7 @@ final class Item
     $response->getBody()->write($items->get()->toJson());
     $response = $response->withAddedHeader('X-Total-Count', $totalCnt);
     $response = $response->withAddedHeader('Link', $this->createLink($request, $pagination, $totalCnt));
+    $response = $response->withAddedHeader('Content-Range', $this->createContentRange($request, $pagination, $totalCnt));
     return $response->withHeader('Content-Type', 'application/json');
   }
 
