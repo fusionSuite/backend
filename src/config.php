@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 if (!isset($phinxConfig)) {
-   $phinxConfig = include(__DIR__.'/../phinx.php');
+   $phinxConfig = include(__DIR__.'/../config/current/database.php');
 }
 $environment = $phinxConfig['environments']['default_environment'];
 $phinxDatabase = $phinxConfig['environments'][$environment];

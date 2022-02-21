@@ -149,7 +149,9 @@ final class Token
       "displayname" => $user[0]['displayname'],
       "apiversion" => "v1"
     ];
-    $secret = "123456789helo_secret";
+    $configSecret = include(__DIR__.'/../../../config/current/config.php');
+    // $secret = "123456789helo_secret";
+    $secret = $configSecret['jwtsecret'];
     $token = JWT::encode($payload, $secret, "HS256");
     $responseData = [
       "token"        => $token,

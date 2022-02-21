@@ -39,42 +39,53 @@ $app->addRoutingMiddleware();
 // See https://github.com/tuupola/slim-jwt-auth
 $container = $app->getContainer();
 
-$container["jwt"] = function ($container) {
-    return new StdClass;
+$container["jwt"] = function ($container)
+{
+  return new StdClass;
 };
 
 $prefix = "";
-if (strstr($_SERVER['REQUEST_URI'], 'index.php')) {
-   $uri_spl = explode('index.php', $_SERVER['REQUEST_URI']);
-   $prefix = $uri_spl[0]."index.php";
+if (strstr($_SERVER['REQUEST_URI'], 'index.php'))
+{
+  $uri_spl = explode('index.php', $_SERVER['REQUEST_URI']);
+  $prefix = $uri_spl[0]."index.php";
 }
-if (strstr($_SERVER['REQUEST_URI'], '/v1/')) {
-   $uri_spl = explode('/v1/', $_SERVER['REQUEST_URI']);
-   $prefix = $uri_spl[0];
+if (strstr($_SERVER['REQUEST_URI'], '/v1/'))
+{
+  $uri_spl = explode('/v1/', $_SERVER['REQUEST_URI']);
+  $prefix = $uri_spl[0];
 }
-if (strstr($_SERVER['REQUEST_URI'], '/ping')) {
-   $uri_spl = explode('/ping', $_SERVER['REQUEST_URI']);
-   $prefix = $uri_spl[0];
+if (strstr($_SERVER['REQUEST_URI'], '/ping'))
+{
+  $uri_spl = explode('/ping', $_SERVER['REQUEST_URI']);
+  $prefix = $uri_spl[0];
 }
 
+$configSecret = include(__DIR__.'/../config/current/config.php');
+// $secret = "123456789helo_secret";
+$secret = $configSecret['jwtsecret'];
+
 $app->add(new Tuupola\Middleware\JwtAuthentication([
-   "ignore" => [$prefix."/v1/token", $prefix."/ping", $prefix."/v1/fusioninventory", $prefix."/v1/status"],
-   "secure" => false,
-   "secret" => "123456789helo_secret",
-   // "callback" => function ($request, $response, $arguments) use ($container) { ???
-   "before" => function ($request, $arguments) {
-      $myUser = \App\v1\Models\User::find($arguments['decoded']['user_id']);
-      if ($myUser['jwtid'] != $arguments['decoded']['jti']) {
-         throw new Exception("jti changed, ask for a new token ".$myUser['jwtid'].' != '.$arguments['decoded']['jti'], 401);
-      }
-   },
-   "error" => function ($response, $arguments) {
-      $data["status"] = "error";
-      $data["message"] = $arguments["message"];
-      return $response
-         ->withHeader("Content-Type", "application/json")
-         ->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES));
-   }    
+  "ignore" => [$prefix."/v1/token", $prefix."/ping", $prefix."/v1/fusioninventory", $prefix."/v1/status"],
+  "secure" => false,
+  "secret" => $secret,
+  // "callback" => function ($request, $response, $arguments) use ($container) { ???
+  "before" => function ($request, $arguments)
+  {
+    $myUser = \App\v1\Models\User::find($arguments['decoded']['user_id']);
+    if ($myUser['jwtid'] != $arguments['decoded']['jti'])
+    {
+      throw new Exception("jti changed, ask for a new token ".$myUser['jwtid'].' != '.$arguments['decoded']['jti'], 401);
+    }
+  },
+  "error" => function ($response, $arguments)
+  {
+    $data["status"] = "error";
+    $data["message"] = $arguments["message"];
+    return $response
+      ->withHeader("Content-Type", "application/json")
+      ->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES));
+  }
 ]));
 
 
@@ -86,45 +97,47 @@ $capsule->bootEloquent();
 
 // Define Custom Error Handler
 $customErrorHandler = function (
-    Request $request,
-    Throwable $exception,
-    bool $displayErrorDetails,
-    bool $logErrors,
-    bool $logErrorDetails
-) use ($app) {
-   if ($exception->getCode() == 23000)
-   {
-      $error = [
-         "status"  => "error",
-         "message" => "The element already exists"
-      ];
-      $response = $app->getResponseFactory()->createResponse();
-      $response->getBody()->write(json_encode($error));
-      return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
-   }
-   else if ($exception->getCode() > 0)
-   {
-      $error = [
-         "status"  => "error",
-         "message" => $exception->getMessage()
-      ];
-      $response = $app->getResponseFactory()->createResponse();
-      $response->getBody()->write(json_encode($error));
-      return $response->withStatus($exception->getCode())->withHeader('Content-Type', 'application/json');
-   }
-   // else error 500
-   $error = [
+  Request $request,
+  Throwable $exception,
+  bool $displayErrorDetails,
+  bool $logErrors,
+  bool $logErrorDetails
+) use ($app)
+{
+  if ($exception->getCode() == 23000)
+  {
+    $error = [
+      "status"  => "error",
+      "message" => "The element already exists"
+    ];
+    $response = $app->getResponseFactory()->createResponse();
+    $response->getBody()->write(json_encode($error));
+    return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
+  }
+  else if ($exception->getCode() > 0)
+  {
+    $error = [
       "status"  => "error",
       "message" => $exception->getMessage()
-   ];
-   $response = $app->getResponseFactory()->createResponse();
-   $response->getBody()->write(json_encode($error));
-   return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+    ];
+    $response = $app->getResponseFactory()->createResponse();
+    $response->getBody()->write(json_encode($error));
+    return $response->withStatus($exception->getCode())->withHeader('Content-Type', 'application/json');
+  }
+  // else error 500
+  $error = [
+    "status"  => "error",
+    "message" => $exception->getMessage()
+  ];
+  $response = $app->getResponseFactory()->createResponse();
+  $response->getBody()->write(json_encode($error));
+  return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
 };
 
-$app->get('/', function (Request $request, Response $response, $args) {
-    $response->getBody()->write("wazaa");
-    return $response;
+$app->get('/', function (Request $request, Response $response, $args)
+{
+  $response->getBody()->write("wazaa");
+  return $response;
 });
 
 // Define routes

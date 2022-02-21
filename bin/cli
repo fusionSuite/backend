@@ -20,25 +20,21 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$cursor = new Ahc\Cli\Output\Cursor;
+use App\v1\Controllers\Cli\Common;
+use Ahc\Cli\Output\Cursor;
+
+$cursor = new Cursor;
 echo $cursor->clear();
 
-$logo = "
-    ______           _            _____       _ __     
-   / ____/_  _______(_)___  ____ / ___/__  __(_) /____ 
-  / /_  / / / / ___/ / __ \/ __ \\__ \/ / / / / __/ _ \
- / __/ / /_/ (__  ) / /_/ / / / /__/ / /_/ / / /_/  __/
-/_/    \__,_/____/_/\____/_/ /_/____/\__,_/_/\__/\___/ 
-                     
-FusionSuite Backend cli tool
-============================
-";
+$cliCommon = new Common;
+$cliCommon->displayLogo();
+
 $version = '1.0.0';
 $app = new Ahc\Cli\Application('cli', $version);
 
+$app->add(new \App\v1\Controllers\Cli\EnvironmentCreate);
+$app->add(new \App\v1\Controllers\Cli\EnvironmentList);
+$app->add(new \App\v1\Controllers\Cli\EnvironmentSwitch);
 $app->add(new \App\v1\Controllers\Cli\Install);
-$app->add(new \App\v1\Controllers\Cli\ActionScript);
-
-$app->logo($logo)->handle($_SERVER['argv']);
 
 $app->handle($_SERVER['argv']);

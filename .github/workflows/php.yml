@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: '16.x'
-  DB_DATABASE: fusionsuite_dev
+  DB_DATABASE: fusionsuite_testing
   DB_USER: root
   DB_PASSWORD: root
 
@@ -56,13 +56,13 @@ jobs:
         done
 
     - name: Run PHPStan
-      run: phpstan analyse src
+      run: phpstan analyse src public bin/cli
 
     - name: Run PHPStan on rule action scripts
       run: phpstan analyse ActionScripts
 
     - name: Run phpcs
-      run: phpcs -q --report=checkstyle src | cs2pr
+      run: phpcs -q --report=checkstyle src public | cs2pr
 
     - name: Run phpcs on rule action scripts
       run: phpcs -q --report=checkstyle --ignore="ActionScripts/*/vendor/*" ActionScripts | cs2pr
@@ -93,13 +93,15 @@ jobs:
         sudo /etc/init.d/mysql start
         mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
 
+    - name: run the unit tests
+      run: ./vendor/bin/phpunit tests/units/
+
     - name: install the backend
       run: |
-        sed -i "s/''/'root'/g" phinx.php
-        ./vendor/bin/phinx migrate
+        ./bin/cli env:create -n testing -H 127.0.0.1 -d ${{ env.DB_DATABASE }} -u ${{ env.DB_USER }} -p ${{ env.DB_PASSWORD }} -t MariaDB -c
 
     - name: install the action scripts
-      run: ./bin/cli actionscript
+      run: ./bin/cli install
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
