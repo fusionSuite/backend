@@ -105,6 +105,6 @@ class Item extends Model {
         }
       }
     }
-    return $query;
+    return $query->orderBy('id');
   }
 }

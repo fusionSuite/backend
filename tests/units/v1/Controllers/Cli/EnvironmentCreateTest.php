@@ -17,13 +17,13 @@ class EnvironmentCreateTest extends TestCase
   public function additionProvider(): array
   {
     return [
-      'MariaDB-Current'         => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MariaDB', true, 0, 0],
-      'MySQL-Current'           => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MySQL', true, 0, 0],
-      'PostgreSQL-Current'      => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'PostgreSQL', true, 0, 0],
-      'SQLServer-Current'       => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'SQLServer', true, 0, 0],
-      'unknowtype-Current'      => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'YoloDB', true, 255, 0],
-      'MariaDB'                 => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MariaDB', false, 0, 0],
-      'MariaDB-Current-notHost' => ['phpunittest', '', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MariaDB', true, 255, 0],
+      'MariaDB-Current'         => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MariaDB', 3306, true, 0, 0],
+      'MySQL-Current'           => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MySQL', 3306, true, 0, 0],
+      'PostgreSQL-Current'      => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'PostgreSQL', 5432, true, 0, 0],
+      'SQLServer-Current'       => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'SQLServer', 1433, true, 0, 0],
+      'unknowtype-Current'      => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'YoloDB', 0, true, 255, 0],
+      'MariaDB'                 => ['phpunittest', '127.0.0.1', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MariaDB', 3306, false, 0, 0],
+      'MariaDB-Current-notHost' => ['phpunittest', '', 'fusionsuite_phpunit', 'fusion_user', 'mypassword', 'MariaDB', 3306, true, 255, 0],
     ];
     // TODO manage the sqlite !
   }
@@ -31,7 +31,7 @@ class EnvironmentCreateTest extends TestCase
   /**
    * @dataProvider additionProvider
    */
-  public function testEnvCreation($name, $host, $db, $user, $pass, $type, $curr, $expectedCode, $expectedShowHelp)
+  public function testEnvCreation($name, $host, $db, $user, $pass, $type, $port, $curr, $expectedCode, $expectedShowHelp)
   {
     // If environment exists, remove it
     $envDir = __DIR__.'/../../../../../config/'.$name;
@@ -92,16 +92,12 @@ class EnvironmentCreateTest extends TestCase
       $phinxConfig = include($currDir.'database.php');
       $this->assertEquals($name , $phinxConfig['environments']['default_environment']);
       $this->assertEquals($host , $phinxConfig['environments'][$name]['host']);
+      $this->assertEquals($port , $phinxConfig['environments'][$name]['port']);
     }
     else
     {
       $this->assertNotTrue(file_exists($currDir.'config.php'));
       $this->assertNotTrue(file_exists($currDir.'database.php'));
     }
-
-    // DEBUG:
-    //   print_r($output);
-    //   print_r($retval);
-
   }
 }

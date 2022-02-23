@@ -41,11 +41,17 @@ describe('Patch item property /v1/items/xx/property/zz', function() {
       assert(is.array(response.body.properties));
       assert(is.equal(4, response.body.properties.length))
 
-      // Test the first property
-      firstProperty = response.body.properties[0];
-      assert(is.integer(firstProperty.id));
-      assert(is.string(firstProperty.value));
-      assert(validator.equals(firstProperty.value, 'serialyyyyyy687'));
+      // Test the property with serial
+      let serialPropertyFound = false;
+      for (let prop of response.body.properties) {
+        if (prop.id === 5) {
+          assert(is.integer(prop.id));
+          assert(is.string(prop.value));
+          assert(validator.equals(prop.value, 'serialyyyyyy687'));
+          serialPropertyFound = true;
+        }
+      }
+      assert(serialPropertyFound);
     })
     .end(function(err, response) {
       if (err) {

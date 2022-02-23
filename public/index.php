@@ -104,7 +104,7 @@ $customErrorHandler = function (
   bool $logErrorDetails
 ) use ($app)
 {
-  if ($exception->getCode() == 23000)
+  if ($exception->getCode() == 23000 || $exception->getCode() == 23505)
   {
     $error = [
       "status"  => "error",
