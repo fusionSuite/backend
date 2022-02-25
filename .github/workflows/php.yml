@@ -13,14 +13,13 @@ env:
   DB_PASSWORD: root
 
 jobs:
-  build:
+  check_code:
 
-    runs-on: ${{ matrix.operating-system }}
+    runs-on: 'ubuntu-latest'
 
     strategy:
       matrix:
-        operating-system: ['ubuntu-latest']
-        php-versions: ['7.4', '8.0', '8.1']
+        php-versions: ['8.1']
 
     steps:
     - uses: actions/checkout@v2
@@ -67,6 +66,95 @@ jobs:
     - name: Run phpcs on rule action scripts
       run: phpcs -q --report=checkstyle --ignore="ActionScripts/*/vendor/*" ActionScripts | cs2pr
 
+  unit_tests:
+
+    runs-on: 'ubuntu-latest'
+
+    strategy:
+      matrix:
+        php-versions: ['7.4', '8.0', '8.1']
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Install dependencies into each rule action script
+      run: |
+        cd ActionScripts 
+        for d in */ ; do
+          cd $d
+          composer install --prefer-dist --no-progress
+          cd ..
+        done
+
+    - name: run the unit tests
+      run: ./vendor/bin/phpunit tests/units/
+
+  RESTAPI_tests_MySQL:
+
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        php-versions: ['8.1']
+        mysql-versions: ['5.7', '8']
+    services:
+      mysql:
+        image: mysql:${{ matrix.mysql-versions }}
+        ports:
+          - 3306:3306        
+        env:
+          MYSQL_DATABASE: fusionsuite
+          MYSQL_USER: fusionsuite
+          MYSQL_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: rootpassword
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Install dependencies into each rule action script
+      run: |
+        cd ActionScripts 
+        for d in */ ; do
+          cd $d
+          composer install --prefer-dist --no-progress
+          cd ..
+        done
+
     - name: Setup php-fpm
       env:
         version: ${{ matrix.php-versions }}
@@ -88,17 +176,9 @@ jobs:
     - name: start nginx
       run: sudo systemctl start nginx
 
-    - name: start mysql
-      run: |
-        sudo /etc/init.d/mysql start
-        mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
-
-    - name: run the unit tests
-      run: ./vendor/bin/phpunit tests/units/
-
     - name: install the backend
       run: |
-        ./bin/cli env:create -n testing -H 127.0.0.1 -d ${{ env.DB_DATABASE }} -u ${{ env.DB_USER }} -p ${{ env.DB_PASSWORD }} -t MariaDB -c
+        ./bin/cli env:create -n testing -H 127.0.0.1 -d fusionsuite -u fusionsuite -p password -t MySQL -c
 
     - name: install the action scripts
       run: ./bin/cli install
@@ -115,10 +195,103 @@ jobs:
         cd tests/RESTAPI/
         yarn install
 
-    - name: paths
+    - name: run mountebank
       run: |
-        pwd
-        ls -l
+        cd tests/RESTAPI/
+        ./node_modules/.bin/mb --configfile mountebank/imposters.ejs &
+
+    - name: run REST API tests
+      run: |
+        cd tests/RESTAPI/
+        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" "./**/*.js"
+
+  RESTAPI_tests_MariaDB:
+
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        php-versions: ['8.1']
+        mariadb-versions: ['10.4', '10.5', '10.6', '10.7']
+    services:
+      mariadb:
+        image: mariadb:${{ matrix.mariadb-versions }}
+        ports:
+          - 3306:3306        
+        env:
+          MARIADB_DATABASE: fusionsuite
+          MARIADB_USER: fusionsuite
+          MARIADB_PASSWORD: password
+          MARIADB_ROOT_PASSWORD: rootpassword
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Install dependencies into each rule action script
+      run: |
+        cd ActionScripts 
+        for d in */ ; do
+          cd $d
+          composer install --prefer-dist --no-progress
+          cd ..
+        done
+
+    - name: Setup php-fpm
+      env:
+        version: ${{ matrix.php-versions }}
+      run: |
+        sudo apt-get install php$version-fpm
+        sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
+        sudo service php$version-fpm start
+        sudo service php$version-fpm status
+
+    - name: install nginx
+      run: sudo apt install nginx
+
+    - name: copy nginx config file
+      run: |
+        sed -i 's/php7.4-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
+        sudo cp tests/RESTAPI/fusionsuite.conf /etc/nginx/sites-enabled/fusionsuite.conf
+        sudo rm /etc/nginx/sites-enabled/default
+
+    - name: start nginx
+      run: sudo systemctl start nginx
+
+    - name: install the backend
+      run: |
+        ./bin/cli env:create -n testing -H 127.0.0.1 -d fusionsuite -u fusionsuite -p password -t MariaDB -c
+
+    - name: install the action scripts
+      run: ./bin/cli install
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'yarn'
+        cache-dependency-path: tests/RESTAPI/yarn.lock
+
+    - name: yarn install
+      run: |
+        cd tests/RESTAPI/
+        yarn install
 
     - name: run mountebank
       run: |
@@ -129,4 +302,204 @@ jobs:
       run: |
         cd tests/RESTAPI/
         ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" "./**/*.js"
+
+  RESTAPI_tests_PostgreSQL:
+
+    runs-on: 'ubuntu-latest'
+    services:
+      postgres:
+        image: postgres:${{ matrix.pg-versions }}
+        ports:
+          - 5432:5432        
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: fusionsuite
+    strategy:
+      matrix:
+        php-versions: ['8.1']
+        pg-versions: ['11', '12', '13', '14']
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Install dependencies into each rule action script
+      run: |
+        cd ActionScripts 
+        for d in */ ; do
+          cd $d
+          composer install --prefer-dist --no-progress
+          cd ..
+        done
+
+    - name: Setup php-fpm
+      env:
+        version: ${{ matrix.php-versions }}
+      run: |
+        sudo apt-get install php$version-fpm
+        sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
+        sudo service php$version-fpm start
+        sudo service php$version-fpm status
+
+    - name: install nginx
+      run: sudo apt install nginx
+
+    - name: copy nginx config file
+      run: |
+        sed -i 's/php7.4-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
+        sudo cp tests/RESTAPI/fusionsuite.conf /etc/nginx/sites-enabled/fusionsuite.conf
+        sudo rm /etc/nginx/sites-enabled/default
+
+    - name: start nginx
+      run: sudo systemctl start nginx
+
+    - name: install the backend
+      run: |
+        ./bin/cli env:create -n testing -H 127.0.0.1 -d fusionsuite -u postgres -p postgres -t PostgreSQL -c
+
+    - name: install the action scripts
+      run: ./bin/cli install
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'yarn'
+        cache-dependency-path: tests/RESTAPI/yarn.lock
+
+    - name: yarn install
+      run: |
+        cd tests/RESTAPI/
+        yarn install
+
+    - name: run mountebank
+      run: |
+        cd tests/RESTAPI/
+        ./node_modules/.bin/mb --configfile mountebank/imposters.ejs &
+
+    - name: run REST API tests
+      run: |
+        cd tests/RESTAPI/
+        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" "./**/*.js"
+
+  # TODO DISABLED for the moment because have problems with UTF-8
+  # RESTAPI_tests_SQLServer:
+
+  #   runs-on: 'ubuntu-latest'
+  #   strategy:
+  #     matrix:
+  #       php-versions: ['8.1']
+  #   services:
+  #     mssqlserver:
+  #       image: mcr.microsoft.com/mssql/server:2019-latest
+  #       ports:
+  #         - 1433:1433        
+  #       env:
+  #         ACCEPT_EULA: 'y'
+  #         SA_PASSWORD: 'YourStrong!Passw0rd'
+  #       options: --name=mssql --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
+
+  #   steps:
+  #   - uses: actions/checkout@v2
+
+  #   - name: Setup PHP
+  #     uses: shivammathur/setup-php@v2
+
+  #   - name: Validate composer.json and composer.lock
+  #     run: composer validate --strict
+
+  #   - name: Cache Composer packages
+  #     id: composer-cache
+  #     uses: actions/cache@v2
+  #     with:
+  #       path: vendor
+  #       key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-php-
+
+  #   - name: Install dependencies
+  #     run: composer install --prefer-dist --no-progress
+
+  #   - name: Install dependencies into each rule action script
+  #     run: |
+  #       cd ActionScripts 
+  #       for d in */ ; do
+  #         cd $d
+  #         composer install --prefer-dist --no-progress
+  #         cd ..
+  #       done
+
+  #   - name: Setup php-fpm
+  #     env:
+  #       version: ${{ matrix.php-versions }}
+  #     run: |
+  #       sudo apt-get install php$version-fpm
+  #       sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
+  #       sudo service php$version-fpm start
+  #       sudo service php$version-fpm status
+
+  #   - name: install nginx
+  #     run: sudo apt install nginx
+
+  #   - name: copy nginx config file
+  #     run: |
+  #       sed -i 's/php7.4-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
+  #       sudo cp tests/RESTAPI/fusionsuite.conf /etc/nginx/sites-enabled/fusionsuite.conf
+  #       sudo rm /etc/nginx/sites-enabled/default
+
+  #   - name: start nginx
+  #     run: sudo systemctl start nginx
+
+  #   - name: Create MS SQL Database
+  #     run: |
+  #       sudo apt-get update && sudo apt-get install -y mssql-tools
+  #       echo "ODBC_App_Unicode_Type=1" | sudo tee -a /etc/odbcinst.ini
+  #       /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE fusionsuite'
+
+  #   - name: install the backend
+  #     run: |
+  #       ./bin/cli env:create -n testing -H localhost -d fusionsuite -u SA -p 'YourStrong!Passw0rd' -t SQLServer -c
+
+  #   - name: install the action scripts
+  #     run: ./bin/cli install
+
+  #   - name: Set up Node.js
+  #     uses: actions/setup-node@v2
+  #     with:
+  #       node-version: ${{ env.NODE_VERSION }}
+  #       cache: 'yarn'
+  #       cache-dependency-path: tests/RESTAPI/yarn.lock
+
+  #   - name: yarn install
+  #     run: |
+  #       cd tests/RESTAPI/
+  #       yarn install
+
+  #   - name: run mountebank
+  #     run: |
+  #       cd tests/RESTAPI/
+  #       ./node_modules/.bin/mb --configfile mountebank/imposters.ejs &
+
+  #   - name: run REST API tests
+  #     run: |
+  #       cd tests/RESTAPI/
+  #       ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" "./**/*.js"
 

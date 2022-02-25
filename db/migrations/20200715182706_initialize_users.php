@@ -52,7 +52,6 @@ final class InitializeUsers extends AbstractMigration
     if ($this->isMigratingUp())
     {
       $adminUser = [
-        'id'          => 1,
         'login'       => 'admin',
         'displayname' => 'admin',
         'password'    => password_hash('admin', PASSWORD_ARGON2I),
