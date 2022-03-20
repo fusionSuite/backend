@@ -183,27 +183,6 @@ describe('Endpoint /v1/items', function() {
     });
   });
 
-  it('create a new type, but properties.value is an integer => error', function(done) {
-    request
-    .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[{property_id:3,value:1000}]})
-    .set('Accept', 'application/json')
-    .set('Authorization', 'Bearer ' + global.token)
-    .expect(400)
-    .expect('Content-Type', /json/)
-    .expect(function(response) {
-      assert(is.propertyCount(response.body, 2));
-      assert(validator.equals(response.body.status, 'error'));
-      assert(validator.equals(response.body.message, 'The Value is not valid type'));
-    })
-    .end(function(err, response) {
-      if (err) {
-        return done(err + ' | Response: ' + response.text);
-      }
-      return done();
-    });
-  });
-
   it('create a new item with properties field but empty', function(done) {
     request
     .post('/v1/items')

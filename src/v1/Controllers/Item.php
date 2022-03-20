@@ -256,7 +256,7 @@ final class Item
       {
         $dataFormat = [
           'property_id' => 'required|type:integer|integer|min:1',
-          'value'       => 'present|type:string'
+          'value'       => 'present' // Can be string or number
         ];
         \App\v1\Common::validateData($property, $dataFormat);
       }
@@ -450,7 +450,7 @@ final class Item
     
     // Validate the data format
     $dataFormat = [
-      'value' => 'required|type:string'
+      'value' => 'required' // Can be string or number
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
