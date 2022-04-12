@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,24 +8,22 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers\Rules;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use stdClass;
 
 final class ActionScript
 {
-
   public static function runRules($input)
   {
     $ruler   = new \Hoa\Ruler\Ruler();
@@ -32,7 +31,7 @@ final class ActionScript
     $exceptions = [];
     $actionScript = new ActionScript();
 
-    // get all rules 
+    // get all rules
     $rules = \App\v1\Models\Rule::where('type', 'actionscript')->with('criteria', 'actions')->get();
     foreach ($rules as $rule)
     {
@@ -48,23 +47,24 @@ final class ActionScript
         foreach ($rule->actions as $action)
         {
           $actionItem = \App\v1\Models\Item::find($action->values);
-          $args = new stdClass;
+          $args = new stdClass();
           $args->itemid = $input['id'];
           $args->itemname = $input['name'];
+          $args->hostname = $input['name'];
           // TODO manage this in the configuration
           $args->fusionsuiteurl = 'http://xxxx';
           $actionNamespace = '';
           $actionFunctionName = '';
           foreach ($actionItem->properties()->get() as $property)
           {
-            if ($property->internalname == 'action.classname')
+            if (preg_match('/action.[\w]+.classname/', $property->internalname))
             {
               $actionNamespace = $property->value;
               continue;
             }
-            if ($property->internalname == 'action.associatedaction')
+            if (preg_match('/action.[\w]+.associatedaction/', $property->internalname))
             {
-              $actionFunctionName = $property->value;
+              $actionFunctionName = $property->value->value;
               continue;
             }
 
@@ -75,30 +75,33 @@ final class ActionScript
                 // it's name
                 $args->{$property->name} = $input['name'];
               }
-              else
-              {
+              else {
                 // get value from properties
                 $args->{$property->internalname} = $input[$property->id];
               }
             }
-            else if ($property->valuetype == 'itemlink')
+            elseif ($property->valuetype == 'itemlink')
             {
               // get properties of itemlink
-              $args->{$property->internalname} = $actionScript->_getItemProperties(intval($property->value));
+              $args->{$property->internalname} = $actionScript->getItemProperties($property->value->id);
             }
-            else
+            elseif ($property->valuetype == 'list')
             {
+              $args->{$property->internalname} = $property->value->value;
+            }
+            else {
               $args->{$property->internalname} = $property->value;
             }
           }
 
           try {
-            $className = '\\ActionScripts\\'.$actionNamespace.'\\'.$actionNamespace;
+            $className = '\\ActionScripts\\' . $actionNamespace . '\\' . $actionNamespace;
             $myAction = new $className();
             $ret = $myAction->$actionFunctionName($args);
           }
-          catch (\Exception $e) {
-            $exceptions[] = 'Error in rule `'.$rule->name.'`: '.$e->getMessage();
+          catch (\Exception $e)
+          {
+            $exceptions[] = 'Error in rule `' . $rule->name . '`: ' . $e->getMessage();
           }
           finally {
             // manage return
@@ -108,7 +111,7 @@ final class ActionScript
               $item = \App\v1\Models\Item::find($input['id']);
               $item->properties()->attach($action->res_in_property_id, ['value' => $ret['value']]);
             }
-          }          
+          }
         }
       }
     }
@@ -125,10 +128,10 @@ final class ActionScript
    * Private functions
    ********************/
 
-  function _getItemProperties($itemId)
+  private function getItemProperties($itemId)
   {
     $item = \App\v1\Models\Item::find($itemId);
-    $properties = new stdClass;
+    $properties = new stdClass();
     foreach ($item->properties()->get() as $property)
     {
       $properties->{$property->internalname} = $property->value;

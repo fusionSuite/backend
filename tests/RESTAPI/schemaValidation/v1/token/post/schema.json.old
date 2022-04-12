@@ -1,0 +1,19 @@
+{
+    "path": "\/v1\/token",
+    "method": "post",
+    "parameters": [],
+    "responses": {
+        "token": {
+            "type": "string",
+            "description": "The token string."
+        },
+        "refreshtoken": {
+            "type": "string",
+            "description": "The token string can be used to refresh \/ regenerate a new token when this token expire."
+        },
+        "expires": {
+            "type": "integer",
+            "description": "The expiration timestamp."
+        }
+    }
+}

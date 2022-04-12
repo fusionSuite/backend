@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,23 +8,20 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1\Controllers\Rules;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+namespace App\v1\Controllers\Rules;
 
 final class SearchItem
 {
-
   public static function runRules($input, $type_id)
   {
     $ruler   = new \Hoa\Ruler\Ruler();
@@ -50,7 +48,7 @@ final class SearchItem
       return false;
     });
 
-    // get all rules 
+    // get all rules
     $rules = \App\v1\Models\Rule::where('type', 'searchitem')->with('criteria', 'actions')->get();
     foreach ($rules as $rule)
     {
@@ -70,8 +68,7 @@ final class SearchItem
           {
             $items->where('name', $input['name']);
           }
-          else
-          {
+          else {
             $doSearchInDB = true;
             $propertyId = $matches[2];
             $value = $context[str_replace('input.', '', $criterium->field)];
@@ -82,13 +79,13 @@ final class SearchItem
             });
           }
         }
-        else if ($criterium->comparator == 'regex')
+        elseif ($criterium->comparator == 'regex')
         {
-          $criteria[] = 'regex("'.$context[str_replace('input.', '', $criterium->field)].'", "'.$criterium->values.'")';
+          $criteria[] = 'regex("' . $context[str_replace('input.', '', $criterium->field)] . '", "' .
+                        $criterium->values . '")';
         }
-        else
-        {
-          $criteria[] = $criterium->field.' '.$criterium->comparator.' '.$criterium->values;
+        else {
+          $criteria[] = $criterium->field . ' ' . $criterium->comparator . ' ' . $criterium->values;
         }
       }
       $actionToDo = 'import';
@@ -105,7 +102,8 @@ final class SearchItem
           // now search in DB
           $items->take(1);
           $item = $items->first();
-          if (isset($item->id)) {
+          if (isset($item->id))
+          {
             if ($actionToDo == 'import')
             {
               return $item->id;
@@ -116,8 +114,7 @@ final class SearchItem
             return 'notimport';
           }
         }
-        else
-        {
+        else {
           return $actionToDo;
         }
         // next rule

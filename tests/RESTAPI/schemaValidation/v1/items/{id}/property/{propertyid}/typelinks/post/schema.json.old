@@ -1,0 +1,33 @@
+{
+    "path": "\/v1\/items\/{id}\/property\/{propertyid}\/typelinks",
+    "method": "post",
+    "parameters": [
+        {
+            "type": "number",
+            "in": "path",
+            "name": "id",
+            "description": "Unique ID of the item.",
+            "required": true
+        },
+        {
+            "type": "number",
+            "in": "path",
+            "name": "propertyid",
+            "description": "Unique ID of the property.",
+            "required": true
+        },
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        }
+    ],
+    "responses": {
+        "value": {
+            "type": "number",
+            "description": "Unique ID of the type."
+        }
+    }
+}

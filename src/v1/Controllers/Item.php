@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,23 +8,24 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use stdClass;
 
 final class Item
 {
-
   use \App\v1\Read;
 
   /**
@@ -33,21 +35,31 @@ final class Item
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
-   * 
+   *
    * @apiSuccess {Object[]}        -                               The list of the items.
    * @apiSuccess {Number}          -.id                            The id of the item.
    * @apiSuccess {String}          -.name                          The name of the item.
-   * @apiSuccess {String}          -.created_at                    Date of the item creation.
-   * @apiSuccess {String|null}     -.updated_at                    Date of the last item modification.
+   * @apiSuccess {ISO8601}         -.created_at                    Date of the item creation.
+   * @apiSuccess {null|ISO8601}    -.updated_at                    Date of the last item modification.
    * @apiSuccess {Object[]}        -.properties                    List of properties of the item.
    * @apiSuccess {Number}          -.properties.id                 The id of the property.
    * @apiSuccess {String}          -.properties.name               The name of the property.
-   * @apiSuccess {String="string","integer","float","date","datetime","list","boolean","text","itemlink","itemlinks"}   -.properties.valuetype  The type of value.
-   * @apiSuccess {String|null}     -.properties.unit               The unit used for the property (example: Ko, seconds...).
-   * @apiSuccess {String[]|null}   -.properties.listvalues         The list of values when valuetype="list", else null.
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
+   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}   -.properties.valuetype
+   *    The type of value.
+   * @apiSuccess {null|String}     -.properties.unit               The unit used for the property (example: Ko,
+   *    seconds...).
+   * @apiSuccess {null|String[]}   -.properties.listvalues         The list of values when valuetype="list", else null.
    * @apiSuccess {String}          -.properties.value              The value of the property.
    * @apiSuccess {Boolean}         -.properties.byfusioninventory  Is updated by FusionInventory.
-   * 
+   * @apiSuccess {Object[]}        -.propertygroups                List of property groups of the item.
+   * @apiSuccess {Number}          -.propertygroups.id             The id of the propertygroup.
+   * @apiSuccess {String}          -.propertygroups.name           The name of the propertygroup.
+   * @apiSuccess {Number}          -.propertygroups.position       The position number of the propertygroup.
+   * @apiSuccess {Number[]}        -.propertygroups.properties     The list of properties id.
+   * @apiSuccess {ISO8601}         -.propertygroups.created_at     Date of the propertygroups creation.
+   * @apiSuccess {null|ISO8601}    -.propertygroups.updated_at     Date of the last propertygroups modification.
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
@@ -84,6 +96,16 @@ final class Item
    *         "value": "Dell",
    *         "byfusioninventory": true
    *       }
+   *     ],
+   *     "propertygroups": [
+   *       {
+   *         "id": 2,
+   *         "name": "Main",
+   *         "position": 0,
+   *         "properties": [3,4,5],
+   *         "created_at": "2022-06-02T04:35:44.000000Z",
+   *         "updated_at": "2022-06-02T04:35:44.000000Z"
+   *       }
    *     ]
    *   }
    * ]
@@ -102,15 +124,45 @@ final class Item
 
     $items = $this->paramFilters($paramsQuery, $items);
     // Example filter on property value
-    // $items->whereHas('properties', function($q) {
+    // $items->whereHas('properties', function($q)
+    // {
     //   $q->where('item_property.value', 'VirtualBox');
     // });
     $totalCnt = $items->count();
     $items->skip(($params['skip'] * $params['take']))->take($params['take']);
-    $response->getBody()->write($items->get()->toJson());
+    $allItems = $items->get()->toArray();
+    foreach ($allItems as $key => $item)
+    {
+      $itemProperties = [];
+      foreach ($item['properties'] as $property)
+      {
+        if (isset($itemProperties[$property['id']]))
+        {
+          // itemlinks case
+          $itemProperties[$property['id']]['value'][] = $property['value'];
+        }
+        else {
+          if ($property['valuetype'] == 'itemlinks' && !is_null($property['value']))
+          {
+            $property['value'] = [$property['value']];
+          }
+          if ($property['valuetype'] == 'typelinks' && !is_null($property['value']))
+          {
+            $property['value'] = [$property['value']];
+          }
+          $itemProperties[$property['id']] = $property;
+        }
+      }
+      $allItems[$key]['properties'] = array_values($itemProperties);
+    }
+
+    $response->getBody()->write(json_encode($allItems));
     $response = $response->withAddedHeader('X-Total-Count', $totalCnt);
     $response = $response->withAddedHeader('Link', $this->createLink($request, $pagination, $totalCnt));
-    $response = $response->withAddedHeader('Content-Range', $this->createContentRange($request, $pagination, $totalCnt));
+    $response = $response->withAddedHeader(
+      'Content-Range',
+      $this->createContentRange($request, $pagination, $totalCnt)
+    );
     return $response->withHeader('Content-Type', 'application/json');
   }
 
@@ -122,21 +174,31 @@ final class Item
    *
    * @apiUse AutorizationHeader
    *
-   * @apiParam {Number} id Rule unique ID.
+   * @apiParam {Number} The item unique ID.
    *
    * @apiSuccess {Number}          id                            The id of the item.
    * @apiSuccess {String}          name                          The name of the item.
-   * @apiSuccess {String}          created_at                    Date of the item creation.
-   * @apiSuccess {String|null}     updated_at                    Date of the last item modification.
+   * @apiSuccess {ISO8601}         created_at                    Date of the item creation.
+   * @apiSuccess {null|ISO8601}    updated_at                    Date of the last item modification.
    * @apiSuccess {Object[]}        properties                    List of properties of the item.
    * @apiSuccess {Number}          properties.id                 The id of the property.
    * @apiSuccess {String}          properties.name               The name of the property.
-   * @apiSuccess {String="string","integer","float","date","datetime","list","boolean","text","itemlink","itemlinks"}  properties.valuetype  The type of value.
-   * @apiSuccess {String|null}     properties.unit               The unit used for the property (example: Ko, seconds...).
-   * @apiSuccess {String[]|null}   properties.listvalues         The list of values when valuetype="list", else null.
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
+   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  properties.valuetype
+   *    The type of value.
+   * @apiSuccess {null|String}     properties.unit               The unit used for the property (example: Ko,
+   *    seconds...).
+   * @apiSuccess {null|String[]}   properties.listvalues         The list of values when valuetype="list", else null.
    * @apiSuccess {String}          properties.value              The value of the property.
    * @apiSuccess {Boolean}         properties.byfusioninventory  Is updated by FusionInventory.
-   * 
+   * @apiSuccess {Object[]}        propertygroups                List of property groups of the item.
+   * @apiSuccess {Number}          propertygroups.id             The id of the propertygroup.
+   * @apiSuccess {String}          propertygroups.name           The name of the propertygroup.
+   * @apiSuccess {Number}          propertygroups.position       The position number of the propertygroup.
+   * @apiSuccess {Number[]}        propertygroups.properties     The list of properties id.
+   * @apiSuccess {ISO8601}         propertygroups.created_at     Date of the propertygroups creation.
+   * @apiSuccess {null|ISO8601}    propertygroups.updated_at     Date of the last propertygroups modification.
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
@@ -172,7 +234,17 @@ final class Item
    *       "value": "Dell",
    *       "byfusioninventory": true
    *     }
-   *   ]
+   *     ],
+   *     "propertygroups": [
+   *       {
+   *         "id": 2,
+   *         "name": "Main",
+   *         "position": 0,
+   *         "properties": [3,4,5],
+   *         "created_at": "2022-06-02T04:35:44.000000Z",
+   *         "updated_at": "2022-06-02T04:35:44.000000Z"
+   *       }
+   *     ]
    * }
    *
    */
@@ -184,10 +256,33 @@ final class Item
     {
       throw new \Exception("This item has not be found", 404);
     }
-    $response->getBody()->write($item->toJson());
+
+    $itemData = $item->toArray();
+    $itemProperties = [];
+    foreach ($itemData['properties'] as $property)
+    {
+      if (isset($itemProperties[$property['id']]))
+      {
+        // itemlinks case
+        $itemProperties[$property['id']]['value'][] = $property['value'];
+      }
+      else {
+        if ($property['valuetype'] == 'itemlinks')
+        {
+          $property['value'] = [$property['value']];
+        }
+        if ($property['valuetype'] == 'typelinks')
+        {
+          $property['value'] = [$property['value']];
+        }
+        $itemProperties[$property['id']] = $property;
+      }
+    }
+    $itemData['properties'] = array_values($itemProperties);
+
+    $response->getBody()->write(json_encode($itemData));
     return $response->withHeader('Content-Type', 'application/json');
   }
-
 
   /**
    * @api {post} /v1/items Create a new item
@@ -196,13 +291,13 @@ final class Item
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
-   *     
-   * @apiSuccess {String}    name                    The name of the item.
-   * @apiSuccess {Number}    type_id                 The id of the type of the item.
-   * @apiSuccess {Object[]}  properties              List of properties
-   * @apiSuccess {Number}    properties.property_id  The id of the property.
-   * @apiSuccess {String[]}  properties.value        The value of the property for the item.
-   * 
+   *
+   * @apiBody {String}    name                      The name of the item.
+   * @apiBody {Number}    type_id                   The id of the type of the item.
+   * @apiBody {Object[]}  [properties]              List of properties
+   * @apiBody {Number}    [properties.property_id]  The id of the property.
+   * @apiBody {String[]}  [properties.value]        The value of the property for the item.
+   *
    * @apiParamExample {json} Request-Example:
    * {
    *   "name": "LP-000345",
@@ -215,27 +310,25 @@ final class Item
    *     {
    *       "property_id": 8,
    *       "value": "Latitude E7470"
-   *     },
-   *     {
-   *       "property_id": 5,
-   *       "value": "Dell"
    *     }
    *   ]
-   * } 
-   * 
+   * }
+   *
+   * @apiSuccess {Number}  id   The id of the item.
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
    *   "id":10
    * }
-   * 
+   *
    * @apiErrorExample {json} Error-Response:
    * HTTP/1.1 400 Bad Request
    * {
    *   "status: "error",
    *   "message": "The Name is required"
    * }
-   * 
+   *
    */
   public function postItem(Request $request, Response $response, $args): Response
   {
@@ -254,19 +347,51 @@ final class Item
     {
       foreach ($data->properties as $property)
       {
-        $dataFormat = [
-          'property_id' => 'required|type:integer|integer|min:1',
-          'value'       => 'present' // Can be string or number
-        ];
-        \App\v1\Common::validateData($property, $dataFormat);
+        $this->validationPropertyValue($property);
+
+        $prop = \App\v1\Models\Config\Property::find($property->property_id);
+
+        if (!is_null($property->value))
+        {
+          if ($prop->valuetype == 'itemlinks')
+          {
+            foreach ($property->value as $itemId)
+            {
+              $item = \App\v1\Models\Item::find($itemId);
+              if (is_null($item))
+              {
+                throw new \Exception(
+                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
+                    strval($property->property_id) . ')',
+                  400
+                );
+              }
+            }
+          }
+          if ($prop->valuetype == 'typelinks')
+          {
+            foreach ($property->value as $typeId)
+            {
+              $item = \App\v1\Models\Config\Type::find($typeId);
+              if (is_null($item))
+              {
+                throw new \Exception(
+                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
+                    strval($property->property_id) . ')',
+                  400
+                );
+              }
+            }
+          }
+        }
       }
     }
-  
+
     $ruleData = [
       'name' => $data->name
     ];
 
-    $item = new \App\v1\Models\Item;
+    $item = new \App\v1\Models\Item();
     $item->name = $data->name;
     $item->type_id = $data->type_id;
     $item->owner_user_id = 0;
@@ -283,7 +408,37 @@ final class Item
       {
         $propertiesId[] = $property->property_id;
         $ruleData[$property->property_id] = $property->value;
-        $item->properties()->attach($property->property_id, ['value' => $property->value]);
+        $propertyItem = \App\v1\Models\Config\Property::find($property->property_id);
+        $fieldName = 'value_' . $propertyItem->valuetype;
+        if ($propertyItem->valuetype == 'itemlinks' && !is_null($property->value))
+        {
+          foreach ($property->value as $value)
+          {
+            $item->properties()->attach($property->property_id, ['value_itemlink' => $value]);
+          }
+        }
+        elseif ($propertyItem->valuetype == 'typelinks' && !is_null($property->value))
+        {
+          foreach ($property->value as $value)
+          {
+            $item->properties()->attach($property->property_id, ['value_typelink' => $value]);
+          }
+        }
+        elseif ($propertyItem->valuetype == 'date' && $property->value == '')
+        {
+          $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d')]);
+        }
+        elseif ($propertyItem->valuetype == 'datetime' && $property->value == '')
+        {
+          $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d H:i:s')]);
+        }
+        elseif ($propertyItem->valuetype == 'time' && $property->value == '')
+        {
+          $item->properties()->attach($property->property_id, [$fieldName => date('H:i:s')]);
+        }
+        else {
+          $item->properties()->attach($property->property_id, [$fieldName => $property->value]);
+        }
       }
     }
 
@@ -295,7 +450,33 @@ final class Item
       {
         continue;
       }
-      $item->properties()->attach($prop->id, ['value' => $prop->default]);
+      $fieldName = 'value_' . $prop->valuetype;
+      if ($prop->valuetype == 'itemlinks')
+      {
+        // TODO
+      }
+      elseif ($prop->valuetype == 'typelinks' && !is_null($prop->default))
+      {
+        foreach ($prop->default as $typelink)
+        {
+          $item->properties()->attach($prop->id, ['value_typelink' => $typelink]);
+        }
+      }
+      elseif ($prop->valuetype == 'date' && $prop->default == '' && !is_null($prop->default))
+      {
+        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d')]);
+      }
+      elseif ($prop->valuetype == 'datetime' && $prop->default == '' && !is_null($prop->default))
+      {
+        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d H:i:s')]);
+      }
+      elseif ($prop->valuetype == 'time' && $prop->default == '' && !is_null($prop->default))
+      {
+        $item->properties()->attach($prop->id, [$fieldName => date('H:i:s')]);
+      }
+      else {
+        $item->properties()->attach($prop->id, [$fieldName => $prop->default]);
+      }
     }
 
     // run rules
@@ -315,25 +496,25 @@ final class Item
    *
    * @apiParam {Number}    id        Unique ID of the item.
    *
-   * @apiSuccess {String}  name      Name of the type.
-   * 
+   * @apiBody {String}  name      Name of the type.
+   *
    * @apiParamExample {json} Request-Example:
    * {
    *   "name": "LP-000423",
-   * } 
-   * 
+   * }
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
    * ]
-   * 
+   *
    * @apiErrorExample {json} Error-Response:
    * HTTP/1.1 400 Bad Request
    * {
    *   "status: "error",
    *   "message": "The Name is required"
    * }
-   * 
+   *
    */
   public function patchItem(Request $request, Response $response, $args): Response
   {
@@ -361,11 +542,12 @@ final class Item
   }
 
   /**
-   * @api {delete} /v1/type/:id delete an item
+   * @api {delete} /v1/items/:id delete an item
    * @apiName DeleteItem
    * @apiGroup Items
    * @apiVersion 1.0.0-draft
-   * @apiDescription The first delete request will do a soft delete. The second delete request will permanently delete the item
+   * @apiDescription The first delete request will do a soft delete. The second delete request will permanently
+   *    delete the item
    *
    * @apiUse AutorizationHeader
    *
@@ -375,7 +557,7 @@ final class Item
    * HTTP/1.1 200 OK
    * [
    * ]
-   * 
+   *
    */
   public function deleteItem(Request $request, Response $response, $args): Response
   {
@@ -393,8 +575,7 @@ final class Item
     {
       $item->forceDelete();
     }
-    else
-    {
+    else {
       $item->delete();
     }
 
@@ -402,60 +583,285 @@ final class Item
     return $response->withHeader('Content-Type', 'application/json');
   }
 
-  // ***************************************
-  // Manage properties (endpoint /property)
-  // ***************************************
+  // *********************** MANAGE PROPERTIES *********************** //
 
   /**
-   * @api {patch} /v1/items/:id/property/:propertyid Update the value of the property
+   * @api {patch} /v1/items/:id/property/:propertyid Update an existing property of item
    * @apiName PatchItemProperty
-   * @apiGroup Items/property
+   * @apiGroup Items
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
    * @apiParam {Number}    id           Unique ID of the item.
-   * @apiParam {Number}    propertyid   Unique ID of the property of the item.
+   * @apiParam {Number}    propertyid   Unique ID of the property.
    *
-   * @apiSuccess {String}  value        Value of the property.
-   * 
+   * @apiBody {String}  value                     Value of the property to update.
+   * @apiBody {Boolean} [reset_to_default=false]  To update with default value of property.
+   *
    * @apiParamExample {json} Request-Example:
    * {
-   *   "value": "my new value",
-   * } 
-   * 
+   *   "value": "my new value"
+   * }
+   *
+   * @apiParamExample {json} Request-Example:
+   * {
+   *   "value": null,
+   *   "reset_to_default": true
+   * }
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
    * ]
-   * 
+   *
    * @apiErrorExample {json} Error-Response:
    * HTTP/1.1 400 Bad Request
    * {
    *   "status: "error",
-   *   "message": "The Name is required"
+   *   "message": "The Value is required"
    * }
-   * 
+   *
    */
+
   public function patchProperty(Request $request, Response $response, $args): Response
   {
     $token = $request->getAttribute('token');
-
+    $args['propertyid'] = intval($args['propertyid']);
     $data = json_decode($request->getBody());
+    $item = \App\v1\Models\Item::find($args['id']);
+
+    if (is_null($item))
+    {
+      throw new \Exception("The item has not be found", 404);
+    }
+
+    $this->checkProperty($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    if (property_exists($data, 'reset_to_default') && $data->reset_to_default)
+    {
+      if ($property->valuetype == 'date' && $property->default == '' && !is_null($property->default))
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => date('Y-m-d')
+        ]);
+      }
+      elseif ($property->valuetype == 'datetime' && $property->default == '' && !is_null($property->default))
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => date('Y-m-d H:i:s')
+        ]);
+      }
+      elseif ($property->valuetype == 'time' && $property->default == '' && !is_null($property->default))
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => date('H:i:s')
+        ]);
+      }
+      elseif ($property->valuetype == 'typelinks' && !is_null($property->default))
+      {
+        // get current values and add or remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
+        }
+        foreach ($currentItems as $key => $idPivot)
+        {
+          if (!in_array($key, $property->default))
+          {
+            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+            $pivot->delete();
+          }
+        }
+        foreach ($property->default as $typelink)
+        {
+          if (!isset($currentItems[$typelink]))
+          {
+            $item->properties()->attach($args['propertyid'], [
+              'value_typelink' => $typelink
+            ]);
+          }
+        }
+      }
+      elseif ($property->valuetype == 'typelinks' && is_null($property->default))
+      {
+        // get current values and remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
+        }
+        array_shift($currentItems);
+        foreach ($currentItems as $key => $idPivot)
+        {
+          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+          $pivot->delete();
+        }
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_typelink' => null
+        ]);
+      }
+      else {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => $property->default
+        ]);
+      }
+    }
+    else {
+      // Define the arguments
+      $valdata = new stdClass();
+      $valdata->property_id = $args['propertyid'];
+      $valdata->value = $data->value;
+
+      $this->validationPropertyValue($valdata);
+
+      if ($property->valuetype == 'date' && $data->value == '' && !is_null($data->value))
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => date('Y-m-d')
+        ]);
+      }
+      elseif ($property->valuetype == 'datetime' && $data->value == '' && !is_null($data->value))
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => date('Y-m-d H:i:s')
+        ]);
+      }
+      elseif ($property->valuetype == 'time' && $data->value == '' && !is_null($data->value))
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => date('H:i:s')
+        ]);
+      }
+      elseif ($property->valuetype == 'typelinks' && !is_null($data->value))
+      {
+        // get current values and add or remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
+        }
+        foreach ($currentItems as $key => $idPivot)
+        {
+          if (!in_array($key, $data->value))
+          {
+            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+            $pivot->delete();
+          }
+        }
+        foreach ($data->value as $typelink)
+        {
+          if (!isset($currentItems[$typelink]))
+          {
+            $item->properties()->attach($args['propertyid'], [
+              'value_typelink' => $typelink
+            ]);
+          }
+        }
+      }
+      elseif ($property->valuetype == 'typelinks' && is_null($data->value))
+      {
+        // get current values and remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
+        }
+        array_shift($currentItems);
+        foreach ($currentItems as $key => $idPivot)
+        {
+          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+          $pivot->delete();
+        }
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_typelink' => null
+        ]);
+      }
+      else {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => $data->value
+        ]);
+      }
+    }
+    $response->getBody()->write(json_encode([]));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+
+
+
+  public function postPropertyItemlink(Request $request, Response $response, $args): Response
+  {
+    $token = $request->getAttribute('token');
+    $data = json_decode($request->getBody());
+    $this->checkProperty($args['propertyid'], 'itemlinks');
+
+    $response->getBody()->write(json_encode([]));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+  public function deletePropertyItemlink(Request $request, Response $response, $args): Response
+  {
+    $token = $request->getAttribute('token');
+    $data = json_decode($request->getBody());
+    $this->checkProperty($args['propertyid']);
+
+    $response->getBody()->write(json_encode([]));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+    /**
+   * @api {post} /v1/items/:id/property/:propertyid/typelinks Add a typelink
+   * @apiName PostItemPropertyTypelink
+   * @apiGroup Items
+   * @apiVersion 1.0.0-draft
+   *
+   * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id         Unique ID of the item.
+   * @apiParam {Number}    propertyid Unique ID of the property.
+   *
+   * @apiSuccess {Number}  value      Unique ID of the type.
+   *
+   * @apiParamExample {json} Request-Example:
+   * {
+   *   "value": 3
+   * }
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   *
+   */
+  public function postPropertyTypelink(Request $request, Response $response, $args): Response
+  {
+    $token = $request->getAttribute('token');
+    $data = json_decode($request->getBody());
+
     $item = \App\v1\Models\Item::find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("The item has not be found", 404);
     }
-    
-    // Validate the data format
+
+    $this->checkProperty($args['propertyid'], 'typelinks');
+
     $dataFormat = [
-      'value' => 'required' // Can be string or number
+      'value' => 'required|type:integer|regex:/^[0-9]+$/'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $item->properties()->updateExistingPivot($args['propertyid'], [
-      'value' => $data->value,
+    $typelink = \App\v1\Models\Config\Type::find($data->value);
+    if (is_null($typelink))
+    {
+      throw new \Exception('The Value is an id than does not exist', 400);
+    }
+
+
+    $item->properties()->attach($args['propertyid'], [
+      'value_typelink' => $data->value
     ]);
 
     $response->getBody()->write(json_encode([]));
@@ -463,24 +869,25 @@ final class Item
   }
 
   /**
-   * @api {delete} /v1/type/:id/property/:propertyid delete a property of the item
-   * @apiName DeleteItemProperty
-   * @apiGroup Items/property
+   * @api {delete} /v1/items/:id/property/:propertyid/typelinks/:typelinkid Delete a typelink
+   * @apiName DeleteItemPropertyTypelink
+   * @apiGroup Items
    * @apiVersion 1.0.0-draft
-   * @apiDescription Reset the property to the default value
+   * @apiDescription Delete a typelink in a property
    *
    * @apiUse AutorizationHeader
    *
-   * @apiParam {Number}    id           Unique ID of the item.
-   * @apiParam {Number}    propertyid   Unique ID of the property of the item.
+   * @apiParam {Number}    id         Unique ID of the item.
+   * @apiParam {Number}    propertyid Unique ID of the property.
+   * @apiParam {Number}    typelinkid Unique ID of the typelink.
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
    * ]
-   * 
+   *
    */
-  public function deleteProperty(Request $request, Response $response, $args): Response
+  public function deletePropertyTypelink(Request $request, Response $response, $args): Response
   {
     $token = $request->getAttribute('token');
 
@@ -490,20 +897,185 @@ final class Item
       throw new \Exception("The item has not be found", 404);
     }
 
+    $this->checkProperty($args['propertyid'], 'typelinks');
     $property = \App\v1\Models\Config\Property::find($args['propertyid']);
-    if (is_null($property))
+
+    $typelink = \App\v1\Models\Config\Type::find($args['typelinkid']);
+    if (is_null($typelink))
     {
-      throw new \Exception("The property has not be found", 404);
+      throw new \Exception('The typelink is an id than does not exist', 400);
     }
 
-    $item->properties()->updateExistingPivot($args['propertyid'], [
-      'value' => $property->default,
-    ]);
-
+    $currentItems = [];
+    foreach (
+        $item->propertiesLinks()
+        ->where('property_id', $args['propertyid'])
+        ->where('value_typelink', $args['typelinkid'])
+        ->get() as $t
+    )
+    {
+      $pivot = \App\v1\Models\ItemProperty::find($t->pivot->id);
+      $pivot->delete();
+    }
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
 
+
+  private function checkProperty($id, $valuetype = null)
+  {
+    $property = \App\v1\Models\Config\Property::find($id);
+
+    if (is_null($property))
+    {
+      throw new \Exception("The property has not be found", 404);
+    }
+    if (!is_null($valuetype))
+    {
+      if ($property->valuetype != $valuetype)
+      {
+        throw new \Exception("The property is not a valuetype " . $valuetype, 404);
+      }
+    }
+  }
+
+  private function validationPropertyValue($data)
+  {
+    $dataFormat = [
+      'property_id' => 'required|type:integer|integer|min:1',
+      'value'       => 'present'
+    ];
+    \App\v1\Common::validateData($data, $dataFormat);
+
+    $property = \App\v1\Models\Config\Property::find($data->property_id);
+    $dataFormat = [
+      'property_id' => 'present',
+      'value'       => 'required'
+    ];
+
+    if ($property->canbenull && is_null($data->value))
+    {
+      return;
+    }
+    if (is_null($data->value) && !$property->canbenull)
+    {
+      throw new \Exception(
+        'The Value can\'t be null (property ' . $property->name . ' - ' .
+          strval($data->property_id) . ')',
+        400
+      );
+    }
+
+    if ($property->valuetype == 'date')
+    {
+      $dataFormat['value'] = 'present|type:string|dateformat';
+    }
+    elseif ($property->valuetype == 'datetime')
+    {
+      $dataFormat['value'] = 'present|type:string|datetimeformat';
+    }
+    elseif ($property->valuetype == 'time')
+    {
+      $dataFormat['value'] = 'present|type:string|timeformat';
+    }
+    elseif ($property->valuetype == 'decimal')
+    {
+      $dataFormat['value'] = 'required|type:double';
+    }
+    elseif ($property->valuetype == 'number')
+    {
+      $dataFormat['value'] = 'required|type:integer|regex:/^[0-9]+$/';
+    }
+    elseif (in_array($property->valuetype, ['string', 'text']))
+    {
+      $dataFormat['value'] = 'required|type:string';
+    }
+    elseif (in_array($property->valuetype, ['integer']))
+    {
+      $dataFormat['value'] = 'required|type:integer|integer';
+    }
+    elseif (in_array($property->valuetype, ['itemlink', 'typelink', 'propertylink', 'list']))
+    {
+      $dataFormat['value'] = 'required|type:integer|regex:/^[0-9]+$/';
+    }
+    elseif (in_array($property->valuetype, ['itemlinks', 'typelinks']))
+    {
+      $dataFormat['value'] = 'required|array';
+    }
+    elseif ($property->valuetype == 'boolean')
+    {
+      $dataFormat['value'] = 'present|type:boolean|boolean';
+    }
+    \App\v1\Common::validateData($data, $dataFormat);
+
+    if (!is_null($data->value))
+    {
+      // check if the item id exists
+      if ($property->valuetype == 'itemlink')
+      {
+        $item = \App\v1\Models\Item::find($data->value);
+        if (is_null($item))
+        {
+          throw new \Exception(
+            'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+              strval($data->property_id) . ')',
+            400
+          );
+        }
+      }
+      // check if the type id exists
+      if ($property->valuetype == 'typelink')
+      {
+        $item = \App\v1\Models\Config\Type::find($data->value);
+        if (is_null($item))
+        {
+          throw new \Exception(
+            'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+              strval($data->property_id) . ')',
+            400
+          );
+        }
+      }
+      // check if the property id exists
+      if ($property->valuetype == 'propertylink')
+      {
+        $item = \App\v1\Models\Config\Property::find($data->value);
+        if (is_null($item))
+        {
+          throw new \Exception(
+            'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+              strval($data->property_id) . ')',
+            400
+          );
+        }
+      }
+
+      // check if the list id exists
+      if ($property->valuetype == 'list')
+      {
+        $item = \App\v1\Models\Config\Propertylist::find($data->value);
+        if (is_null($item))
+        {
+          throw new \Exception(
+            'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+              strval($data->property_id) . ')',
+            400
+          );
+        }
+      }
+      if ($property->valuetype == 'string')
+      {
+        if (strlen($data->value) > 255)
+        {
+          throw new \Exception(
+            'The Value is too long, max 255 chars (property ' . $property->name . ' - ' .
+              strval($data->property_id) . ')',
+            400
+          );
+        }
+      }
+    }
+  }
 
   private function runRules($data)
   {
@@ -518,7 +1090,7 @@ final class Item
       $context[$prop->name] = $property->value;
     }
 
-    // get all rules 
+    // get all rules
     $rules = \App\v1\Models\Rule::where('type', 'rewritefield')->get();
     foreach ($rules as $rule)
     {
@@ -528,7 +1100,8 @@ final class Item
         $model = unserialize($rule->serialized);
         // $model = \Hoa\Ruler\Ruler::interpret("name = 'test'");
 
-        if ($ruler->assert($model, $context)) {
+        if ($ruler->assert($model, $context))
+        {
           // todo rewrite
           // echo "rewrited !!!!\n";
           $data->name = "rewriten";
@@ -538,5 +1111,4 @@ final class Item
 
     return $data;
   }
-  
 }

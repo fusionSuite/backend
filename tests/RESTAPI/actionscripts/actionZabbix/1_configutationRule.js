@@ -8,9 +8,10 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('actionscripts/actionZabbix - configuration rule', function() {
+describe('actionscripts/ActionZabbix - configuration rule', function() {
 
   global.zabbix = {};
+  global.listIds = {};
 
   it('get the types releted to Zabbix', function (done) {
     request
@@ -98,7 +99,7 @@ describe('actionscripts/actionZabbix - configuration rule', function() {
       if (prop.internalname === "action.zabbix.templateid") {
         properties.push({
           property_id: prop.id,
-          value: '45'
+          value: 45
         });
       }
     });
@@ -133,7 +134,7 @@ describe('actionscripts/actionZabbix - configuration rule', function() {
       if (prop.internalname === "action.zabbix.templateid") {
         properties.push({
           property_id: prop.id,
-          value: '105'
+          value: 105
         });
       }
     });
@@ -203,32 +204,59 @@ describe('actionscripts/actionZabbix - configuration rule', function() {
     });
   });
 
+  it('Get the list of ids of actions', function(done) {
+    request
+    .get('/v1/config/properties')
+    .send()
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + global.token)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function(response) {
+      global.listIds = {};
+      for (let property of response.body) {
+        if (property.internalname === "action.zabbix.associatedaction") {
+          for (let value of property.listvalues) {
+            global.listIds[value.value] = value.id;
+          }
+        }
+      }
+      assert(is.propertyCount(global.listIds, 3));
+    })
+    .end(function(err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+  });
+
   it('create a config for create host in Zabbix', function(done) {
     let properties = [];
     global.zabbix.createhost.properties.forEach(prop => {
       if (prop.internalname === "action.zabbix.apiconfiguration") {
         properties.push({
           property_id: prop.id,
-          value: ''+global.zabbixAPIConfigId
+          value: global.zabbixAPIConfigId
         });
       }
-      if (prop.internalname === "action.classname") {
+      if (prop.internalname === "action.zabbix.classname") {
         properties.push({
           property_id: prop.id,
-          value: 'actionZabbix'
+          value: 'ActionZabbix'
         });
       }
-      if (prop.internalname === "action.associatedaction") {
+      if (prop.internalname === "action.zabbix.associatedaction") {
         properties.push({
           property_id: prop.id,
-          value: 'addHost'
+          value: global.listIds['addHost']
         });
       }
 
       if (prop.internalname === "action.zabbix.hostnameid") {
         properties.push({
           property_id: prop.id,
-          value: '0'
+          value: 0
         });
       }
       // if (prop.internalname === "ip") {
@@ -240,19 +268,19 @@ describe('actionscripts/actionZabbix - configuration rule', function() {
       if (prop.internalname === "action.zabbix.groupid") {
         properties.push({
           property_id: prop.id,
-          value: '19'
+          value: 19
         });
       }
       if (prop.internalname === "action.zabbix.hostid") {
         properties.push({
           property_id: prop.id,
-          value: ''
+          value: null
         });
       }
       if (prop.internalname === "action.zabbix.templates") {
         properties.push({
           property_id: prop.id,
-          value: ''+global.zabbixTemplateLinuxId
+          value: [global.zabbixTemplateLinuxId]
         });
         // TODO not possible for the moment to have 2 'same' property
         // properties.push({
@@ -263,7 +291,7 @@ describe('actionscripts/actionZabbix - configuration rule', function() {
       if (prop.internalname === "action.zabbix.macros") {
         properties.push({
           property_id: prop.id,
-          value: ''+global.zabbixMacroId
+          value: [global.zabbixMacroId]
         });
       }
     });

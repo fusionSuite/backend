@@ -8,7 +8,10 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('actionscripts/notificationMail - configuration rule', function() {
+describe('actionscripts/NotificationMail - configuration rule', function() {
+
+  global.listIds = {};
+  global.htmltemplateIds = {};
 
   it('get the types releted to mail notifications', function (done) {
     request
@@ -49,13 +52,7 @@ describe('actionscripts/notificationMail - configuration rule', function() {
       if (prop.internalname === "tcpport") {
         properties.push({
           property_id: prop.id,
-          value: '10025'
-        });
-      }
-      if (prop.internalname === "action.notification.encryption") {
-        properties.push({
-          property_id: prop.id,
-          value: 'none'
+          value: 10025
         });
       }
       if (prop.internalname === "action.notification.sender.name") {
@@ -96,31 +93,65 @@ describe('actionscripts/notificationMail - configuration rule', function() {
     });
   });
 
+  it('Get the list of ids', function(done) {
+    request
+    .get('/v1/config/properties')
+    .send()
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + global.token)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function(response) {
+      global.listIds = {};
+      global.htmltemplateIds = {};
+      for (let property of response.body) {
+        if (property.internalname === "action.notification.associatedaction") {
+          for (let value of property.listvalues) {
+            global.listIds[value.value] = value.id;
+          }
+        }
+        if (property.internalname === "action.notification.htmltemplate") {
+          for (let value of property.listvalues) {
+            global.htmltemplateIds[value.value] = value.id;
+          }
+        }
+      }
+      assert(is.propertyCount(global.listIds, 2));
+      assert(is.propertyCount(global.htmltemplateIds, 2));
+    })
+    .end(function(err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+  });
+
   it('create a new mail notification configuration', function(done) {
     let properties = [];
     global.mailconfig.properties.forEach(prop => {
       if (prop.internalname === "action.notification.smtpconfig") {
         properties.push({
           property_id: prop.id,
-          value: ''+global.mailsmtpconfigId
+          value: global.mailsmtpconfigId
         });
       }
-      if (prop.internalname === "action.classname") {
+      if (prop.internalname === "action.notification.classname") {
         properties.push({
           property_id: prop.id,
-          value: 'notificationMail'
+          value: 'NotificationMail'
         });
       }
-      if (prop.internalname === "action.associatedaction") {
+      if (prop.internalname === "action.notification.associatedaction") {
         properties.push({
           property_id: prop.id,
-          value: 'simpleNotification'
+          value: global.listIds['simpleNotification']
         });
       }
       if (prop.internalname === "action.notification.htmltemplate") {
         properties.push({
           property_id: prop.id,
-          value: 'information'
+          value: global.htmltemplateIds['information']
         });
       }
       if (prop.internalname === "title") {

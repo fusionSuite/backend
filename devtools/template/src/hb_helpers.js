@@ -13,7 +13,6 @@
  * Helper functions for HandleBars
  */
 import Handlebars from 'handlebars';
-import { __ } from './locales/locale';
 import $ from 'jquery';
 import { body2json } from './jsonifier';
 import DiffMatchPatch from './diff_match_patch';

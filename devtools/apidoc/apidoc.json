@@ -6,6 +6,19 @@
   "order": [
     "Ping",
     "Status",
-    "Authentication"
+    "Authentication",
+    "GetConfigProperties",
+    "GetConfigProperty",
+    "PostConfigProperties",
+    "PatchConfigProperties",
+    "GetConfigPropertygroups",
+    "GetConfigTypes",
+    "GetConfigType",
+    "PostConfigTypes",
+    "PatchConfigTypes",
+    "DeletConfigTypes",
+    "PostConfigTypesProperty",
+    "DeleteConfigTypesProperty",
+    "PostConfigTypesTemplate"
   ]
 }

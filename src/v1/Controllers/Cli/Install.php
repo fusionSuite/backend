@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,15 +8,16 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers\Cli;
 
 use Ahc\Cli\Input\Command;
@@ -23,7 +25,6 @@ use Ahc\Cli\Output\Color;
 use Ahc\Cli\Output\Writer;
 use Phinx\Console\PhinxApplication;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher;
@@ -38,19 +39,19 @@ class Install extends Command
 
   public function execute()
   {
-    $color = new Color;
-    $writer = new Writer;
+    $color = new Color();
+    $writer = new Writer();
     echo $color->comment('=> The database will be installed / updated');
     $writer->write("\n");
 
     $phinx = new PhinxApplication();
     $phinxCommand = $phinx->find('migrate');
-    $phinxConfig = include(__DIR__.'/../../../../config/current/database.php');
+    $phinxConfig = include(__DIR__ . '/../../../../config/current/database.php');
 
     $arguments = [
       'command'         => 'migrate',
       '--environment'   => $phinxConfig['environments']['default_environment'],
-      '--configuration' => __DIR__.'/../../../../config/current/database.php'
+      '--configuration' => __DIR__ . '/../../../../config/current/database.php'
     ];
     $input = new ArrayInput($arguments);
     $output = new ConsoleOutput();
@@ -71,9 +72,9 @@ class Install extends Command
 
     // Manage DB Connection
     $config = include(__DIR__ . '/../../../config.php');
-    $capsule = new Capsule;
+    $capsule = new Capsule();
     $capsule->addConnection($config['db']);
-    $capsule->setEventDispatcher(new Dispatcher(new Container));
+    $capsule->setEventDispatcher(new Dispatcher(new Container()));
     $capsule->setAsGlobal();
     $capsule->bootEloquent();
     // DB connection done
@@ -81,17 +82,17 @@ class Install extends Command
 
     $actionBaseFolder = __DIR__ . '/../../../../ActionScripts';
     $actionFolders = scandir($actionBaseFolder);
-    $type = new \App\v1\Controllers\Config\Type;
-    foreach($actionFolders as $actionFolder)
+    $type = new \App\v1\Controllers\Config\Type();
+    foreach ($actionFolders as $actionFolder)
     {
       if ($actionFolder == '.' || $actionFolder == '..')
       {
         continue;
       }
-      $jsonTemplateFile = $actionBaseFolder.'/'.$actionFolder.'/'.$actionFolder.'.json';
+      $jsonTemplateFile = $actionBaseFolder . '/' . $actionFolder . '/' . $actionFolder . '.json';
       if (file_exists($jsonTemplateFile))
       {
-        $writer->green(' -> '.$actionFolder);
+        $writer->green(' -> ' . $actionFolder);
         $nbChar = strlen($actionFolder);
         $writer->green(str_repeat('.', (80 - $nbChar)));
         $template = json_decode(file_get_contents($jsonTemplateFile));
@@ -99,14 +100,12 @@ class Install extends Command
         $debug = false;
         if ($debug)
         {
-          $type->_createTemplate($template);
+          $type->createTemplate($template);
           $writer->boldGreen(' OK ');
         }
-        else
-        {
-          try
-          {
-            $type->_createTemplate($template);
+        else {
+          try {
+            $type->createTemplate($template);
             $writer->boldGreen(' OK ');
           }
           catch (\Exception $e)

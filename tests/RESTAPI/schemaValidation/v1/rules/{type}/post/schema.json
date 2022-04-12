@@ -1,0 +1,29 @@
+{
+    "path": "\/v1\/rules\/{type}",
+    "method": "post",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "properties": {
+                    "type": {
+                        "type": "number",
+                        "description": "Id of the type."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "type"
+                ]
+            }
+        }
+    ],
+    "responses": []
+}

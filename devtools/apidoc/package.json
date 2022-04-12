@@ -1,7 +1,9 @@
 {
   "dependencies": {
-    "apidoc": "^0.50.3",
-    "esbuild-loader": "^2.18.0",
+    "apidoc": "0.51.1",
+    "apidoc-swagger-3": "^1.0.6",
+    "apidoc-swagger-converter": "^1.0.9",
+    "esbuild-loader": "^2.19.0",
     "install": "^0.13.0",
     "webpack": "^5.66.0"
   }

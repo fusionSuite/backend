@@ -1,0 +1,54 @@
+{
+    "path": "\/v1\/items",
+    "method": "post",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "query",
+            "name": "name",
+            "description": "The name of the item.",
+            "required": true
+        },
+        {
+            "type": "number",
+            "in": "query",
+            "name": "type_id",
+            "description": "The id of the type of the item.",
+            "required": true
+        },
+        {
+            "type": "object[]",
+            "in": "query",
+            "name": "properties",
+            "description": "List of properties",
+            "required": true
+        },
+        {
+            "type": "number",
+            "in": "query",
+            "name": "properties.property_id",
+            "description": "The id of the property.",
+            "required": true
+        },
+        {
+            "type": "string[]",
+            "in": "query",
+            "name": "properties.value",
+            "description": "The value of the property for the item.",
+            "required": true
+        },
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        }
+    ],
+    "responses": {
+        "id": {
+            "type": "number",
+            "description": "The id of the item."
+        }
+    }
+}

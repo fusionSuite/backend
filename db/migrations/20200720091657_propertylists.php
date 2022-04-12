@@ -43,7 +43,7 @@ final class Propertylists extends AbstractMigration
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
-          ->addIndex('property_id')
+          ->addIndex(['property_id', 'value'], ['unique' => true])
           ->create();
   }
 }

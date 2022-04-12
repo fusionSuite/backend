@@ -1,0 +1,6 @@
+{
+    "path": "\/ping",
+    "method": "get",
+    "parameters": [],
+    "responses": []
+}

@@ -1,0 +1,90 @@
+{
+    "path": "\/v1\/userparams",
+    "method": "get",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        }
+    ],
+    "responses": {
+        "itemlist": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "The id of type (see type endpoint) for manage itemlist userparam."
+                },
+                "properties": {
+                    "type": "object",
+                    "properties": {
+                        "typeId": {
+                            "type": "number",
+                            "description": "The property id where store for what id of item manage this userparams."
+                        },
+                        "elementsPerPage": {
+                            "type": "number",
+                            "description": "The property id for store the default number of elements to display per page."
+                        },
+                        "propertiesOrder": {
+                            "type": "number",
+                            "description": "The property id for store the order to display properties."
+                        },
+                        "propertiesHidden": {
+                            "type": "number",
+                            "description": "The property id for store the hidden properties."
+                        }
+                    },
+                    "required": [
+                        "typeId",
+                        "elementsPerPage",
+                        "propertiesOrder",
+                        "propertiesHidden"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "properties"
+            ]
+        },
+        "csvimport": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "The id of type (see type endpoint)."
+                },
+                "properties": {
+                    "type": "object",
+                    "properties": {
+                        "typeId": {
+                            "type": "number",
+                            "description": "The property id where store for what id of item manage this userparams."
+                        },
+                        "mappingCols": {
+                            "type": "number",
+                            "description": "The property id for store the columns mapping."
+                        },
+                        "joiningFields": {
+                            "type": "number",
+                            "description": "The property id for store what fields are joining."
+                        }
+                    },
+                    "required": [
+                        "typeId",
+                        "mappingCols",
+                        "joiningFields"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "properties"
+            ]
+        }
+    }
+}

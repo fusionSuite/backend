@@ -23,7 +23,6 @@ import 'prismjs/components/prism-http';
 import 'prismjs/components/prism-python';
 
 import { initSampleRequest } from './send_sample_request.js';
-import { __, setLanguage } from './locales/locale.mjs';
 
 // helpers for HandleBars
 import { register } from './hb_helpers';
@@ -592,7 +591,7 @@ function init () {
    * Filter search
    */
   $('[data-action="filter-search"]').on('keyup', event => {
-    const query = event.currentTarget.value;
+    const query = event.currentTarget.value.toLowerCase();
     // find all links that are endpoints
     $('.sidenav').find('a.nav-list-item').each((index, el) => {
       // begin by showing all so they don't stay hidden

@@ -1,0 +1,29 @@
+{
+    "path": "\/v1\/rules\/{id}",
+    "method": "delete",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "Unique ID of the item."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id"
+                ]
+            }
+        }
+    ],
+    "responses": []
+}

@@ -49,7 +49,7 @@ final class FillUserparams extends AbstractMigration
     // * type_id
     // * nb_per_page
     // * cols (example: [2,6,4])
-    $controllerTypeproperty = new \App\v1\Controllers\Config\TypeProperty;
+    $controllerProperty = new \App\v1\Controllers\Config\Property;
     
     $data = new stdClass;
     $data->name = 'type_id';
@@ -58,27 +58,36 @@ final class FillUserparams extends AbstractMigration
     $data->regexformat = '';
     $data->listvalues = [];
     $data->unit = '';
-    $data->default = '0';
+    $data->default = null;
     $data->description = 'the id of the type';
-    $this->propIdTypeId = $controllerTypeproperty->_createProperty($data);   
+    $this->propIdTypeId = $controllerProperty->createProperty($data);   
 
+    $data = new stdClass;
     $data->name = 'elements per page';
     $data->internalname = 'internal.elementsPerPage';
     $data->valuetype = 'integer';
+    $data->regexformat = '';
+    $data->default = null;
     $data->description = 'number of elements to display per page';
-    $propIdElementsPerPage = $controllerTypeproperty->_createProperty($data);    
+    $propIdElementsPerPage = $controllerProperty->createProperty($data);    
 
+    $data = new stdClass;
     $data->name = 'property ids list (string)';
     $data->internalname = 'internal.properties';
     $data->valuetype = 'string';
+    $data->regexformat = '';
+    $data->default = null;
     $data->description = 'list of properties in a string';
-    $propIdTypeProperties = $controllerTypeproperty->_createProperty($data);    
+    $propIdProperties = $controllerProperty->createProperty($data);    
 
+    $data = new stdClass;
     $data->name = 'property ids hidden list (string)';
     $data->internalname = 'internal.propertieshidden';
     $data->valuetype = 'string';
+    $data->regexformat = '';
+    $data->default = null;
     $data->description = 'list of properties hidden in a string';
-    $propIdTypePropertiesHidden = $controllerTypeproperty->_createProperty($data);    
+    $propIdPropertiesHidden = $controllerProperty->createProperty($data);    
 
     // create the type
     $type = new \App\v1\Models\Config\Type;
@@ -91,8 +100,8 @@ final class FillUserparams extends AbstractMigration
     // associate the properties
     $type->properties()->attach($this->propIdTypeId);
     $type->properties()->attach($propIdElementsPerPage);
-    $type->properties()->attach($propIdTypeProperties);
-    $type->properties()->attach($propIdTypePropertiesHidden);
+    $type->properties()->attach($propIdProperties);
+    $type->properties()->attach($propIdPropertiesHidden);
   }
 
   private function createItem()
@@ -106,7 +115,7 @@ final class FillUserparams extends AbstractMigration
     // * type_id
     // * mappingcols (example: [0, 2,null,4])
     // * joiningField (example: [0, 1, 0, 0, 1])
-    $controllerTypeproperty = new \App\v1\Controllers\Config\TypeProperty;
+    $controllerProperty = new \App\v1\Controllers\Config\Property;
 
     $data = new stdClass;
     $data->name = 'property ids cols mapping (string)';
@@ -117,13 +126,13 @@ final class FillUserparams extends AbstractMigration
     $data->unit = '';
     $data->default = '0';
     $data->description = 'list of properties for cols mapping in a string';
-    $propIdMappingcols= $controllerTypeproperty->_createProperty($data);    
+    $propIdMappingcols= $controllerProperty->createProperty($data);    
     
     $data->name = 'joining fields (string)';
     $data->internalname = 'internal.joiningfields';
     $data->valuetype = 'string';
     $data->description = 'define for each field / column if it is a joining field';
-    $propIdJoiningFields = $controllerTypeproperty->_createProperty($data);    
+    $propIdJoiningFields = $controllerProperty->createProperty($data);    
     
     // create the type
     $type = new \App\v1\Models\Config\Type;
