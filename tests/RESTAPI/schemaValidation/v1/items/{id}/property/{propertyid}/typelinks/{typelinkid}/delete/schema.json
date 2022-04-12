@@ -1,0 +1,39 @@
+{
+    "path": "\/v1\/items\/{id}\/property\/{propertyid}\/typelinks\/{typelinkid}",
+    "method": "delete",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "Unique ID of the item."
+                    },
+                    "propertyid": {
+                        "type": "number",
+                        "description": "Unique ID of the property."
+                    },
+                    "typelinkid": {
+                        "type": "number",
+                        "description": "Unique ID of the typelink."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "propertyid",
+                    "typelinkid"
+                ]
+            }
+        }
+    ],
+    "responses": []
+}

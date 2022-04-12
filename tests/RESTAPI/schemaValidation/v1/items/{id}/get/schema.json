@@ -1,0 +1,140 @@
+{
+    "path": "\/v1\/items\/{id}",
+    "method": "get",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "query",
+            "name": "The",
+            "description": "item unique ID.",
+            "required": true
+        },
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "properties": [],
+                "type": "object",
+                "required": []
+            }
+        }
+    ],
+    "responses": {
+        "id": {
+            "type": "number",
+            "description": "The id of the item."
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the item."
+        },
+        "created_at": {
+            "type": "iso8601",
+            "description": "Date of the item creation."
+        },
+        "updated_at": {
+            "type": "null|iso8601",
+            "description": "Date of the last item modification."
+        },
+        "properties": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "The id of the property."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the property."
+                    },
+                    "valuetype": {
+                        "type": "string",
+                        "description": "The type of value."
+                    },
+                    "unit": {
+                        "type": "null|string",
+                        "description": "The unit used for the property (example: Ko, seconds...)."
+                    },
+                    "listvalues": {
+                        "type": "array",
+                        "items": []
+                    },
+                    "value": {
+                        "type": "string",
+                        "description": "The value of the property."
+                    },
+                    "byfusioninventory": {
+                        "type": "boolean",
+                        "description": "Is updated by FusionInventory."
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "valuetype",
+                    "unit",
+                    "listvalues",
+                    "value",
+                    "byfusioninventory",
+                    "id",
+                    "name",
+                    "valuetype",
+                    "unit",
+                    "listvalues",
+                    "value",
+                    "byfusioninventory"
+                ]
+            }
+        },
+        "propertygroups": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "The id of the propertygroup."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the propertygroup."
+                    },
+                    "position": {
+                        "type": "number",
+                        "description": "The position number of the propertygroup."
+                    },
+                    "properties": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    "created_at": {
+                        "type": "iso8601",
+                        "description": "Date of the propertygroups creation."
+                    },
+                    "updated_at": {
+                        "type": "null|iso8601",
+                        "description": "Date of the last propertygroups modification."
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "position",
+                    "properties",
+                    "created_at",
+                    "updated_at"
+                ]
+            }
+        }
+    }
+}

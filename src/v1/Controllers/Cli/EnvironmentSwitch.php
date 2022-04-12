@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,15 +8,16 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers\Cli;
 
 use Ahc\Cli\Input\Command;
@@ -39,7 +41,7 @@ class EnvironmentSwitch extends Command
 
   public function interact(Interactor $io)
   {
-    $cliCommon = new Common;
+    $cliCommon = new Common();
     $envs = $cliCommon->getEnvironmentList();
 
     if (is_null($this->name) || $this->name == 1)
@@ -47,13 +49,12 @@ class EnvironmentSwitch extends Command
       $env = $io->choice('Select the environment to switch to:', $envs);
       $this->set('name', $env);
     }
-
   }
 
   public function execute()
   {
-    $writer = new Writer;
-    $cliCommon = new Common;
+    $writer = new Writer();
+    $cliCommon = new Common();
 
     $cliCommon->switchEnvironment($this->name);
 

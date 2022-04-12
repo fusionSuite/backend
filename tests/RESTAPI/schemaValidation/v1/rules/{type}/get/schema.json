@@ -1,0 +1,42 @@
+{
+    "path": "\/v1\/rules\/{type}",
+    "method": "get",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "query",
+            "name": "type",
+            "description": "The type of the rules.",
+            "required": true
+        },
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "properties": [],
+                "type": "object",
+                "required": []
+            }
+        }
+    ],
+    "responses": {
+        "id": {
+            "type": "integer",
+            "description": "The id of the item."
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the item."
+        },
+        "comment": {
+            "type": "string",
+            "description": "The comment of the item."
+        }
+    }
+}

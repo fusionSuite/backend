@@ -1,0 +1,34 @@
+{
+    "path": "\/v1\/rules\/{type}\/{id}\/criteria",
+    "method": "post",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the rule."
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "Comment of the rule."
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "name",
+                    "comment"
+                ]
+            }
+        }
+    ],
+    "responses": []
+}

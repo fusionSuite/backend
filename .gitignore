@@ -5,3 +5,4 @@
 /tests/RESTAPI/node_modules
 tests/RESTAPI/mb*
 config
+devtools/apidoc/logfile.log

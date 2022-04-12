@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
+use Phinx\Db\Adapter\MysqlAdapter;
 
 final class Properties extends AbstractMigration
 {
@@ -42,12 +43,30 @@ final class Properties extends AbstractMigration
           ->addColumn('valuetype', 'string')
           ->addColumn('regexformat', 'string', ['null' => true])
           ->addColumn('unit', 'string', ['null' => true])
-          ->addColumn('default', 'string')
+          ->addColumn('default_integer', 'integer', ['null' => true])
+          ->addColumn('default_decimal', 'decimal', ['null' => true, 'precision' => 10, 'scale' => 6])
+          ->addColumn('default_string', 'string', ['null' => true])
+          ->addColumn('default_text', 'text', ['null' => true, 'limit' => MysqlAdapter::TEXT_LONG])
+          ->addColumn('default_boolean', 'boolean', ['null' => true])
+          ->addColumn('default_datetime', 'datetime', ['null' => true])
+          ->addColumn('default_date', 'date', ['null' => true])
+          ->addColumn('default_time', 'time', ['null' => true])
+          ->addColumn('default_number', 'integer', ['null' => true])
+          ->addColumn('default_itemlink', 'integer', ['null' => true])
+          ->addColumn('default_itemlinks', 'text', ['null' => true])
+          ->addColumn('default_typelink', 'integer', ['null' => true])
+          ->addColumn('default_typelinks', 'string', ['null' => true])
+          ->addColumn('default_propertylink', 'integer', ['null' => true])
+          ->addColumn('default_list', 'integer', ['null' => true])
+          ->addColumn('default_password', 'string', ['null' => true])
+          ->addColumn('default_passwordhash', 'string', ['null' => true])
           ->addColumn('description', 'text', ['null' => true])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
           ->addIndex(['internalname'], ['unique' => true])
+          ->addColumn('canbenull', 'boolean', ['default' => true])
+          ->addColumn('setcurrentdate', 'boolean', ['default' => false])
           ->create();
   }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,27 +8,22 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-namespace App\v1;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+namespace App\v1;
 
 trait Read
 {
-
   // TODO
   // with_properties=['type', 'software']
-
-
 
   public function manageParams($request, $tokenInformation = null)
   {
@@ -64,7 +60,7 @@ trait Read
 
 
     */
-    foreach ($params as $key=>$value)
+    foreach ($params as $key => $value)
     {
       if (in_array($key, ['page', 'per_page']))
       {
@@ -103,7 +99,7 @@ trait Read
       {
         if ($field[0] == '-')
         {
-          $order[] = substr($field, 1)." DESC";
+          $order[] = substr($field, 1) . " DESC";
         } else {
           $order[] = $field;
         }
@@ -125,14 +121,18 @@ trait Read
       'skip' => 0,
       'take' => 100
     ];
-    if (isset($params['page'])
-          && is_numeric($params['page']))
+    if (
+        isset($params['page'])
+        && is_numeric($params['page'])
+    )
     {
         $pagination['skip'] = ($params['page'] - 1);
     }
-    if (isset($params['per_page'])
-          && is_numeric($params['per_page'])          
-          && $params['per_page'] <= 990)
+    if (
+        isset($params['per_page'])
+        && is_numeric($params['per_page'])
+        && $params['per_page'] <= 990
+    )
     {
         $pagination['take'] = $params['per_page'];
     }
@@ -141,14 +141,13 @@ trait Read
 
   public function createLink($request, $pagination, $totalCnt)
   {
-   
-    // next	The link relation for the immediate next page of results.
-    // last	The link relation for the last page of results.
-    // first	The link relation for the first page of results.
-    // prev	The link relation for the immediate previous page of results.
+    // next The link relation for the immediate next page of results.
+    // last The link relation for the last page of results.
+    // first The link relation for the first page of results.
+    // prev The link relation for the immediate previous page of results.
 
     // <https://api.github.com/user/repos?page=3&per_page=100>; rel="next",
-    // <https://api.github.com/user/repos?page=50&per_page=100>; rel="last"    
+    // <https://api.github.com/user/repos?page=50&per_page=100>; rel="last"
 
     $uri = $request->getUri();
     $path = $uri->getPath();
@@ -157,7 +156,7 @@ trait Read
     $paramsQuery = $request->getQueryParams();
     $paramsQuery['per_page'] = $pagination['take'];
 
-    $url = $scheme."://".$host.$path;
+    $url = $scheme . "://" . $host . $path;
     $query = $uri->getQuery();
     $links = [];
 
@@ -166,16 +165,16 @@ trait Read
     if ($currentMaxItems < $totalCnt)
     {
       $paramsQuery['page'] = ($pagination['skip'] + 2);
-      $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="next"';
+      $links[] = '<' . $url . '?' . http_build_query($paramsQuery) . '>; rel="next"';
       $paramsQuery['page'] = (ceil($totalCnt / $pagination['take']));
-      $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="last"';
+      $links[] = '<' . $url . '?' . http_build_query($paramsQuery) . '>; rel="last"';
     }
     if ($pagination['skip'] > 0)
     {
       $paramsQuery['page'] = 1;
-      $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="first"';
+      $links[] = '<' . $url . '?' . http_build_query($paramsQuery) . '>; rel="first"';
       $paramsQuery['page'] = ($pagination['skip']);
-      $links[] = '<'.$url.'?'.http_build_query($paramsQuery).'>; rel="prev"';
+      $links[] = '<' . $url . '?' . http_build_query($paramsQuery) . '>; rel="prev"';
     }
     return implode(', ', $links);
   }
@@ -188,6 +187,6 @@ trait Read
     {
       $end = $totalCnt;
     }
-    return 'items '.$begin.'-'.$end.'/'.$totalCnt;
+    return 'items ' . $begin . '-' . $end . '/' . $totalCnt;
   }
 }

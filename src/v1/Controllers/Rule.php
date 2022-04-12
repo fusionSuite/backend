@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,15 +8,16 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
@@ -23,7 +25,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class Rule
 {
-
   public static function runRules($item, $properties, $ruleType)
   {
     $ruler   = new \Hoa\Ruler\Ruler();
@@ -57,8 +58,7 @@ final class Rule
         {
           $value = $values;
         }
-        else
-        {
+        else {
           $value = $item[$values[1]];
         }
 
@@ -67,14 +67,12 @@ final class Rule
         {
           $items->where('name', $item->name);
         }
-        else
-        {
+        else {
           if (isset($properties[$propertyId]))
           {
             $value = $properties[$propertyId];
           }
-          else
-          {
+          else {
             return false;
           }
           // print_r($properties);
@@ -106,7 +104,7 @@ final class Rule
     //   $context[$prop->name] = $property->value;
     // }
 
-    // get all rules 
+    // get all rules
     $rules = \App\v1\Models\Rule::where('type', $ruleType)->with('criteria', 'actions')->get();
     foreach ($rules as $rule)
     {
@@ -115,14 +113,13 @@ final class Rule
       {
         foreach ($rule->criteria as $criterium)
         {
-          $criteria[] = 'searchindb(item, "'.$criterium->field.'", "'.$criterium->values.'", properties)';
+          $criteria[] = 'searchindb(item, "' . $criterium->field . '", "' . $criterium->values . '", properties)';
         }
       }
-      else
-      {
+      else {
         foreach ($rule->criteria as $criterium)
         {
-          $criteria[] = $criterium->field." ".$criterium->comparator." '".$criterium->values."'";
+          $criteria[] = $criterium->field . " " . $criterium->comparator . " '" . $criterium->values . "'";
         }
       }
 
@@ -131,16 +128,13 @@ final class Rule
       {
         if ($ruleType == 'searchitem')
         {
-          // TODO is it posible to get the query on each criterium? 
+          // TODO is it posible to get the query on each criterium?
           // if yes, get it
-          // think of the morning: regroup all searchindb() here to find in DB, the assert will only test simple criteria
+          // think of the morning: regroup all searchindb() here to find in DB, the assert will only test simple
+          // criteria
           // echo "FOUND :)\n";
           // TODO must return the id found
           return true;
-
-
-
-
         }
       } else {
         if ($ruleType == 'searchitem')
@@ -148,11 +142,8 @@ final class Rule
           // print_r($criteria);
           // echo "NOT FOUND :(\n";
           // next
-
-
         }
       }
-
 
       // if have serialized rule
       // if (!is_null($rule->serialized) && !empty($rule->serialized))
@@ -161,7 +152,8 @@ final class Rule
       //   $model = unserialize($rule->serialized);
       //   // $model = \Hoa\Ruler\Ruler::interpret("name = 'test'");
 
-      //   if ($ruler->assert($model, $context)) {
+      //   if ($ruler->assert($model, $context))
+      //   {
       //     // todo rewrite
       //     // echo "rewrited !!!!\n";
       //     $item->name = "rewriten";
@@ -177,13 +169,11 @@ final class Rule
 
   /**
    * Special case for FusionInventory rules
-   * 
+   *
    */
   public function fusioninventoryRule()
   {
-
   }
-
 
   /**
    * @api {get} /v1/rules/:type Get all rules with type defined
@@ -193,12 +183,13 @@ final class Rule
    *
    * @apiUse AutorizationHeader
    *
-   * @apiParam {String="searchitem","rewritefield","actionscript","fusioninventorygettype"} type The type of the rules.
-   *     
+   * @apiParam {String="searchitem","rewritefield","actionscript","fusioninventorygettype"} type The type of the
+   *                                                                                             rules.
+   *
    * @apiSuccess {Integer}  id      The id of the item.
    * @apiSuccess {String}   name    The name of the item.
    * @apiSuccess {String}   comment The comment of the item.
-   * 
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
@@ -226,7 +217,8 @@ final class Rule
    *
    * @apiUse AutorizationHeader
    *
-   * @apiParam {String="fusioninventorysearchitem","rewritefield","actionscript","fusioninventorygettype"} type The type of the rules.
+   * @apiParam {String="fusioninventorysearchitem","rewritefield","actionscript","fusioninventorygettype"} type The
+   *           type of the rules.
    * @apiParam {Number} id Rule unique ID.
    *
    * @apiSuccess {String}   name                  The name of the item.
@@ -239,7 +231,7 @@ final class Rule
    * @apiSuccess {String}   criteria.comment      The criteria comment.
    * @apiSuccess {Object[]} actions               The actions list.
    * @apiSuccess {Integer}  actions.id            The action id.
-   * @apiSuccess {string=\d+\.\d+|null}  actions.field        The field to update. The format is type_id.property_id
+   * @apiSuccess {null|string=\d+\.\d+}  actions.field        The field to update. The format is type_id.property_id
    * @apiSuccess {String="replace","append","import","notimport","runscript"}     actions.type   The type of action.
    * @apiSuccess {String}   actions.values        The rewritten value.
    * @apiSuccess {String}   actions.comment       The criteria comment.
@@ -288,16 +280,18 @@ final class Rule
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
-   *     
-   * @apiSuccess {String}  name          Name of the rule.
-   * @apiSuccess {String}  comment       Comment of the rule.
+   *
+   * @apiParam {Number}  type          Id of the type.
+   *
+   * @apiBody {String}  name          Name of the rule.
+   * @apiBody {String}  comment       Comment of the rule.
    */
   public function postRule(Request $request, Response $response, $args): Response
   {
     $token = $request->getAttribute('token');
     $data = json_decode($request->getBody());
 
-    $item = new \App\v1\Models\Rule;
+    $item = new \App\v1\Models\Rule();
     $item->name = $data->name;
     $item->comment = $data->comment;
     $item->type = $args['type'];
@@ -308,11 +302,12 @@ final class Rule
   }
 
   /**
-   * @api {delete} /v1/type/:id delete an item
+   * @api {delete} /v1/rules/:id delete an item
    * @apiName DeleteRule
    * @apiGroup Rules
    * @apiVersion 1.0.0-draft
-   * @apiDescription The first delete request will do a soft delete. The second delete request will permanently delete the rule
+   * @apiDescription The first delete request will do a soft delete. The second delete request will permanently
+   *                 delete the rule
    *
    * @apiUse AutorizationHeader
    *
@@ -322,7 +317,7 @@ final class Rule
    * HTTP/1.1 200 OK
    * [
    * ]
-   * 
+   *
    */
   public function deleteItem(Request $request, Response $response, $args): Response
   {
@@ -340,8 +335,7 @@ final class Rule
     {
       $rule->forceDelete();
     }
-    else
-    {
+    else {
       $rule->delete();
     }
 
@@ -357,9 +351,9 @@ final class Rule
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
-   *     
-   * @apiSuccess {String}  name          Name of the rule.
-   * @apiSuccess {String}  comment       Comment of the rule.
+   *
+   * @apiParam {String}  name          Name of the rule.
+   * @apiParam {String}  comment       Comment of the rule.
    */
   public function postCriterium(Request $request, Response $response, $args): Response
   {
@@ -388,9 +382,9 @@ final class Rule
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
-   *     
-   * @apiSuccess {String}  name          Name of the rule.
-   * @apiSuccess {String}  comment       Comment of the rule.
+   *
+   * @apiParam {String}  name          Name of the rule.
+   * @apiParam {String}  comment       Comment of the rule.
    */
   public function postAction(Request $request, Response $response, $args): Response
   {
@@ -422,10 +416,10 @@ final class Rule
 
     // criteria
     $crits = [];
-      
+
     foreach ($criteria as $criterium)
     {
-      $crits[] = $criterium->field." ".$criterium->comparator." '".$criterium->values."'";
+      $crits[] = $criterium->field . " " . $criterium->comparator . " '" . $criterium->values . "'";
     }
     if (count($crits) == 0)
     {
@@ -434,21 +428,21 @@ final class Rule
 
     /**
      * TODO this is a list of possible rules (see https://hoa-project.net/En/Literature/Hack/Ruler.html#Grammar)
-     * 
-     * 'foo', "foo", 'f\'oo'	strings
-     * true, false, null	pre-defined constants
-     * 4.2	a real
-     * 42	an integer
-     * ['foo', true, 4.2, 42]	an array (heterogeneous)
-     * sum(1, 2, 3)	a call to the sum function with 3 arguments
-     * points	a variable
-     * points['x']	an array access
-     * line.pointA	an object access (attribute)
-     * line.length()	a call to a method
-     * and, or, xor, not	logical operators
-     * =, !=, >, <, >=, <=	comparison operators
-     * is, in	membership operators
-     */ 
+     *
+     * 'foo', "foo", 'f\'oo' strings
+     * true, false, null pre-defined constants
+     * 4.2 a real
+     * 42 an integer
+     * ['foo', true, 4.2, 42] an array (heterogeneous)
+     * sum(1, 2, 3) a call to the sum function with 3 arguments
+     * points a variable
+     * points['x'] an array access
+     * line.pointA an object access (attribute)
+     * line.length() a call to a method
+     * and, or, xor, not logical operators
+     * =, !=, >, <, >=, <= comparison operators
+     * is, in membership operators
+     */
 
     $model = \Hoa\Ruler\Ruler::interpret(implode(" and ", $crits));
 

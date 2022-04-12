@@ -1,0 +1,23 @@
+{
+    "path": "\/v1\/status",
+    "method": "get",
+    "parameters": [],
+    "responses": {
+        "connections": {
+            "type": "object",
+            "properties": {
+                "database": {
+                    "type": "boolean",
+                    "description": "true if the connection to the database is OK"
+                }
+            },
+            "required": [
+                "database"
+            ]
+        },
+        "crontasks": {
+            "type": "array",
+            "description": "The status of the crontasks."
+        }
+    }
+}

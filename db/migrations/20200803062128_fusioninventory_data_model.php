@@ -64,7 +64,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'address',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -74,7 +74,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'postalcode',
       'valuetype'    => 'integer',
       'unit'         => null,
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -84,7 +84,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'city',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -94,7 +94,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'country',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -104,7 +104,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'serialnumber',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -114,7 +114,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'inventorynumber',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -124,7 +124,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'screensize',
       'valuetype'    => 'integer',
       'unit'         => '"',
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -134,7 +134,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'manufacturer',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => null
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -145,7 +145,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'model',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -156,7 +156,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'type',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -167,7 +167,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'version',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -178,7 +178,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'buydate',
       'valuetype'    => 'date',
       'unit'         => null,
-      'default'      => ''
+      'default_date'      => null
     ];
     $this->insertProperty($dataProp);
 
@@ -188,7 +188,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'manufacturingdate',
       'valuetype'    => 'date',
       'unit'         => null,
-      'default'      => ''
+      'default_date'      => null
     ];
     $this->insertProperty($dataProp);
 
@@ -198,7 +198,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'warrantlyduration',
       'valuetype'    => 'integer',
       'unit'         => 'months',
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -208,7 +208,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'date',
       'valuetype'    => 'date',
       'unit'         => null,
-      'default'      => ''
+      'default_date'      => null
     ];
     $this->insertProperty($dataProp);
 
@@ -218,7 +218,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'enabled',
       'valuetype'    => 'boolean',
       'unit'         => null,
-      'default'      => ''
+      'default_boolean'      => false
     ];
     $this->insertProperty($dataProp);
 
@@ -228,7 +228,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'uptodate',
       'valuetype'    => 'boolean',
       'unit'         => null,
-      'default'      => ''
+      'default_boolean'      => false
     ];
     $this->insertProperty($dataProp);
 
@@ -238,7 +238,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'baseversion',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -249,7 +249,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'chemistry',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -260,7 +260,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'capacity',
       'valuetype'    => 'integer',
       'unit'         => 'mWh',
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -270,7 +270,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'voltage',
       'valuetype'    => 'integer',
       'unit'         => 'mV',
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -280,7 +280,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'core',
       'valuetype'    => 'integer',
       'unit'         => null,
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -290,7 +290,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'thread',
       'valuetype'    => 'integer',
       'unit'         => null,
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -300,7 +300,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'speed',
       'valuetype'    => 'integer',
       'unit'         => null,
-      'default'      => ''
+      'default_integer'      => 0
     ];
     $this->insertProperty($dataProp);
 
@@ -310,7 +310,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'architecture',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -321,7 +321,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'description',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -331,7 +331,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'folder',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -341,7 +341,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'url',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -351,7 +351,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'urlhelp',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -361,7 +361,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'guid',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -371,7 +371,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'softwarecategory',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -382,7 +382,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'uninstallcommand',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -392,7 +392,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'installationdate',
       'valuetype'    => 'date',
       'unit'         => null,
-      'default'      => ''
+      'default_date'      => null
     ];
     $this->insertProperty($dataProp);
 
@@ -402,7 +402,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'informationsource',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -413,7 +413,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'lastboot',
       'valuetype'    => 'date',
       'unit'         => null,
-      'default'      => ''
+      'default_date'      => null
     ];
     $this->insertProperty($dataProp);
 
@@ -423,7 +423,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'servicepack',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -434,7 +434,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'completename',
       'valuetype'    => 'string',
       'unit'         => null,
-      'default'      => ''
+      'default_string'      => ''
     ];
     $this->insertProperty($dataProp);
 
@@ -444,7 +444,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'kernelversion',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list
@@ -455,7 +455,7 @@ final class FusioninventoryDataModel extends AbstractMigration
       'internalname' => 'kernelname',
       'valuetype'    => 'list',
       'unit'         => null,
-      'default'      => ''
+      'default_list'      => 0
     ];
     $this->insertProperty($dataProp);
     // TODO Manage the list

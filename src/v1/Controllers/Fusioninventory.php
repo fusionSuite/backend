@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,15 +8,16 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
@@ -23,7 +25,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class Fusioninventory
 {
-
   private $myInventory;
 
   public function postRegister(Request $request, Response $response, $args): Response
@@ -135,7 +136,7 @@ final class Fusioninventory
   private function manageInventory($data)
   {
     $time_start = microtime(true);
- 
+
     $this->myInventory = $data;
 
 
@@ -157,9 +158,9 @@ final class Fusioninventory
 
     /**
      * TODO use rule fusioninventorygettype to define the type of the device
-     * 
+     *
      * criteria field = key.key.key (path)
-     * 
+     *
      *
      */
     $type_id = \App\v1\Controllers\Rules\GetType::runRules($data);
@@ -167,7 +168,7 @@ final class Fusioninventory
     {
       return;
     }
-   
+
     // TODO Rule to get the root element
     $this->manageItem(0, null, $type_id);
     $time_end = microtime(true);
@@ -180,7 +181,7 @@ final class Fusioninventory
 
     // TODO manage with datamodel in DB
     $where = [
-      ['querytype', '=', 'computerinventory'], 
+      ['querytype', '=', 'computerinventory'],
       ['fusioninventoryitem_id', '=', $fusioninventoryitem_id],
       ['markup', '!=', 'operatingsystem']
     ];
@@ -209,9 +210,10 @@ final class Fusioninventory
 
       [$markups, $modified] = $this->parseMarkups($fusionItem->markup_name, $fusionItem->markup);
 
-      if ($fusionItem->markup == '') {
+      if ($fusionItem->markup == '')
+      {
         // It's the device
-        
+
         // rule searchitem
         $data = [
           'name'            => null,
@@ -239,7 +241,7 @@ final class Fusioninventory
           return;
         }
 
-        $item = new \App\v1\Models\Item;
+        $item = new \App\v1\Models\Item();
         if ($item_id != 'import')
         {
           $item = \App\v1\Models\Item::find($item_id);
@@ -266,7 +268,8 @@ final class Fusioninventory
         }
         foreach ($fusionItem->properties as $property)
         {
-          // TODO manage when have yet properties, see https://laravel.com/docs/8.x/eloquent-relationships#updating-a-record-on-the-intermediate-table
+          // TODO manage when have yet properties, see https://laravel.com/docs/8.x/eloquent-relationships
+          // #updating-a-record-on-the-intermediate-table
           [$markupProps, $modifiedProps] = $this->parseMarkups($property->markup, $fusionItem->markup);
           $propPath = null;
           if ($modifiedProps)
@@ -283,8 +286,7 @@ final class Fusioninventory
                 'byfusioninventory' => true
               ]);
             }
-            else
-            {
+            else {
               $item->properties()->attach($property->property_id, ['value' => $value, 'byfusioninventory' => true]);
             }
           }
@@ -311,7 +313,8 @@ final class Fusioninventory
         $idx = 1;
         foreach ($path as $rootMarkup)
         {
-          if (count((array)$rootMarkup) == 0) {
+          if (count((array)$rootMarkup) == 0)
+          {
             // case have no properties in this markup
             continue;
           }
@@ -331,16 +334,16 @@ final class Fusioninventory
         // get in inventory and not in DB
         [$toDelete, $toAdd] = $this->filterData($inventoryItems, $dbItems);
 
-        foreach($toDelete as $data)
+        foreach ($toDelete as $data)
         {
           $itemToDel = \App\v1\Models\Item::find($data['id']);
           $itemToDel->delete();
         }
 
-        foreach($toAdd as $data)
+        foreach ($toAdd as $data)
         {
           $rootMarkup = $data["brut"];
-          $itemToAdd = new \App\v1\Models\Item;
+          $itemToAdd = new \App\v1\Models\Item();
           $itemToAdd->name = $data['name'];
           $itemToAdd->type_id = $fusionItem->type_id;
           $itemToAdd->owner_user_id = 0;
@@ -377,13 +380,13 @@ final class Fusioninventory
            * get all items relations to this item type (for example CPU, softwares, controllers...)
            * and do the diff / update
            * for 3000 softwares, have only 1 query instead 3000 and will be really more quickly
-           * 
+           *
            * rules possible
            *   * if name / model  => ignore import
            *   * if name == fergrt => rename
            *   * if name + manufacturer in DB => import
            *   * if name in DB => import
-           * 
+           *
            */
 
           $itemToAdd->save();
@@ -405,7 +408,10 @@ final class Fusioninventory
             $value = $this->getValueWithMarkupName($markupProps, $propPath);
             if (!is_null($value))
             {
-              $itemToAdd->properties()->attach($property->property_id, ['value' => $value, 'byfusioninventory' => true]);
+              $itemToAdd->properties()->attach(
+                $property->property_id,
+                ['value' => $value, 'byfusioninventory' => true]
+              );
             }
           }
           // $this->manageItem($fusionItem->id, $item);
@@ -454,12 +460,12 @@ final class Fusioninventory
     foreach ($inventoryItems as $idx => $item)
     {
       // $key = array_search($item['name'], array_column($dbItems, 'name'));
-      $key = array_search($item['name'], array_map(function($data)
+      $key = array_search($item['name'], array_map(function ($data)
       {
         return $data['name'];
       }, $dbItems));
-      
-      if ($key == False)
+
+      if ($key == false)
       {
         continue;
       }

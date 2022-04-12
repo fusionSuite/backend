@@ -12,9 +12,6 @@
   <link href="assets/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
   <link href="assets/favicon-32x32.png" rel="icon" type="image/png" sizes="32x32">
   <link href="assets/favicon-16x16.png"rel="icon" type="image/png" sizes="16x16">
-
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oxygen:400,700%7CRoboto:400,600,500,700%7CSource+Code+Pro:400,600,700" media="all">
 </head>
 
 <body>
@@ -175,6 +172,8 @@
 
         {{subTemplate "article-param-block" params=article.header paramType="header" _hasType=_hasTypeInHeaderFields section="header"}}
         {{subTemplate "article-param-block" params=article.parameter paramType="parameter" _hasType=_hasTypeInParameterFields section="parameter"}}
+        {{subTemplate "article-query-block" params=article.query _hasType=_hasTypeInParameterFields section="query"}}
+        {{subTemplate "article-body-block" params=article.body paramType="body" _hasType=_hasTypeInParameterFields section="body"}}
         {{subTemplate "article-param-block" params=article.success paramType="success" _hasType=_hasTypeInSuccessFields section="success"}}
         {{subTemplate "article-param-block" params=article.error paramType="error" _col1="Name" _hasType=_hasTypeInErrorFields section="error"}}
 
@@ -186,6 +185,7 @@
 
       {{subTemplate "article-param-block-dark" params=article.header _hasType=_hasTypeInSuccessFields section="header"}}
       {{subTemplate "article-param-block-dark" params=article.parameter _hasType=_hasTypeInSuccessFields section="parameter"}}
+      {{subTemplate "article-param-block-dark" params=article.body _hasType=_hasTypeInSuccessFields section="body"}}
       {{subTemplate "article-param-block-dark" params=article.success _hasType=_hasTypeInSuccessFields section="success"}}
       {{subTemplate "article-param-block-dark" params=article.error _col1="Name" _hasType=_hasTypeInErrorFields section="error"}}
 
@@ -234,7 +234,7 @@
           <tr>
             <td class="code">{{this.field}}&nbsp;&nbsp;
             {{#if optional}}
-              <span class="label optional">{{__ "optional"}}</span>
+              <span class="label optional">{{__ "(optional)"}}</span>
             {{else}}
               {{#if ../template.showRequiredLabels}}
                 <span class="label required">{{__ "required"}}</span>
@@ -264,22 +264,20 @@
 <script id="template-article-body-block" type="text/x-handlebars-template">
   {{#if article.body}}
     <h2>{{__ "Request Body"}}</h2>
-    <table>
+    <table class="table table-hover">
       <thead>
         <tr>
-          <th style="width: 30%">{{#if ../_col1}}{{__ ../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
-          {{#unless this.Type compare=null}}
-            <th style="width: 10%">{{__ "Type"}}</th>
-          {{/unless}}
-          <th style="width: {{#if ../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
+        <th style="width: 30%">{{#if ../../_col1}}{{__ ../../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
+          <th style="width: 10%">{{__ "Type"}}</th>
+          <th style="width: {{#if _hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
         </tr>
       </thead>
       <tbody>
         {{#each params}}
           <tr>
-            <td class="code">{{this.field}}&nbsp;&nbsp;
+            <td class="code">{{{splitFill field "." "&nbsp;&nbsp;"}}}
             {{#if optional}}
-              <span class="label optional">{{__ "optional"}}</span>
+              <span class="label optional">{{__ "(optional)"}}</span>
             {{else}}
               {{#if ../template.showRequiredLabels}}
                 <span class="label required">{{__ "required"}}</span>
@@ -287,7 +285,7 @@
             {{/if}}
             </td>
             {{#unless this.Type compare=null}}
-              <td class="code">{{this.type}}</td>
+              <td>{{this.type}}</td>
             {{/unless}}
             <td>
               {{{nl2br this.description}}}
@@ -315,7 +313,7 @@
 <script id="template-article-param-block" type="text/x-handlebars-template">
   {{#if params}}
   {{#each params.fields}}
-    <div class="pull-left"><h4 class="headers">{{__ @key}}</h4></div>
+    <div class="pull-left"><h2>{{__ @key}}</h2></div>
     <div class="pull-right">
       <button class="btn btn-xs json-schema" data-group="{{__ @key}}" data-param="{{../../paramType}}" >json</button>
     </div>
@@ -332,7 +330,7 @@
       <tbody>
     {{#each this}}
         <tr>
-          <td class="code">{{{splitFill field "." "&nbsp;&nbsp;"}}}{{#if optional}} <span class="label-optional">{{__ "(optional)"}}</span>{{/if}}</td>
+          <td class="code">{{{splitFill field "." "&nbsp;&nbsp;"}}}{{#if optional}} <span class="label optional">{{__ "(optional)"}}</span>{{/if}}</td>
           {{#if ../../_hasType}}
             <td>
               {{{type}}}
@@ -458,7 +456,7 @@
         <div class="{{../id}}-sample-request-param-fields {{../id}}-sample-header-content-type-fields">
           {{#each article.query}}
             <div class="form-group">
-              <label class="col-md-3 control-label" for="sample-request-param-field-{{field}}">{{field}}{{#if optional}} ({{__ "optional"}}){{/if}}</label>
+              <label class="col-md-3 control-label" for="sample-request-param-field-{{field}}">{{field}}{{#if optional}} ({{__ "(optional)"}}){{/if}}</label>
               <div class="input-group col-md-6">
                 <div class="input-group-addon">{{{type}}}</div>
                 {{#if allowedValues}}
@@ -654,6 +652,7 @@
     </div>
 
     {{subTemplate "article-compare-param-block" source=article.parameter compare=compare.parameter _hasType=_hasTypeInParameterFields section="parameter"}}
+    {{subTemplate "article-compare-param-block" source=article.body compare=compare.body _hasType=_hasTypeInParameterFields section="body"}}
     {{subTemplate "article-compare-param-block" source=article.success compare=compare.success _hasType=_hasTypeInSuccessFields section="success"}}
     {{subTemplate "article-compare-param-block" source=article.error compare=compare.error _col1="Name" _hasType=_hasTypeInErrorFields section="error"}}
 

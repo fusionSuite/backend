@@ -9,7 +9,7 @@ const requestMb = supertest('http://127.0.0.1:2525');
 /**
 * /v1/types endpoint
 */
-describe('actionscripts/actionZabbix - Test the rule', function() {
+describe('actionscripts/ActionZabbix - Test the rule', function() {
 
   it('delete imposters of mountebank', function(done) {
     requestMb
@@ -37,7 +37,6 @@ describe('actionscripts/actionZabbix - Test the rule', function() {
     .expect('Content-Type', /json/)
     .expect(function(response) {
       assert(is.propertyCount(response.body, 1));
-
       assert(is.integer(response.body.id));
       assert(validator.matches('' + response.body.id, /^\d+$/));
       global.id = response.body.id;

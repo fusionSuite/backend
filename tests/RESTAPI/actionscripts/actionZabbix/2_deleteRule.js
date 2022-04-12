@@ -8,7 +8,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('actionscripts/actionZabbix - Delete the rule', function() {
+describe('actionscripts/ActionZabbix - Delete the rule', function() {
 
   it('it delete a rule', function(done) {
     request

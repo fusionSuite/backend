@@ -19,6 +19,7 @@
 declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
+use Phinx\Db\Adapter\MysqlAdapter;
 
 final class ItemProperty extends AbstractMigration
 {
@@ -39,11 +40,27 @@ final class ItemProperty extends AbstractMigration
     $table = $this->table('item_property');
     $table->addColumn('item_id', 'integer')
           ->addColumn('property_id', 'integer')
-          ->addColumn('value', 'text')
+          ->addColumn('value_integer', 'integer', ['null' => true])
+          ->addColumn('value_decimal', 'decimal', ['null' => true, 'precision' => 10, 'scale' => 6])
+          ->addColumn('value_string', 'string', ['null' => true])
+          ->addColumn('value_text', 'text', ['null' => true, 'limit' => MysqlAdapter::TEXT_LONG])
+          ->addColumn('value_boolean', 'boolean', ['null' => true])
+          ->addColumn('value_datetime', 'datetime', ['null' => true])
+          ->addColumn('value_date', 'date', ['null' => true])
+          ->addColumn('value_time', 'time', ['null' => true])
+          ->addColumn('value_number', 'integer', ['null' => true])
+          ->addColumn('value_itemlink', 'integer', ['null' => true])
+          ->addColumn('value_itemlinks', 'integer', ['null' => true])
+          ->addColumn('value_typelink', 'integer', ['null' => true])
+          ->addColumn('value_typelinks', 'integer', ['null' => true])
+          ->addColumn('value_propertylink', 'integer', ['null' => true])
+          ->addColumn('value_list', 'string', ['null' => true])
+          ->addColumn('value_password', 'string', ['null' => true])
+          ->addColumn('value_passwordhash', 'string', ['null' => true])
           ->addColumn('byfusioninventory', 'boolean', ['default' => false])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
-          ->addIndex(['property_id', 'item_id'], ['unique' => true])
+          ->addIndex(['property_id', 'item_id', 'value_itemlink'], ['unique' => true])
           ->create();
   }
 }

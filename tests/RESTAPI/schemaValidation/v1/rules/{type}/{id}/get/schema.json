@@ -1,0 +1,115 @@
+{
+    "path": "\/v1\/rules\/{type}\/{id}",
+    "method": "get",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "query",
+            "name": "type",
+            "description": "The type of the rules.",
+            "required": true
+        },
+        {
+            "type": "string",
+            "in": "query",
+            "name": "id",
+            "description": "Rule unique ID.",
+            "required": true
+        },
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "properties": [],
+                "type": "object",
+                "required": []
+            }
+        }
+    ],
+    "responses": {
+        "name": {
+            "type": "string",
+            "description": "The name of the item."
+        },
+        "comment": {
+            "type": "string",
+            "description": "The comment of the item."
+        },
+        "criteria": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "The criteria id."
+                    },
+                    "field": {
+                        "type": "string",
+                        "description": "The field of the criteria. The format is type_id.property_id"
+                    },
+                    "comparator": {
+                        "type": "string",
+                        "description": "The comparator."
+                    },
+                    "values": {
+                        "type": "string",
+                        "description": "The value(s) to check."
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "The criteria comment."
+                    }
+                },
+                "required": [
+                    "id",
+                    "field",
+                    "comparator",
+                    "values",
+                    "comment"
+                ]
+            }
+        },
+        "actions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "The action id."
+                    },
+                    "field": {
+                        "type": "null|string",
+                        "description": "The field to update. The format is type_id.property_id"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "The type of action."
+                    },
+                    "values": {
+                        "type": "string",
+                        "description": "The rewritten value."
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "The criteria comment."
+                    }
+                },
+                "required": [
+                    "id",
+                    "field",
+                    "type",
+                    "values",
+                    "comment"
+                ]
+            }
+        }
+    }
+}

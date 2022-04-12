@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,15 +8,16 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers\Config;
 
 use Psr\Http\Message\ResponseInterface as Response;
@@ -23,7 +25,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class Type
 {
-
   /**
    * @api {get} /v1/config/types Get all types of items
    * @apiName GetConfigTypes
@@ -32,11 +33,43 @@ final class Type
    *
    * @apiUse AutorizationHeader
    *
-   * @apiSuccess {Object[]}     -             The list of the types.
-   * @apiSuccess {Number}       -.id          The id of the type.
-   * @apiSuccess {String}       -.name        The name of the type.
-   * @apiSuccess {String}       -.created_at  Date of the type creation.
-   * @apiSuccess {String|null}  -.updated_at  Date of the last type modification.
+   * @apiSuccess {Object[]}                    types                               List of properties.
+   * @apiSuccess {Number}                      types.id                            The id of the type.
+   * @apiSuccess {String}                      types.name                          The name of the type.
+   * @apiSuccess {String}                      types.internalname                  The internalname of the type.
+   * @apiSuccess {String="logical","physical"} types.modeling                      The model of the type.
+   * @apiSuccess {ISO8601}                     types.created_at                    Date of the type creation.
+   * @apiSuccess {null|ISO8601}                types.updated_at                    Date of the last type modification.
+   * @apiSuccess {Object[]}                    types.properties                    The properties list.
+   * @apiSuccess {Number}                      types.properties.id                 The id of the property.
+   * @apiSuccess {String}                      types.properties.name               The name of the property.
+   * @apiSuccess {String}                      types.properties.internalname       The internalname of the property.
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
+   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}
+   *    types.properties.valuetype
+   *    The type of value.
+   * @apiSuccess {null|String}                 types.properties.unit               The unit used for the property
+   *    (example: Ko, seconds...).
+   * @apiSuccess {null|String}                 types.properties.description        The description of the propery.
+   * @apiSuccess {ISO8601}                     types.properties.created_at         Date of the item creation.
+   * @apiSuccess {null|ISO8601}                types.properties.updated_at         Date of the last item modification.
+   * @apiSuccess {Boolean}                     types.properties.canbenull          The property can be null or not.
+   * @apiSuccess {Boolean}                     types.properties.setcurrentdate     The property in the item can
+   *    automatically use the current date when store in DB.
+   * @apiSuccess {null|String}                 types.properties.regexformat        The regexformat to verify the value
+   *    is conform (works only with valuetype is string or list).
+   * @apiSuccess {null|String[]}               types.properties.listvalues         The list of values when
+   *    valuetype="list", else null.
+   * @apiSuccess {Any}                         types.properties.default            The default value.
+   * @apiSuccess {Object[]}                    types.propertygroups                The properties groups list.
+   * @apiSuccess {Number}                      types.propertygroups.id             The id of the properties group.
+   * @apiSuccess {String}                      types.propertygroups.name           The name of the properties group.
+   * @apiSuccess {Number}                      types.propertygroups.position       The position of the properties
+   *    group, related to other groups of the type.
+   * @apiSuccess {Number[]}                    types.propertygroups.properties     The id list of properties of the
+   *    properties group.
+   * @apiSuccess {ISO8601}                     types.propertygroups.created_at     Date of the item creation.
+   * @apiSuccess {null|ISO8601}                types.propertygroups.updated_at     Date of the last item modification.
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
@@ -45,7 +78,7 @@ final class Type
    *     "id": 23,
    *     "name": "Memory",
    *     "created_at": "2020-07-20 22:15:08",
-   *     "updated_at": null,
+   *     "updated_at": null
    *   }
    * ]
    *
@@ -67,12 +100,42 @@ final class Type
    *
    * @apiParam {Number} id Rule unique ID.
    *
-   * @apiSuccess {String}       name                  The name of the type.
-   * @apiSuccess {String}       created_at            Date of the type creation.
-   * @apiSuccess {String|null}  updated_at            Date of the last type modification.
-   * @apiSuccess {Object[]}     properties            The properties list.
-   * @apiSuccess {Number}       properties.id         The property id.
-   * 
+   * @apiSuccess {Number}                      id                            The id of the type.
+   * @apiSuccess {String}                      name                          The name of the type.
+   * @apiSuccess {String}                      internalname                  The internalname of the type.
+   * @apiSuccess {String="logical","physical"} modeling                      The model of the type.
+   * @apiSuccess {ISO8601}                     created_at                    Date of the type creation.
+   * @apiSuccess {null|ISO8601}                updated_at                    Date of the last type modification.
+   * @apiSuccess {Object[]}                    properties                    The properties list.
+   * @apiSuccess {Number}                      properties.id                 The id of the property.
+   * @apiSuccess {String}                      properties.name               The name of the property.
+   * @apiSuccess {String}                      properties.internalname       The internalname of the property.
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
+   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}   properties.valuetype
+   *    The type of value.
+   * @apiSuccess {null|String}                 properties.unit               The unit used for the property (example:
+   *    Ko, seconds...).
+   * @apiSuccess {null|String}                 properties.description        The description of the propery.
+   * @apiSuccess {ISO8601}                     properties.created_at         Date of the item creation.
+   * @apiSuccess {null|ISO8601}                properties.updated_at         Date of the last item modification.
+   * @apiSuccess {Boolean}                     properties.canbenull          The property can be null or not.
+   * @apiSuccess {Boolean}                     properties.setcurrentdate     The property in the item can automatically
+   *    use the current date when store in DB.
+   * @apiSuccess {null|String}                 properties.regexformat        The regexformat to verify the value is
+   *    conform (works only with valuetype is string or list).
+   * @apiSuccess {null|String[]}               properties.listvalues         The list of values when valuetype="list",
+   *    else null.
+   * @apiSuccess {Any}                         properties.default            The default value.
+   * @apiSuccess {Object[]}                    propertygroups                The properties groups list.
+   * @apiSuccess {Number}                      propertygroups.id             The id of the properties group.
+   * @apiSuccess {String}                      propertygroups.name           The name of the properties group.
+   * @apiSuccess {Number}                      propertygroups.position       The position of the properties group,
+   *    related to other groups of the type.
+   * @apiSuccess {Number[]}                    propertygroups.properties     The id list of properties of the
+   *    properties group.
+   * @apiSuccess {ISO8601}                     propertygroups.created_at     Date of the item creation.
+   * @apiSuccess {null|ISO8601}                propertygroups.updated_at     Date of the last item modification.
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
@@ -87,7 +150,7 @@ final class Type
    */
   public function getOne(Request $request, Response $response, $args): Response
   {
-    $item = \App\v1\Models\Config\Type::with('properties.listvalues')->find($args['id']);
+    $item = \App\v1\Models\Config\Type::find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("This type has not be found", 404);
@@ -98,26 +161,26 @@ final class Type
 
 
   /**
-   * @api {post} /v1/config/type Create a new type of items
+   * @api {post} /v1/config/types Create a new type of items
    * @apiName PostConfigTypes
    * @apiGroup Config/Types
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
    *
-   * @apiSuccess {String}  name     The name of the type of items.
+   * @apiBody {String}  name     The name of the type of items.
    *
    * @apiParamExample {json} Request-Example:
    * {
    *   "name": "Firewall",
-   * } 
-   * 
+   * }
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
    *   "id":10
    * }
-   * 
+   *
    * @apiErrorExample {json} Error-Response:
    * HTTP/1.1 400 Bad Request
    * {
@@ -138,14 +201,13 @@ final class Type
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $type = new \App\v1\Models\Config\Type;
+    $type = new \App\v1\Models\Config\Type();
     $type->name = $data->name;
     if (property_exists($data, 'internalname') === false)
     {
       $type->internalname = preg_replace("/[^a-z.]+/", "", strtolower($data->name));
     }
-    else
-    {
+    else {
       $type->internalname = $data->internalname;
     }
     $type->save();
@@ -155,8 +217,8 @@ final class Type
   }
 
   /**
-   * @api {patch} /v1/config/type/:id Update an existing type of items
-   * @apiName PatchConfigType
+   * @api {patch} /v1/config/types/:id Update an existing type of items
+   * @apiName PatchConfigTypes
    * @apiGroup Config/Types
    * @apiVersion 1.0.0-draft
    *
@@ -164,25 +226,25 @@ final class Type
    *
    * @apiParam {Number}    id        Unique ID of the type.
    *
-   * @apiSuccess {String}  name      Name of the type.
-   * 
+   * @apiBody {String}  name      Name of the type.
+   *
    * @apiParamExample {json} Request-Example:
    * {
    *   "name": "Firewall2",
-   * } 
-   * 
+   * }
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * [
    * ]
-   * 
+   *
    * @apiErrorExample {json} Error-Response:
    * HTTP/1.1 400 Bad Request
    * {
    *   "status: "error",
    *   "message": "The Name is required"
    * }
-   * 
+   *
    */
   public function patchItem(Request $request, Response $response, $args): Response
   {
@@ -210,11 +272,12 @@ final class Type
   }
 
   /**
-   * @api {delete} /v1/config/type/:id delete a type of items
-   * @apiName DeletConfigType
+   * @api {delete} /v1/config/types/:id delete a type of items
+   * @apiName DeletConfigTypes
    * @apiGroup Config/Types
    * @apiVersion 1.0.0-draft
-   * @apiDescription The first delete request will do a soft delete. The second delete request will permanently delete the item
+   * @apiDescription The first delete request will do a soft delete. The second delete request will permanently
+   *                 delete the item
    *
    * @apiUse AutorizationHeader
    *
@@ -224,7 +287,7 @@ final class Type
    * HTTP/1.1 200 OK
    * [
    * ]
-   * 
+   *
    */
   public function deleteItem(Request $request, Response $response, $args): Response
   {
@@ -242,8 +305,8 @@ final class Type
     {
       $type->forceDelete();
     }
-    else
-    {
+    else {
+      $type->properties()->detach();
       $type->delete();
     }
 
@@ -253,12 +316,38 @@ final class Type
 
 
   /**
-   * @api {post} /v1/config/type/:id/property/:propertyid Associate a property of this type
+   * @api {post} /v1/config/types/:id/property/:propertyid Associate a property of this type
    * @apiName PostConfigTypesProperty
    * @apiGroup Config/Types/property
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id         Unique ID of the type.
+   * @apiParam {Number}    propertyid Unique ID of the property.
+   *
+   *
+   * @apiParamExample {json} Request-Example:
+   * {}
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   *
+   * @apiErrorExample {json} Error-Response:
+   * HTTP/1.1 400 Bad Request
+   * {
+   *   "status: "error",
+   *   "message": "The type has not be found"
+   * }
+   *
+   * @apiErrorExample {json} Error-Response:
+   * HTTP/1.1 400 Bad Request
+   * {
+   *   "status: "error",
+   *   "message": "The property has not be found"
+   * }
    *
    */
   public function postProperty(Request $request, Response $response, $args): Response
@@ -286,29 +375,92 @@ final class Type
   }
 
   /**
+   * @api {delete} /v1/config/types/:id/property/:propertyid remove a property of this type
+   * @apiName DeleteConfigTypesProperty
+   * @apiGroup Config/Types/property
+   * @apiVersion 1.0.0-draft
+   *
+   * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id         Unique ID of the type.
+   * @apiParam {Number}    propertyid Unique ID of the property.
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   *
+   * @apiErrorExample {json} Error-Response:
+   * HTTP/1.1 400 Bad Request
+   * {
+   *   "status: "error",
+   *   "message": "The type has not be found"
+   * }
+   *
+   * @apiErrorExample {json} Error-Response:
+   * HTTP/1.1 400 Bad Request
+   * {
+   *   "status: "error",
+   *   "message": "The property has not be found"
+   * }
+   *
+   */
+  public function deleteProperty(Request $request, Response $response, $args): Response
+  {
+    $token = $request->getAttribute('token');
+
+    $type = \App\v1\Models\Config\Type::find($args['id']);
+    if (is_null($type))
+    {
+      throw new \Exception("The type has not be found", 404);
+    }
+
+    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    if (is_null($property))
+    {
+      throw new \Exception("The property has not be found", 404);
+    }
+
+    // TODO check if relation exists
+
+    $type->properties()->detach($args['propertyid']);
+
+    $response->getBody()->write(json_encode([]));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+  /**
    * @api {post} /v1/config/types/templates Create types based on JSON template
    * @apiName PostConfigTypesTemplate
    * @apiGroup Config/Types/Template
    * @apiVersion 1.0.0-draft
    *
    * @apiUse AutorizationHeader
-   * 
-   * @apiSuccess {String[]}  [license]                                         The license of this template file (Array of Strings).
-   * @apiSuccess {Object[]}  types                                             List of types (Array of Objects).
-   * @apiSuccess {String}    types.name                                        The name of the type.
-   * @apiSuccess {String}    types.internalname                                The unique internalname of the type.
-   * @apiSuccess {Object[]}  types.propertygroups                              The propertygroup (Array of Objects).
-   * @apiSuccess {String}    types.propertygroups.name                         The name of the propertygroup.
-   * @apiSuccess {Object[]}  types.propertygroups.properties                   The typeproperties in the propertygroup (Array of Objects).
-   * @apiSuccess {String}    types.propertygroups.properties.name              The name of the typeproperty.
-   * @apiSuccess {String}    types.propertygroups.properties.internalname      The internal name of the typeproperty.
-   * @apiSuccess {String="string","integer","float","date","datetime","list","boolean","text","itemlink","itemlinks"}   types.propertygroups.properties.valuetype  The type of value.
-   * @apiSuccess {String}    types.propertygroups.properties.regexformat       The regexformat to verify the value is conform (works only with valuetype is string or list).
-   * @apiSuccess {String[]|null} types.propertygroups.properties.listvalues    The list of values when valuetype="list", else null.
-   * @apiSuccess {String|null}   types.propertygroups.properties.unit          The unit used for the property (example: Ko, seconds...).
-   * @apiSuccess {String|null}   types.propertygroups.properties.default       The default value for the property.
-   * @apiSuccess {String|null}   types.propertygroups.properties.description   The description of the property, describe the usage.
-   * 
+   *
+   * @apiBody {String[]}  [license]                                         The license of this template file (Array
+   *    of Strings).
+   * @apiBody {Object[]}  types                                             List of types (Array of Objects).
+   * @apiBody {String}    types.name                                        The name of the type.
+   * @apiBody {String}    types.internalname                                The unique internalname of the type.
+   * @apiBody {Object[]}  types.propertygroups                              The propertygroup (Array of Objects).
+   * @apiBody {String}    types.propertygroups.name                         The name of the propertygroup.
+   * @apiBody {Object[]}  types.propertygroups.properties                   The properties in the propertygroup
+   *    (Array of Objects).
+   * @apiBody {String}    types.propertygroups.properties.name              The name of the property.
+   * @apiBody {String}    types.propertygroups.properties.internalname      The internal name of the property.
+   * @apiBody {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
+   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}
+   *    types.propertygroups.properties.valuetype  The type of value.
+   * @apiBody {null|String}   types.propertygroups.properties.regexformat   The regexformat to verify the value is
+   *    conform (works only with valuetype is string or list).
+   * @apiBody {null|String[]} types.propertygroups.properties.listvalues    The list of values when valuetype="list",
+   *    else null.
+   * @apiBody {null|String}   types.propertygroups.properties.unit          The unit used for the property (example:
+   *    Ko, seconds...).
+   * @apiBody {null|String}   types.propertygroups.properties.default       The default value for the property.
+   * @apiBody {null|String}   types.propertygroups.properties.description   The description of the property, describe
+   *    the usage.
+   *
    * @apiParamExample {json} Request-Example:
    * {
    *   "license": [
@@ -371,12 +523,12 @@ final class Type
    *       ]
    *     }
    *   ]
-   * } 
-   * 
+   * }
+   *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * []
-   * 
+   *
    */
   public function postTemplate(Request $request, Response $response, $args): Response
   {
@@ -384,7 +536,7 @@ final class Type
 
     $data = json_decode($request->getBody());
 
-    $this->_createTemplate($data);
+    $this->createTemplate($data);
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -395,14 +547,13 @@ final class Type
    * Private functions
    ********************/
 
-  private function _createType($data)
+  private function createType($data)
   {
     if (property_exists($data, 'internalname') === false)
     {
       $data->internalname = preg_replace("/[^a-z.]+/", "", strtolower($data->name));
     }
-    else
-    {
+    else {
       $data->internalname = $data->internalname;
     }
     $type = \App\v1\Models\Config\Type::firstOrCreate(
@@ -414,7 +565,7 @@ final class Type
     return $type->id;
   }
 
-  function _createTemplate($data)
+  public function createTemplate($data)
   {
     // Validate the data format
     $dataFormat = [
@@ -440,7 +591,7 @@ final class Type
             'name' => 'required|type:string',
           ];
           \App\v1\Common::validateData($propertygroup, $dataFormat);
-  
+
           // Validate each properties
           if (property_exists($propertygroup, 'properties'))
           {
@@ -449,11 +600,12 @@ final class Type
               $dataFormat = [
                 'name'        => 'required|type:string',
                 'internalname' => 'type:string|regex:/^[a-z.]+$/',
-                'valuetype'   => 'required|in:string,integer,float,date,datetime,list,boolean,text,itemlink,itemlinks,propertyId|type:string',
+                'valuetype'   => 'required|in:boolean,date,datetime,decimal,integer,itemlink,itemlinks,list,number,' .
+                                 'propertylink,string,text,time,typelink,typelinks|type:string',
                 'regexformat' => 'present|type:string',
                 'listvalues'  => 'present|type:array',
                 'unit'        => 'type:string',
-                'default'     => 'present|type:string',
+                'default'     => 'present',
                 'description' => 'type:string'
               ];
               \App\v1\Common::validateData($property, $dataFormat);
@@ -464,18 +616,18 @@ final class Type
     }
     // End of data format validation
 
-    $typeProperty = new \App\v1\Controllers\Config\TypeProperty();
-    $typePropertygroup = new \App\v1\Controllers\Config\TypePropertygroup();
+    $ctrlProperty = new \App\v1\Controllers\Config\Property();
+    $ctrlPropertygroup = new \App\v1\Controllers\Config\Propertygroup();
 
     // Create types
     foreach ($data->types as $type)
     {
-      $typeId = $this->_createType($type);
+      $typeId = $this->createType($type);
 
       // Create propertygroups
       foreach ($type->propertygroups as $propertygroup)
       {
-        $newData = new \stdClass;
+        $newData = new \stdClass();
         $newData->name = $propertygroup->name;
         $propertyListId = [];
         // create properties or get id if yet exists
@@ -488,10 +640,9 @@ final class Type
           $prop = \App\v1\Models\Config\Property::firstWhere('internalname', $property->internalname);
           if (is_null($prop))
           {
-            $propertyListId[] = $typeProperty->_createProperty($property);
+            $propertyListId[] = $ctrlProperty->createProperty($property);
           }
-          else
-          {
+          else {
             $propertyListId[] = $prop->id;
           }
         }
@@ -510,7 +661,7 @@ final class Type
         }
 
         $newData->properties = $propertyListId;
-        $typePropertygroup->_createPropertygroup($newData, $typeId);
+        $ctrlPropertygroup->createPropertygroup($newData, $typeId);
       }
     }
     return true;

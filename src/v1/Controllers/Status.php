@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FusionSuite - Backend
  * Copyright (C) 2022 FusionSuite
@@ -7,15 +8,16 @@
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace App\v1\Controllers;
 
 use Psr\Http\Message\ResponseInterface as Response;
@@ -24,15 +26,15 @@ use Illuminate\Database\Capsule\Manager as DB;
 
 final class Status
 {
-
   /**
    * @api {get} /v1/status Get the status of the elements of the backend
    * @apiName GetStatus
    * @apiGroup Status
    * @apiVersion 1.0.0-draft
    *
-   * @apiSuccess {Object[]}  connections            The status of the connections.
-   * @apiSuccess {Boolean}   connections.database   true if the connection to the database is OK
+   * @apiSuccess {Object}      connections            The status of the connections.
+   * @apiSuccess {Boolean}     connections.database   true if the connection to the database is OK
+   * @apiSuccess {Array}       crontasks              The status of the crontasks.
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
@@ -40,7 +42,8 @@ final class Status
    *   "connections":
    *   {
    *     "database": true
-   *   }
+   *   },
+   *   "crontasks": []
    * }
    *
    */
@@ -49,11 +52,14 @@ final class Status
     $status = [
       "connections" => [
         "database" => true
-      ]
+      ],
+      "crontasks" => []
     ];
     try {
       DB::connection()->getPdo();
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e)
+    {
       $status['connections']['database'] = false;
     }
     $response->getBody()->write(json_encode($status));

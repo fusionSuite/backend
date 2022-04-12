@@ -1,0 +1,114 @@
+{
+  "license": [
+    " FusionSuite - Backend                                                       ",
+    " Copyright (C) 2022 FusionSuite                                              ",
+    "                                                                             ",
+    " This program is free software: you can redistribute it and/or modify        ",
+    " it under the terms of the GNU Affero General Public License as published by ",
+    " the Free Software Foundation, either version 3 of the License, or           ",
+    " any later version.                                                          ",
+    "                                                                             ",
+    " This program is distributed in the hope that it will be useful,             ",
+    " but WITHOUT ANY WARRANTY; without even the implied warranty of              ",
+    " MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                ",
+    " GNU Affero General Public License for more details.                         ",
+    "                                                                             ",
+    " You should have received a copy of the GNU Affero General Public License    ",
+    " along with this program.  If not, see <http://www.gnu.org/licenses/>.       "
+  ],
+  "types": [
+    {
+      "name": "Memory stick",
+      "internalname": "memorystick",
+      "propertygroups": [
+        {
+          "name": "Main",
+          "properties": [
+            {
+              "name": "memory size",
+              "internalname": "memorymio",
+              "valuetype": "integer",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "Mio",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "serial",
+              "internalname": "serial",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Memory slot",
+      "internalname": "memoryslot",
+      "propertygroups": [
+        {
+          "name": "Main",
+          "properties": [
+            {
+              "name": "memory type",
+              "internalname": "memorytype",
+              "valuetype": "string",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "slot number",
+              "internalname": "memoryslotnumber",
+              "valuetype": "integer",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            },
+            {
+              "name": "memory stick",
+              "internalname": "memorystick",
+              "valuetype": "itemlink",
+              "regexformat": "",
+              "listvalues": ["memorystick"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "computer test3",
+      "internalname": "computertestnewnew",
+      "propertygroups": [
+        {
+          "name": "Main",
+          "properties": [
+            {
+              "name": "memory slot",
+              "internalname": "memoryslotlinks",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": ["memoryslot"],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

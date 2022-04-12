@@ -1,0 +1,45 @@
+{
+    "path": "\/v1\/items\/{id}\/property\/{propertyid}\/typelinks",
+    "method": "post",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "$schema": "http:\/\/json-schema.org\/draft-04\/schema#",
+                "title": "Request-Example:",
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "number"
+                    },
+                    "id": {
+                        "type": "number",
+                        "description": "Unique ID of the item."
+                    },
+                    "propertyid": {
+                        "type": "number",
+                        "description": "Unique ID of the property."
+                    }
+                },
+                "required": [
+                    "id",
+                    "propertyid"
+                ]
+            },
+            "description": "Request-Example:"
+        }
+    ],
+    "responses": {
+        "value": {
+            "type": "number",
+            "description": "Unique ID of the type."
+        }
+    }
+}

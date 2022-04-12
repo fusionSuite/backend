@@ -1,0 +1,32 @@
+{
+    "path": "\/v1\/items\/{id}",
+    "method": "patch",
+    "parameters": [
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        },
+        {
+            "in": "body",
+            "schema": {
+                "$schema": "http:\/\/json-schema.org\/draft-04\/schema#",
+                "title": "Request-Example:",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number",
+                        "description": "Unique ID of the item."
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "description": "Request-Example:"
+        }
+    ],
+    "responses": []
+}

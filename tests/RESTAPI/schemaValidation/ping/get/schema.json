@@ -1,0 +1,15 @@
+{
+    "path": "\/ping",
+    "method": "get",
+    "parameters": [
+        {
+            "in": "body",
+            "schema": {
+                "properties": [],
+                "type": "object",
+                "required": []
+            }
+        }
+    ],
+    "responses": []
+}

@@ -1,0 +1,38 @@
+{
+    "path": "\/v1\/items\/{id}\/property\/{propertyid}",
+    "method": "patch",
+    "parameters": [
+        {
+            "type": "number",
+            "in": "path",
+            "name": "id",
+            "description": "Unique ID of the item.",
+            "required": true
+        },
+        {
+            "type": "number",
+            "in": "path",
+            "name": "propertyid",
+            "description": "Unique ID of the property.",
+            "required": true
+        },
+        {
+            "type": "string",
+            "in": "header",
+            "name": "Authorization",
+            "description": "The JWT token.",
+            "required": true
+        }
+    ],
+    "responses": {
+        "value": {
+            "type": "string",
+            "description": "Value of the property to update."
+        },
+        "reset_to_default": {
+            "type": "boolean",
+            "description": "To update with default value of property.",
+            "default": "false"
+        }
+    }
+}

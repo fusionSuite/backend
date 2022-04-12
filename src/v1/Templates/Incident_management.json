@@ -19,26 +19,48 @@
   "types": [
     {
       "name": "Incident task",
-      "internalname": "incident.task",
+      "internalname": "incidenttask",
       "propertygroups": [
         {
           "name": "Main",
-          "properties": []
+          "properties": [
+            {
+              "name": "description",
+              "internalname": "incidenttaskdescription",
+              "valuetype": "text",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
         }
       ]
     },
     {
       "name": "Incident solution",
-      "internalname": "incident.solution",
+      "internalname": "incidentsolution",
       "propertygroups": [
         {
           "name": "Main",
-          "properties": []
+          "properties": [
+            {
+              "name": "description",
+              "internalname": "incidentsolutiondescription",
+              "valuetype": "text",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": "",
+              "description": ""
+            }
+          ]
         }
       ]
     },
     {
-      "itemName": "Incident",
+      "name": "Incident",
       "internalname": "incident",
       "propertygroups": [
         {
@@ -46,17 +68,17 @@
           "properties": [
             {
               "name": "Priority",
-              "internalname": "incident.priority",
+              "internalname": "incidentpriority",
               "valuetype": "list",
               "regexformat": "",
               "listvalues": ["Very low", "Low", "Medium", "High", "Critical"],
               "unit": "",
-              "default": "",
+              "default": "Medium",
               "description": ""
             },
             {
               "name": "Major incident",
-              "internalname": "incident.major",
+              "internalname": "incidentmajor",
               "valuetype": "boolean",
               "regexformat": "",
               "listvalues": [],
@@ -66,12 +88,12 @@
             },
             {
               "name": "Incident status",
-              "internalname": "incident.status",
+              "internalname": "incidentstatus",
               "valuetype": "list",
               "regexformat": "",
               "listvalues": ["New", "Assigned", "In progress", "Pending", "Resolved", "Closed"],
               "unit": "",
-              "default": "",
+              "default": "New",
               "description": ""
             }
           ]
@@ -84,27 +106,27 @@
               "internalname": "technician",
               "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["user"],
               "unit": "",
               "default": "",
               "description": ""
             },
             {
               "name": "Requester",
-              "internalname": "user",
+              "internalname": "requestuser",
               "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["user"],
               "unit": "",
               "default": "",
               "description": ""
             },
             {
               "name": "Affected user",
-              "internalname": "user",
+              "internalname": "affecteduser",
               "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["user"],
               "unit": "",
               "default": "",
               "description": ""
@@ -114,7 +136,7 @@
               "internalname": "userservice",
               "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["user"],
               "unit": "",
               "default": "",
               "description": ""
@@ -146,7 +168,7 @@
               "regexformat": "",
               "listvalues": ["Low", "Medium", "High"],
               "unit": "",
-              "default": "",
+              "default": "Medium",
               "description": ""
             },
             {
@@ -156,7 +178,7 @@
               "regexformat": "",
               "listvalues": ["Low", "Medium", "High"],
               "unit": "",
-              "default": "",
+              "default": "Medium",
               "description": ""
             },
             {
@@ -171,7 +193,7 @@
             },
             {
               "name": "Category",
-              "internalname": "incident.category",
+              "internalname": "incidentcategory",
               "valuetype": "string",
               "regexformat": "",
               "listvalues": [],
@@ -196,20 +218,20 @@
           "properties": [
             {
               "name": "Incident links",
-              "internalname": "incident.link",
+              "internalname": "incidentlink",
               "valuetype": "itemlinks",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["incident"],
               "unit": "",
               "default": "",
               "description": ""
             },
             {
               "name": "Relationships to CIs",
-              "internalname": "ci.link",
+              "internalname": "cilink",
               "valuetype": "itemlinks",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["laptop", "server"],
               "unit": "",
               "default": "",
               "description": ""
@@ -221,10 +243,10 @@
           "properties": [
             {
               "name": "Incident tasks",
-              "internalname": "incident.task",
+              "internalname": "incidenttask",
               "valuetype": "itemlinks",
               "regexformat": "",
-              "listvalues": ["incident.solution"],
+              "listvalues": ["incidentsolution"],
               "unit": "",
               "default": "",
               "description": ""
@@ -236,10 +258,10 @@
           "properties": [
             {
               "name": "Incident solutions",
-              "internalname": "incident.solution",
+              "internalname": "incidentsolution",
               "valuetype": "itemlinks",
               "regexformat": "",
-              "listvalues": ["incident.task"],
+              "listvalues": ["incidenttask"],
               "unit": "",
               "default": "",
               "description": ""
