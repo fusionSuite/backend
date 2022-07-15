@@ -39,6 +39,8 @@ final class Item
    * @apiSuccess {Object[]}        -                               The list of the items.
    * @apiSuccess {Number}          -.id                            The id of the item.
    * @apiSuccess {String}          -.name                          The name of the item.
+   * @apiSuccess {Number}          -.id_bytype                     The id of the item by type (this id will
+   *    generate consecutive id for the same type_id).
    * @apiSuccess {ISO8601}         -.created_at                    Date of the item creation.
    * @apiSuccess {null|ISO8601}    -.updated_at                    Date of the last item modification.
    * @apiSuccess {Object[]}        -.properties                    List of properties of the item.
@@ -66,6 +68,7 @@ final class Item
    *   {
    *     "id": 45,
    *     "name": "LP-000345",
+   *     "id_bytype": 23,
    *     "created_at": "2020-07-20 14:30:45",
    *     "updated_at": null,
    *     "properties": [
@@ -178,6 +181,8 @@ final class Item
    *
    * @apiSuccess {Number}          id                            The id of the item.
    * @apiSuccess {String}          name                          The name of the item.
+   * @apiSuccess {Number}          id_bytype                     The id of the item by type (this id will generate
+   *    consecutive id for the same type_id).
    * @apiSuccess {ISO8601}         created_at                    Date of the item creation.
    * @apiSuccess {null|ISO8601}    updated_at                    Date of the last item modification.
    * @apiSuccess {Object[]}        properties                    List of properties of the item.
@@ -204,6 +209,7 @@ final class Item
    * {
    *   "id": 45,
    *   "name": "LP-000345",
+   *   "id_bytype": 23,
    *   "created_at": "2020-07-20 14:30:45",
    *   "updated_at": null,
    *   "properties": [
@@ -314,12 +320,15 @@ final class Item
    *   ]
    * }
    *
-   * @apiSuccess {Number}  id   The id of the item.
+   * @apiSuccess {Number}  id        The id of the item.
+   * @apiSuccess {Number}  id_bytype The id of the item by type (this id will generate consecutive id for the
+   *    same type_id).
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
    * {
-   *   "id":10
+   *   "id":10,
+   *   "id_bytype": 4
    * }
    *
    * @apiErrorExample {json} Error-Response:
@@ -397,7 +406,25 @@ final class Item
     $item->owner_user_id = 0;
     $item->owner_group_id = 0;
     $item->state_id = 0;
-    $item->save();
+    // To prevent deadlock on heavy charge because have a select in insert for managing id_bytype (see Item model)
+    $max_retries = 4;
+    $retries = 0;
+    $loop = true;
+    while ($loop)
+    {
+      try {
+        $item->save();
+        $loop = false;
+      }
+      catch (\Exception $e)
+      {
+        if ($retries > $max_retries)
+        {
+          throw $e;
+        }
+        $retries++;
+      }
+    }
     $ruleData['id'] = $item->id;
     $ruleData['name'] = $data->name;
 
@@ -481,8 +508,14 @@ final class Item
 
     // run rules
     $item_id = \App\v1\Controllers\Rules\ActionScript::runRules($ruleData);
+    // Get item to have the internal id
+    $item = \App\v1\Models\Item::find($item->id);
+    $returnData = [
+      "id" => intval($item->id),
+      "id_bytype" => intval($item->id_bytype)
+    ];
 
-    $response->getBody()->write(json_encode(["id" => intval($item->id)]));
+    $response->getBody()->write(json_encode($returnData));
     return $response->withHeader('Content-Type', 'application/json');
   }
 

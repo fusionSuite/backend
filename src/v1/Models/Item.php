@@ -22,6 +22,7 @@ namespace App\v1\Models;
 
 use Illuminate\Database\Eloquent\Model as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class Item extends Model
 {
@@ -34,6 +35,7 @@ class Item extends Model
   ];
   protected $visible = [
     'id',
+    'id_bytype',
     'name',
     'properties',
     'created_at',
@@ -45,6 +47,20 @@ class Item extends Model
   protected $with = [
     // 'getItems'
   ];
+
+  public static function boot()
+  {
+    parent::boot();
+    static::creating(function ($model)
+    {
+      /**
+       * Manage id_bytype field
+       * Get max id in DB for this type and increase 1 to get new id_bytype
+       */
+      $model->id_bytype = DB::raw("(SELECT coalesce(max(id_bytype), 0) + 1 as id_bytype " .
+                                   "FROM items as item_alias WHERE type_id=" . intval($model->type_id) . ")");
+    });
+  }
 
   public function getPropertiesAttribute()
   {

@@ -38,6 +38,7 @@ final class Items extends AbstractMigration
     // create the table
     $table = $this->table('items');
     $table->addColumn('name', 'string')
+          ->addColumn('id_bytype', 'integer')
           ->addColumn('type_id', 'integer')
           ->addColumn('owner_user_id', 'integer', ['null' => true])
           ->addColumn('owner_group_id', 'integer', ['null' => true])
@@ -47,6 +48,8 @@ final class Items extends AbstractMigration
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
           ->addIndex('type_id')
+          ->addIndex('id_bytype')
+          ->addIndex(['type_id', 'id_bytype'], ['unique' => true])
           ->create();
   }
 }

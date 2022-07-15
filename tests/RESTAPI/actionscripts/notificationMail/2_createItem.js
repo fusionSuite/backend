@@ -36,9 +36,9 @@ describe('Endpoint /v1/items - test notifications SMTP', function() {
     .expect(200)
     .expect('Content-Type', /json/)
     .expect(function(response) {
-      assert(is.propertyCount(response.body, 1));
-
+      assert(is.propertyCount(response.body, 2));
       assert(is.integer(response.body.id));
+      assert(is.integer(response.body.id_bytype));
       assert(validator.matches('' + response.body.id, /^\d+$/));
       global.id = response.body.id;
     })

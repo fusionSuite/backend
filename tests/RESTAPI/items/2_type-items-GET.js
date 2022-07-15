@@ -20,8 +20,9 @@ describe('Endpoint /v1/items/type/2 (GET all)', function() {
       assert(is.not.empty(response.body), 'response body must not be empty');
       assert(is.array(response.body), 'response body must be an array');
       firstElement = response.body[0];
-      assert(is.propertyCount(firstElement, 5), 'the first item must have 5 object properties');
+      assert(is.propertyCount(firstElement, 6), 'the first item must have 5 object properties');
       assert(is.integer(firstElement.id), 'the item id must be an integer');
+      assert(is.integer(firstElement.id_bytype), 'the item id_bytype must be an integer');
       assert(is.string(firstElement.name), 'the item name must be a string');
       assert(is.string(firstElement.created_at), 'the item created_at must be a string');
       assert(validator.isISO8601(firstElement.created_at), 'the item created_at must be a valid ISO8601 date');
