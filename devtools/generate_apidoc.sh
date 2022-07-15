@@ -1,6 +1,7 @@
 # Compile by default
 rm -fr ../documentation/*
-cd apidoc 
+rm ../tests/RESTAPI/schemaValidation/swagger.json
+cd apidoc
 ./node_modules/.bin/apidoc -i ../../src -o ../../documentation/ -c apidoc.json
 # Compile second time with own template (needed because some files not generated only with own like 'main.bundle.js' file
 ./node_modules/.bin/apidoc -i ../../src -o ../../documentation/ -c apidoc.json -t ../template/
