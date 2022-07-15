@@ -46,7 +46,8 @@ class EnvironmentList extends Command
     {
       echo $color->error('ERROR: No environment found!');
     }
-    else {
+    else
+    {
       foreach (array_keys($envList) as $envDir)
       {
         $writer->green('  * ' . $envDir);

@@ -9,7 +9,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 * /v1/items endpoint
 */
 
-describe('Update /v1/items/:id', function() {
+describe('items | Update /v1/items/:id', function() {
   it('update the item name', function(done) {
     request
     .patch('/v1/items/' + global.id)

@@ -100,7 +100,9 @@ trait Read
         if ($field[0] == '-')
         {
           $order[] = substr($field, 1) . " DESC";
-        } else {
+        }
+        else
+        {
           $order[] = $field;
         }
       }

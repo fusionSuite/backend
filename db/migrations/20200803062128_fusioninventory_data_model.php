@@ -467,7 +467,8 @@ final class FusioninventoryDataModel extends AbstractMigration
 
     $this->insertType([
       'name'         => 'Organization',
-      'internalname' => 'organization'
+      'internalname' => 'organization',
+      'tree'         => 1
     ]);
 
       // Attach properties
@@ -475,6 +476,19 @@ final class FusioninventoryDataModel extends AbstractMigration
       $this->attachPropertyToType('Organization', 'Postal code');
       $this->attachPropertyToType('Organization', 'City');
       $this->attachPropertyToType('Organization', 'Country');
+
+    // Create first level organization
+    $data = [
+      'name'         => 'My organization',
+      'id_bytype'    => 1,
+      'type_id'      => 1,
+      'treepath'     => '0001',
+      'created_at'   => date('Y-m-d H:i:s'),
+      'updated_at'   => date('Y-m-d H:i:s')
+    ];
+    $tableItem = $this->table('items');
+    $tableItem->insert($data)
+              ->save();
 
     // Create Laptop
     $this->insertType([

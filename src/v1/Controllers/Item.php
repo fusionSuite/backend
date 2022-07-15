@@ -144,7 +144,8 @@ final class Item
           // itemlinks case
           $itemProperties[$property['id']]['value'][] = $property['value'];
         }
-        else {
+        else
+        {
           if ($property['valuetype'] == 'itemlinks' && !is_null($property['value']))
           {
             $property['value'] = [$property['value']];
@@ -272,7 +273,8 @@ final class Item
         // itemlinks case
         $itemProperties[$property['id']]['value'][] = $property['value'];
       }
-      else {
+      else
+      {
         if ($property['valuetype'] == 'itemlinks')
         {
           $property['value'] = [$property['value']];
@@ -298,11 +300,12 @@ final class Item
    *
    * @apiUse AutorizationHeader
    *
-   * @apiBody {String}    name                      The name of the item.
-   * @apiBody {Number}    type_id                   The id of the type of the item.
-   * @apiBody {Object[]}  [properties]              List of properties
-   * @apiBody {Number}    [properties.property_id]  The id of the property.
-   * @apiBody {String[]}  [properties.value]        The value of the property for the item.
+   * @apiBody {String}       name                      The name of the item.
+   * @apiBody {Number}       type_id                   The id of the type of the item.
+   * @apiBody {Null|Number}  [parent_id=null]          The itemid of the parent item in case type has tree enabled.
+   * @apiBody {Object[]}     [properties]              List of properties
+   * @apiBody {Number}       [properties.property_id]  The id of the property.
+   * @apiBody {String[]}     [properties.value]        The value of the property for the item.
    *
    * @apiParamExample {json} Request-Example:
    * {
@@ -348,9 +351,49 @@ final class Item
     // Validate the data format
     $dataFormat = [
       'name'    => 'required|type:string',
-      'type_id' => 'required|type:integer|integer'
+      'type_id' => 'required|type:integer|integer',
+      'parent_id' => 'type:integer|integer'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
+    // Checks about tree type
+    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    if ($type->tree)
+    {
+      // in case of type is a tree, check if parent_id exists
+      if (property_exists($data, 'parent_id'))
+      {
+        $parentItem = \App\v1\Models\Item::find($data->parent_id);
+        if (is_null($parentItem))
+        {
+          throw new \Exception("The parent item has not be found", 400);
+        }
+        // Check now if the parent_id is the same type_id
+        if ($parentItem->type_id != $data->type_id)
+        {
+          throw new \Exception("The parent item has not the same type", 400);
+        }
+      }
+      else
+      {
+        if (!$type->allowtreemultipleroots)
+        {
+          // check if have yet a root item
+          $otherItemsOfTree = \App\v1\Models\Item::where('type_id', $data->type_id)
+            ->take(1)
+            ->first();
+          if (!is_null($otherItemsOfTree))
+          {
+            throw new \Exception("This type can only have one root item", 400);
+          }
+        }
+      }
+    }
+    elseif (property_exists($data, 'parent_id'))
+    {
+      // in case of type is not a tree but have the parent_id, raise an error
+      throw new \Exception("The parent_id must not be defined on a non tree item", 400);
+    }
+
     // validate for each properties
     if (property_exists($data, 'properties'))
     {
@@ -406,6 +449,10 @@ final class Item
     $item->owner_user_id = 0;
     $item->owner_group_id = 0;
     $item->state_id = 0;
+    if (property_exists($data, 'parent_id'))
+    {
+      $item->parent_id = $data->parent_id;
+    }
     // To prevent deadlock on heavy charge because have a select in insert for managing id_bytype (see Item model)
     $max_retries = 4;
     $retries = 0;
@@ -463,7 +510,8 @@ final class Item
         {
           $item->properties()->attach($property->property_id, [$fieldName => date('H:i:s')]);
         }
-        else {
+        else
+        {
           $item->properties()->attach($property->property_id, [$fieldName => $property->value]);
         }
       }
@@ -501,7 +549,8 @@ final class Item
       {
         $item->properties()->attach($prop->id, [$fieldName => date('H:i:s')]);
       }
-      else {
+      else
+      {
         $item->properties()->attach($prop->id, [$fieldName => $prop->default]);
       }
     }
@@ -608,7 +657,8 @@ final class Item
     {
       $item->forceDelete();
     }
-    else {
+    else
+    {
       $item->delete();
     }
 
@@ -735,13 +785,15 @@ final class Item
           'value_typelink' => null
         ]);
       }
-      else {
+      else
+      {
         $item->properties()->updateExistingPivot($args['propertyid'], [
           'value_' . $property->valuetype => $property->default
         ]);
       }
     }
-    else {
+    else
+    {
       // Define the arguments
       $valdata = new stdClass();
       $valdata->property_id = $args['propertyid'];
@@ -811,7 +863,8 @@ final class Item
           'value_typelink' => null
         ]);
       }
-      else {
+      else
+      {
         $item->properties()->updateExistingPivot($args['propertyid'], [
           'value_' . $property->valuetype => $data->value
         ]);

@@ -80,7 +80,8 @@ class Common
         return false;
       }
     }
-    else {
+    else
+    {
       if (gettype($value) != $type)
       {
         return false;

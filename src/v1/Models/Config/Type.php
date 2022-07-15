@@ -39,6 +39,8 @@ class Type extends Model
     'modeling',
     'properties',
     'propertygroups',
+    'tree',
+    'allowtreemultipleroots',
     'created_at',
     'updated_at'
   ];
@@ -47,26 +49,14 @@ class Type extends Model
     'properties'
   ];
 
-  protected static function booted()
+  public function getTreeAttribute($value)
   {
-    static::retrieved(function ($type)
-    {
-      // This code works ;)
-      // $type->name = "xxxxx";
-    });
+    return boolval($value);
+  }
 
-    static::saving(function ($type)
-    {
-      // $type = \App\v1\Controllers\Rule::runRules($type);
-      // This code works ;)
-      // $type->name = "xxxxx";
-    });
-
-    static::saved(function ($type)
-    {
-      // This code works ;)
-      // $type->name = "xxxxx";
-    });
+  public function getAllowtreemultiplerootsAttribute($value)
+  {
+    return boolval($value);
   }
 
   public function getPropertiesAttribute()

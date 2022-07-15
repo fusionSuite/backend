@@ -9,7 +9,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 * /v1/items endpoint
 */
 
-describe('Delete all items', function() {
+describe('itemsHeaders | Delete all items', function() {
 
   it('soft delete the item', function(done) {
     for (let id of global.itemsId) {

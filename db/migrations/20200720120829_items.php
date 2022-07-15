@@ -44,12 +44,15 @@ final class Items extends AbstractMigration
           ->addColumn('owner_group_id', 'integer', ['null' => true])
           ->addColumn('state_id', 'integer', ['null' => true])
           ->addColumn('byfusioninventory', 'boolean', ['default' => false])
+          ->addColumn('parent_id', 'integer', ['null' => true])
+          ->addColumn('treepath', 'string', ['null' => true])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
           ->addIndex('type_id')
           ->addIndex('id_bytype')
           ->addIndex(['type_id', 'id_bytype'], ['unique' => true])
+          ->addIndex('treepath')
           ->create();
   }
 }

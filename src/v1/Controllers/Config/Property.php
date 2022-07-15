@@ -426,7 +426,8 @@ final class Property
         {
           $dataFormat['default'] = 'nullable';
         }
-        else {
+        else
+        {
           $dataFormat['default'] = 'type:string|maxchars:255';
         }
           break;
@@ -458,7 +459,8 @@ final class Property
           $data->setcurrentdate = true;
           $dataFormat['default'] = 'nullable';
         }
-        else {
+        else
+        {
           $dataFormat['default'] = 'type:string|dateformat';
         }
           break;
@@ -474,7 +476,8 @@ final class Property
           $data->setcurrentdate = true;
           $dataFormat['default'] = 'nullable';
         }
-        else {
+        else
+        {
           $dataFormat['default'] = 'type:string|datetimeformat';
         }
           break;
@@ -490,7 +493,8 @@ final class Property
           $data->setcurrentdate = true;
           $dataFormat['default'] = 'nullable';
         }
-        else {
+        else
+        {
           $dataFormat['default'] = 'type:string|timeformat';
         }
           break;
@@ -610,7 +614,8 @@ final class Property
       {
         $properties['internalname'] = preg_replace("/[^a-z.]+/", "", strtolower($data->name));
       }
-      else {
+      else
+      {
         $properties['internalname'] = $data->internalname;
       }
     }

@@ -2,37 +2,19 @@ const supertest = require('supertest');
 const validator = require('validator');
 const assert = require('assert');
 const is = require('is_js');
+const { faker } = require('@faker-js/faker');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
-/**
-* /v1/types endpoint
-*/
-
-describe('type | Update /v1/config/types/:id', function() {
-  it('update the Firewall type', function(done) {
+describe('itemsTreeMultipleRoots | create items in error', function() {
+  it('create an item with a parent from another type', function(done) {
     request
-    .patch('/v1/config/types/' + global.id)
-    .send({name: 'FirewallNew'})
-    .set('Accept', 'application/json')
-    .set('Authorization', 'Bearer ' + global.token)
-    .expect(200)
-    .expect('Content-Type', /json/)
-    .expect(function(response) {
-      assert(is.propertyCount(response.body, 0));
+    .post('/v1/items')
+    .send({
+      name: 'my second root item of the tree',
+      type_id: global.typeId,
+      parent_id: 1
     })
-    .end(function(err, response) {
-      if (err) {
-        return done(err + ' | Response: ' + response.text);
-      }
-      return done();
-    });
-  });
-
-  it('update the Firewall type, but forget name => error', function(done) {
-    request
-    .patch('/v1/config/types/' + global.id)
-    .send({})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -40,7 +22,7 @@ describe('type | Update /v1/config/types/:id', function() {
     .expect(function(response) {
       assert(is.propertyCount(response.body, 2));
       assert(validator.equals(response.body.status, 'error'));
-      assert(validator.equals(response.body.message, 'The Name is required'));
+      assert(validator.equals(response.body.message, 'The parent item has not the same type'));
     })
     .end(function(err, response) {
       if (err) {
@@ -50,10 +32,14 @@ describe('type | Update /v1/config/types/:id', function() {
     });
   });
 
-  it('update the Firewall type, but name not in right type => error', function(done) {
+  it('create an item with a parent not exists', function(done) {
     request
-    .patch('/v1/config/types/' + global.id)
-    .send({name: true})
+    .post('/v1/items')
+    .send({
+      name: 'my second root item of the tree',
+      type_id: global.typeId,
+      parent_id: 145986456
+    })
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -61,7 +47,7 @@ describe('type | Update /v1/config/types/:id', function() {
     .expect(function(response) {
       assert(is.propertyCount(response.body, 2));
       assert(validator.equals(response.body.status, 'error'));
-      assert(validator.equals(response.body.message, 'The Name is not valid type'));
+      assert(validator.equals(response.body.message, 'The parent item has not be found'));
     })
     .end(function(err, response) {
       if (err) {
@@ -71,5 +57,28 @@ describe('type | Update /v1/config/types/:id', function() {
     });
   });
 
+  it('create an item with a parent not integer', function(done) {
+    request
+    .post('/v1/items')
+    .send({
+      name: 'my second root item of the tree',
+      type_id: global.typeId,
+      parent_id: '42'
+    })
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + global.token)
+    .expect(400)
+    .expect('Content-Type', /json/)
+    .expect(function(response) {
+      assert(is.propertyCount(response.body, 2));
+      assert(validator.equals(response.body.status, 'error'));
+      assert(validator.equals(response.body.message, 'The Parent id is not valid type'));
+    })
+    .end(function(err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+  });
 });
-

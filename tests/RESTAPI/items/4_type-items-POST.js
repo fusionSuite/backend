@@ -9,7 +9,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('Endpoint /v1/items', function() {
+describe('items | Endpoint /v1/items', function() {
 
   it('create laptops with random names and serials, also in different langs', function(done) {
     // Generate random

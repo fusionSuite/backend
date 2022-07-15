@@ -286,13 +286,16 @@ final class Fusioninventory
                 'byfusioninventory' => true
               ]);
             }
-            else {
+            else
+            {
               $item->properties()->attach($property->property_id, ['value' => $value, 'byfusioninventory' => true]);
             }
           }
         }
         $this->manageItem($fusionItem->id, $item);
-      } else {
+      }
+      else
+      {
         $dbItems = [];
         $idx = 1;
         // Get all devices attached to the item with this type

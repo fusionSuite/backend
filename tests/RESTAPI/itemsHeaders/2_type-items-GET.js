@@ -8,7 +8,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('GET all items per page of 2 items', function() {
+describe('itemsHeaders | GET all items per page of 2 items', function() {
   it('Get the first page', function(done) {
     request
     .get('/v1/items/type/2?per_page=2')
