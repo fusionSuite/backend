@@ -90,7 +90,8 @@ class EnvironmentCreate extends Command
       $choice = $io->choice('Define this environment as the current environment?', $choices, '0');
       $this->set('current', $choice);
     }
-    else {
+    else
+    {
       if (is_null($this->name) || $this->name == 1)
       {
         throw new \Exception("The name is not defined!");

@@ -38,6 +38,10 @@ final class Type
    * @apiSuccess {String}                      types.name                          The name of the type.
    * @apiSuccess {String}                      types.internalname                  The internalname of the type.
    * @apiSuccess {String="logical","physical"} types.modeling                      The model of the type.
+   * @apiSuccess {Boolean}                     types.tree                          Set if the items of this type are
+   *    in a tree.
+   * @apiSuccess {Boolean}                     types.allowtreemultipleroots        Set if the items of this type can
+   *    have multiple roots.
    * @apiSuccess {ISO8601}                     types.created_at                    Date of the type creation.
    * @apiSuccess {null|ISO8601}                types.updated_at                    Date of the last type modification.
    * @apiSuccess {Object[]}                    types.properties                    The properties list.
@@ -104,6 +108,10 @@ final class Type
    * @apiSuccess {String}                      name                          The name of the type.
    * @apiSuccess {String}                      internalname                  The internalname of the type.
    * @apiSuccess {String="logical","physical"} modeling                      The model of the type.
+   * @apiSuccess {Boolean}                     tree                          Set if the items of this type
+   *    are in a tree.
+   * @apiSuccess {Boolean}                     allowtreemultipleroots        Set if the items of this type can have
+   *    multiple roots.
    * @apiSuccess {ISO8601}                     created_at                    Date of the type creation.
    * @apiSuccess {null|ISO8601}                updated_at                    Date of the last type modification.
    * @apiSuccess {Object[]}                    properties                    The properties list.
@@ -168,7 +176,10 @@ final class Type
    *
    * @apiUse AutorizationHeader
    *
-   * @apiBody {String}  name     The name of the type of items.
+   * @apiBody {String}   name                             The name of the type of items.
+   * @apiBody {Boolean}  [tree=false]                     Set if the items of this type are in a tree.
+   * @apiBody {Boolean}  [allowtreemultipleroots=false]   Set if the items of this type are in a tree and can
+   *    have multiple roots.
    *
    * @apiParamExample {json} Request-Example:
    * {
@@ -197,7 +208,9 @@ final class Type
 
     // Validate the data format
     $dataFormat = [
-      'name' => 'required|type:string'
+      'name'                   => 'required|type:string',
+      'tree'                   => 'type:boolean|boolean',
+      'allowtreemultipleroots' => 'type:boolean|boolean'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
@@ -207,8 +220,17 @@ final class Type
     {
       $type->internalname = preg_replace("/[^a-z.]+/", "", strtolower($data->name));
     }
-    else {
+    else
+    {
       $type->internalname = $data->internalname;
+    }
+    if (property_exists($data, 'tree') === true)
+    {
+      $type->tree = $data->tree;
+    }
+    if (property_exists($data, 'allowtreemultipleroots'))
+    {
+      $type->allowtreemultipleroots = $data->allowtreemultipleroots;
     }
     $type->save();
 
@@ -305,7 +327,8 @@ final class Type
     {
       $type->forceDelete();
     }
-    else {
+    else
+    {
       $type->properties()->detach();
       $type->delete();
     }
@@ -553,7 +576,8 @@ final class Type
     {
       $data->internalname = preg_replace("/[^a-z.]+/", "", strtolower($data->name));
     }
-    else {
+    else
+    {
       $data->internalname = $data->internalname;
     }
     $type = \App\v1\Models\Config\Type::firstOrCreate(
@@ -642,7 +666,8 @@ final class Type
           {
             $propertyListId[] = $ctrlProperty->createProperty($property);
           }
-          else {
+          else
+          {
             $propertyListId[] = $prop->id;
           }
         }

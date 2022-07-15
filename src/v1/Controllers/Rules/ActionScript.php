@@ -75,7 +75,8 @@ final class ActionScript
                 // it's name
                 $args->{$property->name} = $input['name'];
               }
-              else {
+              else
+              {
                 // get value from properties
                 $args->{$property->internalname} = $input[$property->id];
               }
@@ -89,7 +90,8 @@ final class ActionScript
             {
               $args->{$property->internalname} = $property->value->value;
             }
-            else {
+            else
+            {
               $args->{$property->internalname} = $property->value;
             }
           }

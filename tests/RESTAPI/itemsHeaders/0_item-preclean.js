@@ -9,7 +9,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 * /v1/items endpoint
 */
 
-describe('Pre clean to be sure not have items in DB /v1/items/:id', function() {
+describe('itemsHeaders | Pre clean to be sure not have items in DB /v1/items/:id', function() {
 
   global.itemsId = [];
   it('Get all items', function(done) {

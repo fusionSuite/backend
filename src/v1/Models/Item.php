@@ -37,6 +37,8 @@ class Item extends Model
     'id',
     'id_bytype',
     'name',
+    'parent_id',
+    'treepath',
     'properties',
     'created_at',
     'updated_at'
@@ -59,6 +61,35 @@ class Item extends Model
        */
       $model->id_bytype = DB::raw("(SELECT coalesce(max(id_bytype), 0) + 1 as id_bytype " .
                                    "FROM items as item_alias WHERE type_id=" . intval($model->type_id) . ")");
+    });
+  }
+
+  public static function booted()
+  {
+    parent::booted();
+    static::created(function ($model)
+    {
+      // check if type is a tree
+      $type = \App\v1\Models\Config\Type::find($model->type_id);
+      if ($type->tree)
+      {
+        // It's a tree, manage it here after created the item
+        // 1. we get the item created (refresh)
+        // 2. if not root (first level), we get the parent item
+        // 3. get the parent treepath and add the id_bytype generated to the item created
+        // 4. save the item with the treepath
+        // we can't do this before, because the id_bypath is generated when insert directly by database (in SQL auery)
+        // The treepath is the id_bytype composed by 4 numbers. If have id_bytype 45, it will be 0045.
+        // if the parent is 34 and root, the treepath of the current item will be 00340045
+        $currItem = (new self())->find($model->id);
+        $currItem->treepath = sprintf("%04d", $currItem->id_bytype);
+        if (isset($model->parent_id) && !is_null($model->parent_id))
+        {
+          $parentItem = self::find($model->parent_id);
+          $currItem->treepath = $parentItem->treepath . $currItem->treepath;
+        }
+        $currItem->save();
+      }
     });
   }
 
@@ -139,7 +170,9 @@ class Item extends Model
             $order = $this->inverseMutators[$order];
           }
           $query->orderBy($order, 'desc');
-        } else {
+        }
+        else
+        {
           if (isset($this->inverseMutators[$order]))
           {
             $order = $this->inverseMutators[$order];

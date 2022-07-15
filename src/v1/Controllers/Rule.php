@@ -58,7 +58,8 @@ final class Rule
         {
           $value = $values;
         }
-        else {
+        else
+        {
           $value = $item[$values[1]];
         }
 
@@ -67,12 +68,14 @@ final class Rule
         {
           $items->where('name', $item->name);
         }
-        else {
+        else
+        {
           if (isset($properties[$propertyId]))
           {
             $value = $properties[$propertyId];
           }
-          else {
+          else
+          {
             return false;
           }
           // print_r($properties);
@@ -116,7 +119,8 @@ final class Rule
           $criteria[] = 'searchindb(item, "' . $criterium->field . '", "' . $criterium->values . '", properties)';
         }
       }
-      else {
+      else
+      {
         foreach ($rule->criteria as $criterium)
         {
           $criteria[] = $criterium->field . " " . $criterium->comparator . " '" . $criterium->values . "'";
@@ -136,7 +140,9 @@ final class Rule
           // TODO must return the id found
           return true;
         }
-      } else {
+      }
+      else
+      {
         if ($ruleType == 'searchitem')
         {
           // print_r($criteria);
@@ -335,7 +341,8 @@ final class Rule
     {
       $rule->forceDelete();
     }
-    else {
+    else
+    {
       $rule->delete();
     }
 

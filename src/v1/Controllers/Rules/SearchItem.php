@@ -68,7 +68,8 @@ final class SearchItem
           {
             $items->where('name', $input['name']);
           }
-          else {
+          else
+          {
             $doSearchInDB = true;
             $propertyId = $matches[2];
             $value = $context[str_replace('input.', '', $criterium->field)];
@@ -84,7 +85,8 @@ final class SearchItem
           $criteria[] = 'regex("' . $context[str_replace('input.', '', $criterium->field)] . '", "' .
                         $criterium->values . '")';
         }
-        else {
+        else
+        {
           $criteria[] = $criterium->field . ' ' . $criterium->comparator . ' ' . $criterium->values;
         }
       }
@@ -114,7 +116,8 @@ final class SearchItem
             return 'notimport';
           }
         }
-        else {
+        else
+        {
           return $actionToDo;
         }
         // next rule

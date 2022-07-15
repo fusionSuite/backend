@@ -8,7 +8,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('Endpoint /v1/items/type/2 (GET all)', function() {
+describe('items | Endpoint /v1/items/type/2 (GET all)', function() {
   it('Get the items of the type', function(done) {
     request
     .get('/v1/items/type/2')
@@ -20,11 +20,13 @@ describe('Endpoint /v1/items/type/2 (GET all)', function() {
       assert(is.not.empty(response.body), 'response body must not be empty');
       assert(is.array(response.body), 'response body must be an array');
       firstElement = response.body[0];
-      assert(is.propertyCount(firstElement, 6), 'the first item must have 5 object properties');
+      assert(is.propertyCount(firstElement, 8), 'the first item must have 8 object properties');
       assert(is.integer(firstElement.id), 'the item id must be an integer');
       assert(is.integer(firstElement.id_bytype), 'the item id_bytype must be an integer');
       assert(is.string(firstElement.name), 'the item name must be a string');
       assert(is.string(firstElement.created_at), 'the item created_at must be a string');
+      assert(is.null(firstElement.parent_id), 'the item parent_id must be a null');
+      assert(is.null(firstElement.treepath), 'the item treepath must be a null');
       assert(validator.isISO8601(firstElement.created_at), 'the item created_at must be a valid ISO8601 date');
       okType = false;
       if (is.null(firstElement.updated_at)) {

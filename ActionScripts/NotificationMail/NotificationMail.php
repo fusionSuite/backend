@@ -141,7 +141,8 @@ class NotificationMail
     {
       $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     }
-    else {
+    else
+    {
       // disabled
       $mail->SMTPSecure = false;
       $mail->SMTPAutoTLS = false;

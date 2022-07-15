@@ -103,7 +103,8 @@ class Install extends Command
           $type->createTemplate($template);
           $writer->boldGreen(' OK ');
         }
-        else {
+        else
+        {
           try {
             $type->createTemplate($template);
             $writer->boldGreen(' OK ');

@@ -127,7 +127,8 @@ final class Token
         throw new \Exception('Error when authentication, login or password not right', 401);
       }
     }
-    else {
+    else
+    {
         throw new \Exception('Missing request body, check the documentation', 400);
     }
 
@@ -144,7 +145,9 @@ final class Token
       $myUser = \App\v1\Models\User::find($user[0]['id']);
       $myUser->jwtid = $jti;
       $myUser->save();
-    } else {
+    }
+    else
+    {
       $jti = $user[0]['refreshtoken'];
     }
 

@@ -2,17 +2,15 @@ const supertest = require('supertest');
 const validator = require('validator');
 const assert = require('assert');
 const is = require('is_js');
+const { faker } = require('@faker-js/faker');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
-/**
-* /v1/types endpoint
-*/
+describe('itemsTree | delete root item', function() {
 
-describe('type | Delete /v1/config/types/:id', function() {
-  it('soft delete the Firewall type', function(done) {
+  it('Soft delete the sub1 item', function(done) {
     request
-    .delete('/v1/config/types/' + global.id)
+    .delete('/v1/items/' + global.itemLevel2Id.toString())
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect('Content-Type', /json/)
@@ -24,10 +22,9 @@ describe('type | Delete /v1/config/types/:id', function() {
       return done();
     });
   });
-
-  it('permanently delete the Firewall type', function(done) {
+  it('Hard delete the sub1 item', function(done) {
     request
-    .delete('/v1/config/types/' + global.id)
+    .delete('/v1/items/' + global.itemLevel2Id.toString())
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect('Content-Type', /json/)
@@ -39,5 +36,4 @@ describe('type | Delete /v1/config/types/:id', function() {
       return done();
     });
   });
-
 });

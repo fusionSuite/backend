@@ -8,7 +8,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('Patch item property /v1/items/xx/property/zz', function() {
+describe('items | patch item property /v1/items/xx/property/zz', function() {
 
   it('it update an item property', function(done) {
     request

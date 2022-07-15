@@ -8,7 +8,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 /**
 * /v1/types endpoint
 */
-describe('Endpoint /v1/items', function() {
+describe('itemsHeaders | Endpoint /v1/items', function() {
 
   for (let step = 1; step <= 15; step++) {
     it('create a new item '+step, function(done) {
