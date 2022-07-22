@@ -32,7 +32,7 @@ describe('items | Endpoint /v1/items', function() {
       let myId = 0;
       request
       .post('/v1/items')
-      .send({name: name,type_id: 2,properties:[{property_id:global.propertyid,value:serial}]})
+      .send({name: name,type_id: 3,properties:[{property_id:global.propertyid,value:serial}]})
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)

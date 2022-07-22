@@ -25,33 +25,27 @@ final class FillUserparams extends AbstractMigration
    */
   public function change(): void
   {
-
-    $config = include(__DIR__.'/../../src/config.php');
-
-    $capsule = new Capsule;
-    $capsule->addConnection($config['db']);
-    $capsule->setEventDispatcher(new Dispatcher(new Container));
-    $capsule->setAsGlobal();
-    $capsule->bootEloquent();
-
+    $token = new stdClass();
+    $token->organization_id = 1;
+    $token->user_id = $GLOBALS['user_id'];
 
     // Create types
-    $this->createItemlist();
+    $this->createItemlist($token);
     $this->createItem();
-    $this->createCSVimport();
+    $this->createCSVimport($token);
     $this->createGlobalmenu();
     $this->createHomepage();
   }
  
-  private function createItemlist()
+  private function createItemlist($token)
   {
     // create properties
     // * type_id
     // * nb_per_page
     // * cols (example: [2,6,4])
-    $controllerProperty = new \App\v1\Controllers\Config\Property;
+    $ctrlProperty = new \App\v1\Controllers\Config\Property();
     
-    $data = new stdClass;
+    $data = new stdClass();
     $data->name = 'type_id';
     $data->internalname = 'internal.typeId';
     $data->valuetype = 'typelink';
@@ -60,42 +54,41 @@ final class FillUserparams extends AbstractMigration
     $data->unit = '';
     $data->default = null;
     $data->description = 'the id of the type';
-    $this->propIdTypeId = $controllerProperty->createProperty($data);   
+    $this->propIdTypeId = $ctrlProperty->createProperty($data, $token);   
 
-    $data = new stdClass;
+    $data = new stdClass();
     $data->name = 'elements per page';
     $data->internalname = 'internal.elementsPerPage';
     $data->valuetype = 'integer';
     $data->regexformat = '';
     $data->default = null;
     $data->description = 'number of elements to display per page';
-    $propIdElementsPerPage = $controllerProperty->createProperty($data);    
+    $propIdElementsPerPage = $ctrlProperty->createProperty($data, $token);    
 
-    $data = new stdClass;
+    $data = new stdClass();
     $data->name = 'property ids list (string)';
     $data->internalname = 'internal.properties';
     $data->valuetype = 'string';
     $data->regexformat = '';
     $data->default = null;
     $data->description = 'list of properties in a string';
-    $propIdProperties = $controllerProperty->createProperty($data);    
+    $propIdProperties = $ctrlProperty->createProperty($data, $token);    
 
-    $data = new stdClass;
+    $data = new stdClass();
     $data->name = 'property ids hidden list (string)';
     $data->internalname = 'internal.propertieshidden';
     $data->valuetype = 'string';
     $data->regexformat = '';
     $data->default = null;
     $data->description = 'list of properties hidden in a string';
-    $propIdPropertiesHidden = $controllerProperty->createProperty($data);    
+    $propIdPropertiesHidden = $ctrlProperty->createProperty($data, $token);    
 
     // create the type
-    $type = new \App\v1\Models\Config\Type;
+    $type = new \App\v1\Models\Config\Type();
     $type->name = 'itemlist userparam';
     $type->internalname = 'userparam.itemlist';
     $type->modeling = 'userparam';
     $type->save();
-    $typeId = $type->id;
 
     // associate the properties
     $type->properties()->attach($this->propIdTypeId);
@@ -109,15 +102,15 @@ final class FillUserparams extends AbstractMigration
     
   }
 
-  private function createCSVimport()
+  private function createCSVimport($token)
   {
     // create properties
     // * type_id
     // * mappingcols (example: [0, 2,null,4])
     // * joiningField (example: [0, 1, 0, 0, 1])
-    $controllerProperty = new \App\v1\Controllers\Config\Property;
+    $ctrlProperty = new \App\v1\Controllers\Config\Property;
 
-    $data = new stdClass;
+    $data = new stdClass();
     $data->name = 'property ids cols mapping (string)';
     $data->internalname = 'internal.mappingcols';
     $data->valuetype = 'string';
@@ -126,16 +119,16 @@ final class FillUserparams extends AbstractMigration
     $data->unit = '';
     $data->default = '0';
     $data->description = 'list of properties for cols mapping in a string';
-    $propIdMappingcols= $controllerProperty->createProperty($data);    
+    $propIdMappingcols= $ctrlProperty->createProperty($data, $token);    
     
     $data->name = 'joining fields (string)';
     $data->internalname = 'internal.joiningfields';
     $data->valuetype = 'string';
     $data->description = 'define for each field / column if it is a joining field';
-    $propIdJoiningFields = $controllerProperty->createProperty($data);    
+    $propIdJoiningFields = $ctrlProperty->createProperty($data, $token);    
     
     // create the type
-    $type = new \App\v1\Models\Config\Type;
+    $type = new \App\v1\Models\Config\Type();
     $type->name = 'CSV cols mapping cols userparam';
     $type->internalname = 'userparam.csvimport';
     $type->modeling = 'userparam';
@@ -157,5 +150,4 @@ final class FillUserparams extends AbstractMigration
   {
     
   }
-
 }

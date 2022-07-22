@@ -30,7 +30,7 @@ describe('actionscripts/ActionZabbix - Test the rule', function() {
   it('create a new item', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'Laptop 0025',type_id: 2,properties:[{property_id:5,value:"serialxxxxxx"}]})
+    .send({name: 'Laptop 0025',type_id: 3,properties:[{property_id:10,value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)

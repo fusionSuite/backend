@@ -82,7 +82,6 @@ final class Token
   {
     /* Here generate and return JWT to the client. */
     $data = json_decode($request->getBody());
-    $model = new \App\v1\Models\User();
 
     if (\App\v1\Post::postHasProperties($data, ['refresh_token']) === true)
     {
@@ -92,11 +91,12 @@ final class Token
       }
 
       // Verify the token
-      $user = \App\v1\Models\User::where([['refreshtoken', $data->refresh_token]])->get()->toArray();
-      if (count($user) == 0)
-      {
-        throw new \Exception('Error when authentication, refresh_token not right', 401);
-      }
+      // TODO
+      // $user = \App\v1\Models\User::where([['refreshtoken', $data->refresh_token]])->get()->toArray();
+      // if (count($user) == 0)
+      // {
+      //   throw new \Exception('Error when authentication, refresh_token not right', 401);
+      // }
     }
     elseif (
         \App\v1\Post::postHasProperties($data, ['login']) === true
@@ -106,49 +106,59 @@ final class Token
     )
     {
       // Verify the account
-      $user = \App\v1\Models\User::where(
-        [
-          ['login', $data->login]
-        ]
-      )->get()
-      ->makeHidden(
-        \App\v1\Common::getFieldsToHide(
-          $model->getVisible(),
-          ['id', 'login', 'password', 'jwtid', 'refreshtoken', 'firstname', 'lastname', 'displayname']
-        )
-      )->makeVisible(["password", "jwtid"])->toArray();
+      $user = \App\v1\Models\Item::where('name', $data->login)->where('type_id', 2)->first();
+      if (is_null($user))
+      {
+        throw new \Exception('Error when authentication, login or password not right', 401);
+      }
+      // check if user account is activated
+      foreach ($user->properties()->get() as $property)
+      {
+        if ($property->internalname == 'activated' && !$property->value)
+        {
+          throw new \Exception('Error when authentication, account not activated', 403);
+        }
+      }
+      // TODO check password in property (need manage properties with password)
 
-      if (count($user) == 0)
-      {
-        throw new \Exception('Error when authentication, login or password not right', 401);
-      }
-      elseif (password_verify($data->password, $user[0]['password']) === false)
-      {
-        throw new \Exception('Error when authentication, login or password not right', 401);
-      }
+      // $user = \App\v1\Models\User::where([['login', $data->login]])->get()->makeHidden(
+      //   \App\v1\Common::getFieldsToHide($model->getVisible(), ['id', 'login', 'password',
+      //   'jwtid', 'refreshtoken', 'firstname', 'lastname', 'displayname']))
+      //   ->makeVisible(["password", "jwtid"])->toArray();
+      // if (count($user) == 0)
+      // {
+      //   throw new \Exception('Error when authentication, login or password not right', 401);
+      // }
+      // else if (password_verify($data->password, $user[0]['password']) === false)
+      // {
+      //   throw new \Exception('Error when authentication, login or password not right', 401);
+      // }
     }
     else
     {
         throw new \Exception('Missing request body, check the documentation', 400);
     }
 
+    $firstName = $user->getPropertyAttribute('userfirstname');
+    $lastName = $user->getPropertyAttribute('userlastname');
+    $jwtid = $user->getPropertyAttribute('userjwtid');
+    $jwtidId = $user->getPropertyAttribute('userjwtid', 'id');
+    $refreshtokenPropId = $user->getPropertyAttribute('userrefreshtoken', 'id');
+    if (is_null($jwtidId) || is_null($refreshtokenPropId))
+    {
+      throw new \Exception('The database is corrupted', 500);
+    }
+
     // Generate a new refreshtoken and save in DB
     $refreshtoken = $this->generateToken();
-    $myUser = \App\v1\Models\User::find($user[0]['id']);
-    $myUser->refreshtoken = $refreshtoken;
-    $myUser->save();
+    $user->properties()->updateExistingPivot($refreshtokenPropId, ['value_string' => $refreshtoken]);
 
     // the jwtid (jit), used to revoke the jwt by server (for example when change rights, disable user...)
-    if (!isset($user[0]) || !isset($user[0]['refreshtoken']) || $user[0]['refreshtoken'] == '')
-    {
+    if (is_null($jwtid)) {
       $jti = $this->generateToken();
-      $myUser = \App\v1\Models\User::find($user[0]['id']);
-      $myUser->jwtid = $jti;
-      $myUser->save();
-    }
-    else
-    {
-      $jti = $user[0]['refreshtoken'];
+      $user->properties()->updateExistingPivot($jwtidId, ['value_string' => $jti]);
+    } else {
+      $jti = $jwtid;
     }
 
     $now = new DateTime();
@@ -157,19 +167,19 @@ final class Token
     // $future = new DateTime("+30 seconds");
 
     $payload = [
-      "iat" => $now->getTimeStamp(),
-      "exp" => $future->getTimeStamp(),
-      "jti" => $jti,
-      "sub" => '',
-      "scope" => $this->getScope($user[0]['id']),
-      "user_id" => $user[0]['id'],
-      "firstname" => $user[0]['firstname'],
-      "lastname" => $user[0]['lastname'],
-      "displayname" => $user[0]['displayname'],
-      "apiversion" => "v1"
+      'iat'              => $now->getTimeStamp(),
+      'exp'              => $future->getTimeStamp(),
+      'jti'              => $jti,
+      'sub'              => '',
+      'scope'            => $this->getScope($user->id),
+      'user_id'          => $user->id,
+      'firstname'        => $firstName,
+      'lastname'         => $lastName,
+      'apiversion'       => "v1",
+      'organization_id'  => $user->organization_id,
+      'sub_organization' => true
     ];
     $configSecret = include(__DIR__ . '/../../../config/current/config.php');
-    // $secret = "123456789helo_secret";
     $secret = $configSecret['jwtsecret'];
     $token = JWT::encode($payload, $secret, "HS256");
     $responseData = [
@@ -185,195 +195,7 @@ final class Token
   private function getScope($userId)
   {
     $scope = [
-      'tickets' => [
-        'readAll'    => false,
-        'readOwn'    => false,
-        'create'     => false,
-        'update'     => false,
-        'softDelete' => false,
-        'delete'     => false
-      ],
-      'tickets/followups' => [
-        'readPublic'  => false,
-        'readPrivate' => false,
-        'create'      => false,
-        'update'      => false,
-        'softDelete'  => false,
-        'delete'      => false,
-      ],
-      'servicecatalogs' => [
-        'read'         => false,
-        'create'       => false,
-        'update'       => false,
-        'softDelete'   => false,
-        'delete'       => false,
-        'createAnswer' => false
-      ],
-      'users' => [
-        'read'         => false,
-        'create'       => false,
-        'update'       => false,
-        'softDelete'   => false,
-        'delete'       => false,
-      ],
-      'groups' => [
-        'read'         => false,
-        'create'       => false,
-        'update'       => false,
-        'softDelete'   => false,
-        'delete'       => false,
-      ],
-      'news' => [
-        'read'         => false,
-        'create'       => false,
-        'update'       => false,
-        'softDelete'   => false,
-        'delete'       => false,
-      ],
-      'knowledges' => [
-        'read'         => false,
-        'readFAQ'      => false,
-        'create'       => false,
-        'update'       => false,
-        'softDelete'   => false,
-        'delete'       => false,
-      ]
     ];
-
-    // // get default profile of the user
-    // // Get rights of this profile
-    // $user = new \User();
-    // $profile = new \Profile();
-    // $user->getFromDB($userId);
-    // $profile->getFromDB($user->fields['profiles_id']);
-
-    // // ***** tickets ***** //
-    // if (intval($profile->fields['ticket']) & \Ticket::READALL) {
-    //   $scope['tickets']['readAll'] = true;
-    // }
-    // if (intval($profile->fields['ticket']) & \Ticket::READMY) {
-    //   $scope['tickets']['readOwn'] = true;
-    // }
-    // if (intval($profile->fields['ticket']) & CREATE) {
-    //   $scope['tickets']['create'] = true;
-    // }
-    // if (intval($profile->fields['ticket']) & UPDATE) {
-    //   $scope['tickets']['update'] = true;
-    // }
-    // if (intval($profile->fields['ticket']) & DELETE) {
-    //   $scope['tickets']['softDelete'] = true;
-    // }
-    // if (intval($profile->fields['ticket']) & PURGE) {
-    //   $scope['tickets']['delete'] = true;
-    // }
-
-    // if (intval($profile->fields['followup']) & \ITILFollowup::SEEPUBLIC) {
-    //   $scope['tickets/followups']['readPublic'] = true;
-    // }
-    // if (intval($profile->fields['followup']) & \ITILFollowup::SEEPRIVATE) {
-    //   $scope['tickets/followups']['readPrivate'] = true;
-    // }
-    // if (intval($profile->fields['followup']) & CREATE) {
-    //   $scope['tickets/followups']['create'] = true;
-    // }
-    // if (intval($profile->fields['followup']) & UPDATE) {
-    //   $scope['tickets/followups']['update'] = true;
-    // }
-    // if (intval($profile->fields['followup']) & DELETE) {
-    //   $scope['tickets/followups']['softDelete'] = true;
-    // }
-    // if (intval($profile->fields['followup']) & PURGE) {
-    //   $scope['tickets/followups']['delete'] = true;
-    // }
-
-    // // ***** servicecatalogs ***** //
-    // if (intval($profile->fields['ticket']) & CREATE) {
-    //   $scope['servicecatalogs']['read'] = true;
-    // }
-    // if (intval($profile->fields['entity']) & CREATE) {
-    //   $scope['servicecatalogs']['create'] = true;
-    // }
-    // if (intval($profile->fields['entity']) & UPDATE) {
-    //   $scope['servicecatalogs']['update'] = true;
-    // }
-    // if (intval($profile->fields['entity']) & DELETE) {
-    //   $scope['servicecatalogs']['softDelete'] = true;
-    // }
-    // if (intval($profile->fields['entity']) & PURGE) {
-    //   $scope['servicecatalogs']['delete'] = true;
-    // }
-    // // Allow for all
-    // $scope['servicecatalogs']['createAnswer'] = true;
-
-    // // ***** users ***** //
-    // if (intval($profile->fields['user']) & READ) {
-    //   $scope['users']['read'] = true;
-    // }
-    // if (intval($profile->fields['user']) & CREATE) {
-    //   $scope['users']['create'] = true;
-    // }
-    // if (intval($profile->fields['user']) & UPDATE) {
-    //   $scope['users']['update'] = true;
-    // }
-    // if (intval($profile->fields['user']) & DELETE) {
-    //   $scope['users']['softDelete'] = true;
-    // }
-    // if (intval($profile->fields['user']) & PURGE) {
-    //   $scope['users']['delete'] = true;
-    // }
-
-    // // ***** groups ***** //
-    // if (intval($profile->fields['group']) & READ) {
-    //   $scope['groups']['read'] = true;
-    // }
-    // if (intval($profile->fields['group']) & CREATE) {
-    //   $scope['groups']['create'] = true;
-    // }
-    // if (intval($profile->fields['group']) & UPDATE) {
-    //   $scope['groups']['update'] = true;
-    // }
-    // if (intval($profile->fields['group']) & DELETE) {
-    //   $scope['groups']['softDelete'] = true;
-    // }
-    // if (intval($profile->fields['group']) & PURGE) {
-    //   $scope['groups']['delete'] = true;
-    // }
-
-    // // ***** news ***** //
-    // // Allow for all
-    // $scope['news']['read'] = true;
-    // if (intval($profile->fields['entity']) & CREATE) {
-    //   $scope['news']['create'] = true;
-    // }
-    // if (intval($profile->fields['entity']) & UPDATE) {
-    //   $scope['news']['update'] = true;
-    // }
-    // if (intval($profile->fields['entity']) & DELETE) {
-    //   $scope['news']['softDelete'] = true;
-    // }
-    // if (intval($profile->fields['entity']) & PURGE) {
-    //   $scope['news']['delete'] = true;
-    // }
-
-    // // ***** knowledges ***** //
-    // if (intval($profile->fields['knowbase']) & READ) {
-    //   $scope['knowledges']['read'] = true;
-    // }
-    // if (intval($profile->fields['knowbase']) & \KnowbaseItem::READFAQ) {
-    //   $scope['knowledges']['readFAQ'] = true;
-    // }
-    // if (intval($profile->fields['knowbase']) & CREATE) {
-    //   $scope['knowledges']['create'] = true;
-    // }
-    // if (intval($profile->fields['knowbase']) & UPDATE) {
-    //   $scope['knowledges']['update'] = true;
-    // }
-    // if (intval($profile->fields['knowbase']) & DELETE) {
-    //   $scope['knowledges']['softDelete'] = true;
-    // }
-    // if (intval($profile->fields['knowbase']) & PURGE) {
-    //   $scope['knowledges']['delete'] = true;
-    // }
 
     return $scope;
   }

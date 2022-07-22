@@ -43,7 +43,7 @@ final class Propertygroup
    */
   public function postItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
 

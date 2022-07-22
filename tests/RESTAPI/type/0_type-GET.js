@@ -17,22 +17,22 @@ describe('type | Endpoint /v1/config/types', function() {
     .expect(200)
     .expect('Content-Type', /json/)
     .expect(function(response) {
-      const secondItem = response.body[1];
-      assert(is.propertyCount(secondItem, 10));
-      assert(is.number(secondItem.id));
-      assert(is.string(secondItem.name));
-      assert(is.string(secondItem.internalname));
-      assert(is.string(secondItem.modeling));
-      assert(is.boolean(secondItem.tree));
-      assert(is.boolean(secondItem.allowtreemultipleroots));
-      assert(validator.isISO8601(secondItem.created_at));
-      assert(validator.isISO8601(secondItem.updated_at));
-      assert(is.array(secondItem.properties));
-      assert(is.array(secondItem.propertygroups));
+      const laptopType = response.body[2]; // laptops
+      assert(is.propertyCount(laptopType, 16));
+      assert(is.number(laptopType.id));
+      assert(is.string(laptopType.name));
+      assert(is.string(laptopType.internalname));
+      assert(is.string(laptopType.modeling));
+      assert(is.boolean(laptopType.tree));
+      assert(is.boolean(laptopType.allowtreemultipleroots));
+      assert(validator.isISO8601(laptopType.created_at));
+      assert(validator.isISO8601(laptopType.updated_at));
+      assert(is.array(laptopType.properties));
+      assert(is.array(laptopType.propertygroups));
 
-      assert(validator.equals('' + secondItem.id, '2'));
-      assert(validator.equals(secondItem.name, 'Laptop'));
-      assert(validator.equals(secondItem.modeling, 'physical'));
+      assert(validator.equals('' + laptopType.id, '3'));
+      assert(validator.equals(laptopType.name, 'Laptop'));
+      assert(validator.equals(laptopType.modeling, 'physical'));
     })
     .end(function(err, response) {
       if (err) {

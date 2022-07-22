@@ -117,7 +117,21 @@ const deleteType = () => {
 }
 
 const deleteProperty = () => {
-  it('Delete the property', function(done) {
+  it('Delete the property (soft)', function(done) {
+    request
+    .delete('/v1/config/properties/' + global.referencePropertyvaluesid)
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + global.token)
+    .expect('Content-Type', /json/)
+    .expect(200)
+    .end(function(err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+  });
+  it('Delete the property (hard)', function(done) {
     request
     .delete('/v1/config/properties/' + global.referencePropertyvaluesid)
     .set('Accept', 'application/json')

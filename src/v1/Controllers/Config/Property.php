@@ -25,6 +25,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class Property
 {
+  use \App\v1\Read;
+
   /**
    * @api {get} /v1/config/properties Get all properties
    * @apiName GetConfigProperties
@@ -43,17 +45,41 @@ final class Property
    * @apiSuccess {null|String}    properties.unit               The unit used for the property (example: Ko,
    *    seconds...).
    * @apiSuccess {null|String}    properties.description        The description of the propery.
-   * @apiSuccess {ISO8601}        properties.created_at         Date of the item creation.
-   * @apiSuccess {null|ISO8601}   properties.updated_at         Date of the last item modification.
+   * @apiSuccess {ISO8601}        properties.created_at         Date of the property creation.
+   * @apiSuccess {null|ISO8601}   properties.updated_at         Date of the last property modification.
+   * @apiSuccess {null|ISO8601}   properties.deleted_at         Date of the soft delete of the property.
+   * @apiSuccess {null|Object}    properties.created_by         User has created the property.
+   * @apiSuccess {Number}         properties.created_by.id      Id of the user has created the property.
+   * @apiSuccess {String}         properties.created_by.name    Name (login) of the user has created the property.
+   * @apiSuccess {String}         properties.created_by.first_name  First name of the user has created the property.
+   * @apiSuccess {String}         properties.created_by.last_name   Last name of the user has created the property.
+   * @apiSuccess {null|Object}    properties.updated_by         User has updated the property.
+   * @apiSuccess {Number}         properties.updated_by.id      Id of the user has updated the property.
+   * @apiSuccess {String}         properties.updated_by.name    Name (login) of the user has updated the property.
+   * @apiSuccess {String}         properties.updated_by.first_name  First name of the user has updated the property.
+   * @apiSuccess {String}         properties.updated_by.last_name   Last name of the user has updated the property.
+   * @apiSuccess {null|Object}    properties.deleted_by         User has soft deleted the property.
+   * @apiSuccess {Number}         properties.deleted_by.id      Id of the user has soft deleted the property.
+   * @apiSuccess {String}         properties.deleted_by.name    Name (login) of the user has soft deleted the property.
+   * @apiSuccess {String}         properties.deleted_by.first_name  First name of the user has soft deleted
+   *    the property.
+   * @apiSuccess {String}         properties.deleted_by.last_name   Last name of the user has soft deleted the property.
    * @apiSuccess {Boolean}        properties.canbenull          The property can be null or not.
-   * @apiSuccess {Boolean}        properties.setcurrentdate     The property in the item can automatically use the
-   *    current date when store in DB.
+   * @apiSuccess {null|Boolean}   properties.setcurrentdate     The property in the item can automatically use the
+   *    current date when store in DB (works only for date, time and datetime valuetype).
    * @apiSuccess {null|String}    properties.regexformat        The regexformat to verify the value is conform
-   *    (works only with valuetype is string or list).
+   *    (works only for string and list valuetype).
    * @apiSuccess {Object[]}       properties.listvalues         The list of values when valuetype="list".
    * @apiSuccess {Number}         properties.listvalues.id      The id of the value.
    * @apiSuccess {String}         properties.listvalues.value   The value.
-   * @apiSuccess {Any}            properties.default            The default value.
+   * @apiSuccess {Any}            properties.default            The default value, the type of value depends on
+   *    the valuetype.
+   * @apiSuccess {Object}         properties.organization       Information about the organization to which
+   *    the property belongs.
+   * @apiSuccess {Number}         properties.organization.id    The id of the organization.
+   * @apiSuccess {String}         properties.organization.name  The name of the organization.
+   * @apiSuccess {Boolean}        properties.sub_organization   The property is available or not in sub organizations.
+   *
    *
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -62,19 +88,63 @@ final class Property
    *     "id": 8,
    *     "name": "Serial Number",
    *     "internalname": "serialnumber",
+   *     "sub_organization": false,
    *     "valuetype": "string",
-   *     "listvalues": [],
+   *     "regexformat": null,
    *     "unit": null,
-   *     "default": "",
    *     "description": "Enter the serial number of the item",
-   *     "created_at": "2020-07-21 09:21:52",
-   *     "updated_at": null
+   *     "created_at": "2022-08-11T00:38:57.000000Z",
+   *     "updated_at": 2022-08-11T10:12:42.000000Z,
+   *     "deleted_at": null,
+   *     "created_by": {
+   *       "id": 2,
+   *       "name": "admin",
+   *       "first_name": "Steve",
+   *       "last_name": "Rogers"
+   *     },
+   *     "updated_by": {
+   *       "id": 3,
+   *       "name": "tstark",
+   *       "first_name": "Tony",
+   *       "last_name": "Stark"
+   *     },
+   *     "deleted_by": null,
+   *     "canbenull": true,
+   *     "setcurrentdate": null,
+   *     "listvalues": [],
+   *     "default": "",
+   *     "organization": {
+   *       "id": 4,
+   *       "name": "suborg_2"
+   *     }
    *   },
    *   {
    *     "id": 9,
    *     "name": "Model",
    *     "internalname": "model",
+   *     "sub_organization": true,
    *     "valuetype": "list",
+   *     "regexformat": null,
+   *     "unit": null,
+   *     "description": "Enter the serial number of the item",
+   *     "created_at": "2022-08-11T00:38:58.000000Z",
+   *     "updated_at": 2022-08-11T00:49:01.000000Z,
+   *     "deleted_at": null,
+   *     "created_by": {
+   *       "id": 2,
+   *       "name": "admin",
+   *       "first_name": "Steve",
+   *       "last_name": "Rogers"
+   *     },
+   *     "updated_by": {
+   *       "id": 2,
+   *       "name": "admin",
+   *       "first_name": "Steve",
+   *       "last_name": "Rogers"
+   *     },
+   *     "deleted_by": null,
+   *     "canbenull": true,
+   *     "setcurrentdate": null,
    *     "listvalues": [
    *       {
    *         "id": 1,
@@ -93,17 +163,35 @@ final class Property
    *         "value": "P43s"
    *       },
    *     ],
-   *     "unit": null,
    *     "default": "",
-   *     "created_at": "2020-07-21 09:31:30",
-   *     "updated_at": null
+   *     "organization": {
+   *       "id": 4,
+   *       "name": "suborg_2"
+   *     }
    *   }
    * ]
    *
    */
   public function getAll(Request $request, Response $response, $args): Response
   {
-    $items = \App\v1\Models\Config\Property::all()->makeHidden(['value', 'byfusioninventory']);
+    $token = (object)$request->getAttribute('token');
+    $organizations = \App\v1\Common::getOrganizationsIds($token);
+    $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
+
+    $params = $this->manageParams($request);
+
+    $items = \App\v1\Models\Config\Property::ofSort($params)
+    ->where(function ($query) use ($organizations, $parentsOrganizations)
+    {
+      $query->whereIn('organization_id', $organizations)
+            ->orWhere(function ($query2) use ($parentsOrganizations)
+            {
+              $query2->whereIn('organization_id', $parentsOrganizations)
+                     ->where('sub_organization', true);
+            });
+    })->get()
+      ->makeHidden(['value', 'byfusioninventory'])
+      ->makeVisible($this->getVisibleFields());
     $response->getBody()->write($items->toJson());
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -122,22 +210,43 @@ final class Property
    * @apiSuccess {String}         name               The name of the property.
    * @apiSuccess {String}         internalname       The internalname of the property.
    * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
-   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}   valuetype
+   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}   properties.valuetype
    *    The type of value.
    * @apiSuccess {null|String}    unit               The unit used for the property (example: Ko,
    *    seconds...).
    * @apiSuccess {null|String}    description        The description of the propery.
-   * @apiSuccess {ISO8601}        created_at         Date of the item creation.
-   * @apiSuccess {null|ISO8601}   updated_at         Date of the last item modification.
+   * @apiSuccess {ISO8601}        created_at         Date of the property creation.
+   * @apiSuccess {null|ISO8601}   updated_at         Date of the last property modification.
+   * @apiSuccess {null|ISO8601}   deleted_at         Date of the soft delete of the property.
+   * @apiSuccess {null|Object}    created_by         User has created the property.
+   * @apiSuccess {Number}         created_by.id      Id of the user has created the property.
+   * @apiSuccess {String}         created_by.name    Name (login) of the user has created the property.
+   * @apiSuccess {String}         created_by.first_name  First name of the user has created the property.
+   * @apiSuccess {String}         created_by.last_name   Last name of the user has created the property.
+   * @apiSuccess {null|Object}    updated_by         User has updated the property.
+   * @apiSuccess {Number}         updated_by.id      Id of the user has updated the property.
+   * @apiSuccess {String}         updated_by.name    Name (login) of the user has updated the property.
+   * @apiSuccess {String}         updated_by.first_name  First name of the user has updated the property.
+   * @apiSuccess {String}         updated_by.last_name   Last name of the user has updated the property.
+   * @apiSuccess {null|Object}    deleted_by         User has soft deleted the property.
+   * @apiSuccess {Number}         deleted_by.id      Id of the user has soft deleted the property.
+   * @apiSuccess {String}         deleted_by.name    Name (login) of the user has soft deleted the property.
+   * @apiSuccess {String}         deleted_by.first_name  First name of the user has soft deleted the property.
+   * @apiSuccess {String}         deleted_by.last_name   Last name of the user has soft deleted the property.
    * @apiSuccess {Boolean}        canbenull          The property can be null or not.
-   * @apiSuccess {Boolean}        setcurrentdate     The property in the item can automatically use the current date
-   *    when store in DB.
-   * @apiSuccess {null|String}    regexformat        The regexformat to verify the value is conform (works only with
-   *    valuetype is string or list).
+   * @apiSuccess {null|Boolean}   setcurrentdate     The property in the item can automatically use the
+   *    current date when store in DB (works only for date, time and datetime valuetype).
+   * @apiSuccess {null|String}    regexformat        The regexformat to verify the value is conform
+   *    (works only for string and list valuetype).
    * @apiSuccess {Object[]}       listvalues         The list of values when valuetype="list".
    * @apiSuccess {Number}         listvalues.id      The id of the value.
    * @apiSuccess {String}         listvalues.value   The value.
-   * @apiSuccess {Any}            default            The default value.
+   * @apiSuccess {Any}            default            The default value, the type of value depends on the valuetype.
+   * @apiSuccess {Object}         organization       Information about the organization to which
+   *    the property belongs.
+   * @apiSuccess {Number}         organization.id    The id of the organization.
+   * @apiSuccess {String}         organization.name  The name of the organization.
+   * @apiSuccess {Boolean}        sub_organization   The property is available or not in sub organizations.
    *
    * @apiSuccessExample Success-Response:
    * HTTP/1.1 200 OK
@@ -145,31 +254,59 @@ final class Property
    *   "id": 8,
    *   "name": "Serial Number",
    *   "internalname": "serialnumber",
+   *   "sub_organization": false,
    *   "valuetype": "string",
-   *   "listvalues": [
-   *     {
-   *       "id": 1,
-   *       "value": "Latitude E7470"
-   *     }
-   *   ],
+   *   "regexformat": null,
    *   "unit": null,
-   *   "default": "",
    *   "description": "Enter the serial number of the item",
-   *   "created_at": "2020-07-21 09:21:52",
-   *   "updated_at": null,
-   *   "canbenull": false,
-   *   "setcurrentdate": false,
-   *   "regexformat": null
+   *   "created_at": "2022-08-11T00:38:57.000000Z",
+   *   "updated_at": 2022-08-11T10:12:42.000000Z,
+   *   "deleted_at": null,
+   *   "created_by": {
+   *     "id": 2,
+   *     "name": "admin",
+   *     "first_name": "Steve",
+   *     "last_name": "Rogers"
+   *   },
+   *   "updated_by": {
+   *     "id": 3,
+   *     "name": "tstark",
+   *     "first_name": "Tony",
+   *     "last_name": "Stark"
+   *   },
+   *   "deleted_by": null,
+   *   "canbenull": true,
+   *   "setcurrentdate": null,
+   *   "listvalues": [],
+   *   "default": "",
+   *   "organization": {
+   *     "id": 4,
+   *     "name": "suborg_2"
+   *   }
    * }
    *
    */
   public function getOne(Request $request, Response $response, $args): Response
   {
-    $item = \App\v1\Models\Config\Property::find($args['id'])->makeHidden(['value', 'byfusioninventory']);
+    $token = (object)$request->getAttribute('token');
+    $organizations = \App\v1\Common::getOrganizationsIds($token);
+    $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
+
+    $item = \App\v1\Models\Config\Property::withTrashed()->find($args['id'])
+      ->makeHidden(['value', 'byfusioninventory'])
+      ->makeVisible($this->getVisibleFields());
     if (is_null($item))
     {
       throw new \Exception("This item has not be found", 404);
     }
+    if (
+        !in_array($item->organization_id, $organizations)
+        && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
+    )
+    {
+      throw new \Exception("This property is not in your organization", 403);
+    }
+
     $response->getBody()->write($item->toJson());
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -197,6 +334,9 @@ final class Property
    * @apiBody {Boolean=true}         [canbenull]       Define if the value in the item can be null or not.
    * @apiBody {null|String{..255}}   [unit]          The unit.
    * @apiBody {null|String}          [description]   The description of the property.
+   * @apiBody {Null|Number}          [organization_id]  The id of the organization. If null or not defined, use the
+   *    user default organization_id.
+   * @apiBody {boolean}              [sub_organization] Define of the item can be viewed in sub organizations.
    *
    * @apiParamExample {json} Request-Example:
    * {
@@ -217,26 +357,27 @@ final class Property
    */
   public function postItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
 
     // Validate the data format
     $dataFormat = [
-      'name'           => $this->validateNameAttribute(['required']),
-      'internalname'   => $this->validateInternalnameAttribute(),
-      'valuetype'      => $this->validateValuetypeAttribute(['required']),
-      'regexformat'    => $this->validateRegexformatAttribute(),
-      'listvalues'     => $this->validateListvaluesAttribute(['present']),
-      'default'        => $this->validateDefaultAttribute(['present']),
-      'setcurrentdate' => $this->validateSetcurrentdateAttribute([]),
-      'canbenull'      => $this->validateCanbenullAttribute([]),
-      'unit'           => $this->validateUnitAttribute(),
-      'description'    => $this->validateDescriptionAttribute(),
+      'name'             => $this->validateNameAttribute(['required']),
+      'internalname'     => $this->validateInternalnameAttribute(),
+      'valuetype'        => $this->validateValuetypeAttribute(['required']),
+      'regexformat'      => $this->validateRegexformatAttribute(),
+      'listvalues'       => $this->validateListvaluesAttribute(['present']),
+      'default'          => $this->validateDefaultAttribute(['present']),
+      'setcurrentdate'   => $this->validateSetcurrentdateAttribute([]),
+      'canbenull'        => $this->validateCanbenullAttribute([]),
+      'unit'             => $this->validateUnitAttribute(),
+      'description'      => $this->validateDescriptionAttribute(),
+      'sub_organization' => $this->validateSubOrganizationAttribute(),
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $propId = $this->createProperty($data);
+    $propId = $this->createProperty($data, $token);
 
     $response->getBody()->write(json_encode(["id" => intval($propId)]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -265,10 +406,10 @@ final class Property
    */
   public function patchItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $property = \App\v1\Models\Config\Property::find($args['id']);
+    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
 
     if (is_null($property))
     {
@@ -303,7 +444,10 @@ final class Property
     {
       $property->$propertyName = $propertyValue;
     }
-
+    if ($property->trashed())
+    {
+      $property->restore();
+    }
     $property->save();
 
     $response->getBody()->write(json_encode([]));
@@ -329,14 +473,15 @@ final class Property
    */
   public function deleteItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
-    $property = \App\v1\Models\Config\Property::find($args['id']);
+    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
 
     if (is_null($property))
     {
       throw new \Exception("The property has not be found", 404);
     }
+    $this->denyDeleteProperty($property->internalname);
     $propertyId = $args['id'];
     // Check this property is not used, else put an error and list of types id use it
     $types = \App\v1\Models\Config\Type::whereHas('properties', function ($q) use ($propertyId)
@@ -353,23 +498,50 @@ final class Property
       throw new \Exception("This property used in types: " . implode(',', $typesId), 403);
     }
 
-    $property->delete();
+    // If in soft trash, delete permanently
+    if ($property->trashed())
+    {
+      $property->forceDelete();
+    }
+    else
+    {
+      $property->delete();
+    }
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
 
+  public static function getProtectedProperties()
+  {
+    return [
+      'userfirstname',
+      'userlastname',
+      'userrefreshtoken',
+      'userjwtid',
+      'activated'
+    ];
+  }
 
   /********************
    * Private functions
    ********************/
 
-  public function createProperty($data)
+  public function createProperty($data, $token)
   {
     $this->validateDefaultForSaveMethods($data);
     $properties = $this->fillArrayForSaveMethods($data);
 
     $property = new \App\v1\Models\Config\Property();
+    if (property_exists($data, 'organization_id'))
+    {
+      $property->organization_id = $data->organization_id;
+    }
+    if (property_exists($data, 'sub_organization'))
+    {
+      $property->sub_organization = $data->sub_organization;
+    }
+
     foreach ($properties as $propertyName => $propertyValue)
     {
       $property->$propertyName = $propertyValue;
@@ -523,6 +695,9 @@ final class Property
         $dataFormat['default'] = 'type:array';
           break;
     }
+    $dataFormat['organization_id']  = 'type:integer|integer';
+    $dataFormat['sub_organization'] = 'type:boolean|boolean';
+
     \App\v1\Common::validateData($data, $dataFormat);
 
     if (property_exists($data, 'default') && !is_null($data->default))
@@ -723,5 +898,37 @@ final class Property
   {
     $values[] = 'type:string';
     return implode('|', $values);
+  }
+
+  private function validateSubOrganizationAttribute($values = [])
+  {
+    $values[] = 'type:boolean';
+    return implode('|', $values);
+  }
+
+  /**
+   * check if the property can be deleted, if not exception is thrown
+   */
+  private function denyDeleteProperty($internalname)
+  {
+    $properties = $this->getProtectedProperties();
+    if (in_array($internalname, $properties))
+    {
+      throw new \Exception('Cannot delete this property, it is a system property', 403);
+    }
+  }
+
+  private function getVisibleFields()
+  {
+    return [
+      'created_at',
+      'updated_at',
+      'deleted_at',
+      'created_by',
+      'updated_by',
+      'deleted_by',
+      'organization',
+      'sub_organization'
+    ];
   }
 }

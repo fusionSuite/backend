@@ -44,7 +44,7 @@ describe('items | patch item property /v1/items/xx/property/zz', function() {
       // Test the property with serial
       let serialPropertyFound = false;
       for (let prop of response.body.properties) {
-        if (prop.id === 5) {
+        if (prop.id === global.propertyid) {
           assert(is.integer(prop.id));
           assert(is.string(prop.value));
           assert(validator.equals(prop.value, 'serialyyyyyy687'));

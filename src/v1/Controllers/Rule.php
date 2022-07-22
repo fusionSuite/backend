@@ -294,7 +294,7 @@ final class Rule
    */
   public function postRule(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
 
     $item = new \App\v1\Models\Rule();
@@ -327,7 +327,7 @@ final class Rule
    */
   public function deleteItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
     $rule = \App\v1\Models\Rule::withTrashed()->find($args['id']);
 
@@ -364,7 +364,7 @@ final class Rule
    */
   public function postCriterium(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
 
     $item = new \App\v1\Models\Rulecriterium();
@@ -395,7 +395,7 @@ final class Rule
    */
   public function postAction(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
 
     $item = new \App\v1\Models\Ruleaction();

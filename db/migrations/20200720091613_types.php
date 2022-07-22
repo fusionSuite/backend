@@ -39,12 +39,18 @@ final class Types extends AbstractMigration
     $table = $this->table('types');
     $table->addColumn('name', 'string')
           ->addColumn('internalname', 'string')
+          ->addColumn('organization_id', 'integer', ['default' => 1])
+          ->addColumn('sub_organization', 'boolean', ['default' => false])
           ->addColumn('modeling', 'string', ['default' => 'logical'])
           ->addColumn('tree', 'boolean', ['default' => false])
           ->addColumn('allowtreemultipleroots', 'boolean', ['default' => false])
+          ->addColumn('default_sub_organization', 'boolean', ['default' => false])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
+          ->addColumn('created_by', 'integer')
+          ->addColumn('updated_by', 'integer', ['null' => true])
+          ->addColumn('deleted_by', 'integer', ['null' => true])
           ->addIndex(['name'], ['unique' => true])
           ->addIndex(['internalname'], ['unique' => true])
           ->create();

@@ -40,6 +40,8 @@ final class Properties extends AbstractMigration
     $table = $this->table('properties');
     $table->addColumn('name', 'string')
           ->addColumn('internalname', 'string')
+          ->addColumn('organization_id', 'integer', ['default' => 1])
+          ->addColumn('sub_organization', 'boolean', ['default' => false])
           ->addColumn('valuetype', 'string')
           ->addColumn('regexformat', 'string', ['null' => true])
           ->addColumn('unit', 'string', ['null' => true])
@@ -64,6 +66,9 @@ final class Properties extends AbstractMigration
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
+          ->addColumn('created_by', 'integer')
+          ->addColumn('updated_by', 'integer', ['null' => true])
+          ->addColumn('deleted_by', 'integer', ['null' => true])
           ->addIndex(['internalname'], ['unique' => true])
           ->addColumn('canbenull', 'boolean', ['default' => true])
           ->addColumn('setcurrentdate', 'boolean', ['default' => false])

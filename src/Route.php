@@ -57,9 +57,7 @@ final class Route
         );
       });
 
-
       // Manage users
-      // $v1->get('/users', \App\v1\Controllers\User::class . ':getAll');
       $v1->get('/userparams', \App\v1\Controllers\User::class . ':getUserparams');
 
       // Manage items
