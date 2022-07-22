@@ -207,7 +207,7 @@ jobs:
     - name: run REST API tests
       run: |
         cd tests/RESTAPI/
-        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" "./**/*.js"
+        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" --timeout 5000 "./**/*.js"
 
   RESTAPI_tests_MariaDB:
 
@@ -305,7 +305,7 @@ jobs:
     - name: run REST API tests
       run: |
         cd tests/RESTAPI/
-        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" "./**/*.js"
+        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" --timeout 5000 "./**/*.js"
 
   RESTAPI_tests_PostgreSQL:
 
@@ -402,7 +402,7 @@ jobs:
     - name: run REST API tests
       run: |
         cd tests/RESTAPI/
-        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" "./**/*.js"
+        ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" --timeout 5000 "./**/*.js"
 
   # TODO DISABLED for the moment because have problems with UTF-8
   # RESTAPI_tests_SQLServer:
@@ -505,5 +505,5 @@ jobs:
   #   - name: run REST API tests
   #     run: |
   #       cd tests/RESTAPI/
-  #       ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" "./**/*.js"
+  #       ./node_modules/.bin/mocha --ignore "./node_modules/**/*.js" --ignore "./schemaValidation/**/*.js" --timeout 5000 "./**/*.js"
 

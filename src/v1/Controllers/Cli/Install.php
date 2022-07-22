@@ -70,14 +70,6 @@ class Install extends Command
     $writer->green('Starting the process of import / update the database with scripts templates...');
     $writer->write("\n");
 
-    // Manage DB Connection
-    $config = include(__DIR__ . '/../../../config.php');
-    $capsule = new Capsule();
-    $capsule->addConnection($config['db']);
-    $capsule->setEventDispatcher(new Dispatcher(new Container()));
-    $capsule->setAsGlobal();
-    $capsule->bootEloquent();
-    // DB connection done
     $error = false;
 
     $actionBaseFolder = __DIR__ . '/../../../../ActionScripts';
@@ -98,15 +90,19 @@ class Install extends Command
         $template = json_decode(file_get_contents($jsonTemplateFile));
 
         $debug = false;
+        $token = (object)[
+          'organization_id' => 1,
+          'user_id'         => 2
+        ];
         if ($debug)
         {
-          $type->createTemplate($template);
+          $type->createTemplate($template, $token);
           $writer->boldGreen(' OK ');
         }
         else
         {
           try {
-            $type->createTemplate($template);
+            $type->createTemplate($template, $token);
             $writer->boldGreen(' OK ');
           }
           catch (\Exception $e)

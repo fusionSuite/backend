@@ -18,47 +18,68 @@
   ],
   "types": [
     {
-      "name": "Incident task",
-      "internalname": "incidenttask",
+      "name": "Incident message",
+      "internalname": "incidentmessage",
       "propertygroups": [
         {
           "name": "Main",
           "properties": [
             {
               "name": "description",
-              "internalname": "incidenttaskdescription",
+              "internalname": "incidentmessagedescription",
               "valuetype": "text",
               "regexformat": "",
               "listvalues": [],
               "unit": "",
               "default": "",
               "description": ""
+            },
+            {
+              "name": "solution",
+              "internalname": "incidentmessagesolution",
+              "valuetype": "boolean",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": false,
+              "description": ""
+            },
+            {
+              "name": "solution",
+              "internalname": "incidentmessageprivate",
+              "valuetype": "boolean",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "",
+              "default": false,
+              "description": ""
+            },
+            {
+              "name": "time",
+              "internalname": "incidentmessagetime",
+              "valuetype": "number",
+              "regexformat": "",
+              "listvalues": [],
+              "unit": "seconds",
+              "default": 0,
+              "description": "time spent"
             }
           ]
         }
       ]
     },
     {
-      "name": "Incident solution",
-      "internalname": "incidentsolution",
+      "name": "Incident category",
+      "internalname": "incidentcategory",
+      "tree": true,
       "propertygroups": [
         {
           "name": "Main",
           "properties": [
-            {
-              "name": "description",
-              "internalname": "incidentsolutiondescription",
-              "valuetype": "text",
-              "regexformat": "",
-              "listvalues": [],
-              "unit": "",
-              "default": "",
-              "description": ""
-            }
           ]
         }
       ]
-    },
+    },        
     {
       "name": "Incident",
       "internalname": "incident",
@@ -155,6 +176,16 @@
               "unit": "",
               "default": "",
               "description": ""
+            },
+            {
+              "name": "Incident messages",
+              "internalname": "incidentmessage links",
+              "valuetype": "itemlinks",
+              "regexformat": "",
+              "listvalues": ["incidentmessage"],
+              "unit": "",
+              "default": "",
+              "description": ""
             }
           ]
         },
@@ -188,27 +219,27 @@
               "regexformat": "",
               "listvalues": [],
               "unit": "",
-              "default": "",
+              "default": null,
               "description": ""
             },
             {
               "name": "Category",
               "internalname": "incidentcategory",
-              "valuetype": "string",
+              "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["incidentcategory"],
               "unit": "",
-              "default": "",
+              "default": null,
               "description": ""
             },
             {
               "name": "Provenance",
               "internalname": "provenance",
-              "valuetype": "string",
+              "valuetype": "list",
               "regexformat": "",
-              "listvalues": [],
+              "listvalues": ["phone", "mail", "hotline", "webinterface"],
               "unit": "",
-              "default": "",
+              "default": "webinterface",
               "description": ""
             }
           ]
@@ -232,36 +263,6 @@
               "valuetype": "itemlinks",
               "regexformat": "",
               "listvalues": ["laptop", "server"],
-              "unit": "",
-              "default": "",
-              "description": ""
-            }
-          ]
-        },
-        {
-          "name": "Follow-ups",
-          "properties": [
-            {
-              "name": "Incident tasks",
-              "internalname": "incidenttask",
-              "valuetype": "itemlinks",
-              "regexformat": "",
-              "listvalues": ["incidentsolution"],
-              "unit": "",
-              "default": "",
-              "description": ""
-            }
-          ]
-        },
-        {
-          "name": "Solution",
-          "properties": [
-            {
-              "name": "Incident solutions",
-              "internalname": "incidentsolution",
-              "valuetype": "itemlinks",
-              "regexformat": "",
-              "listvalues": ["incidenttask"],
               "unit": "",
               "default": "",
               "description": ""

@@ -43,7 +43,7 @@ export default function (data) {
 
   const payload = JSON.stringify({
     name: 'test',
-    type_id: 2,
+    type_id: 3,
   });
 
   http.post(url, payload, params);

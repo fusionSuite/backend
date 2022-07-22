@@ -38,7 +38,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new item', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[{property_id:global.propertyid,value:"serialxxxxxx"}]})
+    .send({name: 'L0014',type_id: 3,properties:[{property_id:global.propertyid,value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
@@ -61,7 +61,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new item, but forget name => error', function(done) {
     request
     .post('/v1/items')
-    .send({type_id: 2})
+    .send({type_id: 3})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -82,7 +82,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new type, but name not in right type => error', function(done) {
     request
     .post('/v1/items')
-    .send({name: true, type_id: 2})
+    .send({name: true, type_id: 3})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -103,7 +103,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new type, but properties.property_id not defined => error', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[{propertyId:3,value:"serialxxxxxx"}]})
+    .send({name: 'L0014',type_id: 3,properties:[{propertyId:3,value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -124,7 +124,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new type, but properties.property_id is defined to 0 => error', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[{property_id:0,value:"serialxxxxxx"}]})
+    .send({name: 'L0014',type_id: 3,properties:[{property_id:0,value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -145,7 +145,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new type, but properties.property_id is a string => error', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[{property_id:"3",value:"serialxxxxxx"}]})
+    .send({name: 'L0014',type_id: 3,properties:[{property_id:"3",value:"serialxxxxxx"}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -153,7 +153,7 @@ describe('items | Endpoint /v1/items', function() {
     .expect(function(response) {
       assert(is.propertyCount(response.body, 2));
       assert(validator.equals(response.body.status, 'error'));
-      assert(validator.equals(response.body.message, 'The Property id is not valid type (property City - 3)'));
+      assert(validator.equals(response.body.message, 'The Property id is not valid type (property User refreshtoken - 3)'));
     })
     .end(function(err, response) {
       if (err) {
@@ -166,7 +166,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new type, but properties.value not defined => error', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[{property_id:3}]})
+    .send({name: 'L0014',type_id: 3,properties:[{property_id:3}]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(400)
@@ -187,7 +187,7 @@ describe('items | Endpoint /v1/items', function() {
   it('create a new item with properties field but empty', function(done) {
     request
     .post('/v1/items')
-    .send({name: 'L0014',type_id: 2,properties:[]})
+    .send({name: 'L0014',type_id: 3,properties:[]})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)

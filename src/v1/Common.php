@@ -141,4 +141,31 @@ class Common
       throw new \Exception(implode(', ', $errors->all()), 400);
     }
   }
+
+  /**
+   * With token information, get list of ids of organization and sub-organization
+   * This is usefull to restrict get elements
+   */
+  public static function getOrganizationsIds($token)
+  {
+    $listIds = [$token->organization_id];
+    if ($token->sub_organization)
+    {
+      $organization = \App\v1\Models\Item::find($token->organization_id);
+      $orgs = \App\v1\Models\Item::where('type_id', 1)->where('treepath', 'like', $organization->treepath . '%');
+      $listIds = $orgs->pluck('id')->toArray();
+    }
+    return $listIds;
+  }
+
+  /**
+   * Get the parents of the organization stored in token variable
+   */
+  public static function getParentsOrganizationsIds($token)
+  {
+    $organization = \App\v1\Models\Item::find($token->organization_id);
+    $ids_bytype = array_map('intval', str_split($organization->treepath, 4));
+    $orgs = \App\v1\Models\Item::where('type_id', 1)->whereIn('id_bytype', $ids_bytype);
+    return $orgs->pluck('id')->toArray();
+  }
 }

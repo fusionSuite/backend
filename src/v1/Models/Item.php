@@ -31,17 +31,24 @@ class Item extends Model
   protected $appends = [
     'properties',
     // 'child_items',
-    'propertygroups'
+    'propertygroups',
+    'organization'
   ];
   protected $visible = [
     'id',
     'id_bytype',
+    'organization',
+    'sub_organization',
     'name',
     'parent_id',
     'treepath',
     'properties',
     'created_at',
-    'updated_at'
+    'updated_at',
+    'deleted_at',
+    'created_by',
+    'updated_by',
+    'deleted_by',
   ];
   protected $hidden = [
     //  'child_items'
@@ -61,6 +68,35 @@ class Item extends Model
        */
       $model->id_bytype = DB::raw("(SELECT coalesce(max(id_bytype), 0) + 1 as id_bytype " .
                                    "FROM items as item_alias WHERE type_id=" . intval($model->type_id) . ")");
+      // manage sub_organization field
+      if (!property_exists($model, 'sub_organization'))
+      {
+        $type = \App\v1\Models\Config\Type::find($model->type_id);
+        if ($type->sub_organization)
+        {
+          $model->sub_organization = true;
+        }
+      }
+      $model->created_by = $GLOBALS['user_id'];
+    });
+
+    static::updating(function ($model)
+    {
+      $model->updated_by = $GLOBALS['user_id'];
+    });
+
+    static::deleting(function ($model)
+    {
+      // Disable timestamp to prevent updating updated_at field when soft delete
+      $model->timestamps = false;
+      // Update deleted_by to have user id
+      DB::table('items')->where('id', $model->id)
+        ->update(['deleted_by' => $GLOBALS['user_id']]);
+    });
+
+    static::restoring(function ($model)
+    {
+      $model->deleted_by = null;
     });
   }
 
@@ -90,6 +126,14 @@ class Item extends Model
         }
         $currItem->save();
       }
+      // special case for type "organization" (id=1)
+      // we put organization_id same as id
+      if ($model->type_id == 1)
+      {
+        $currItem = (new self())->find($model->id);
+        $currItem->organization_id = $model->id;
+        $currItem->save();
+      }
     });
   }
 
@@ -101,6 +145,35 @@ class Item extends Model
   public function getPropertygroupsAttribute()
   {
     return \App\v1\Models\Config\Type::find($this->attributes['type_id'])->propertygroups()->get();
+  }
+
+  public function getOrganizationAttribute()
+  {
+    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
+    return [
+      'id'   => $org->id,
+      'name' => $org->name
+    ];
+  }
+
+  public function getSubOrganizationAttribute($value)
+  {
+    return boolval($value);
+  }
+
+  public function getCreatedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
+  }
+
+  public function getUpdatedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
+  }
+
+  public function getDeletedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
   }
 
   public function getChildItemsAttribute()
@@ -158,29 +231,21 @@ class Item extends Model
 
   public function scopeofSort($query, $params)
   {
-    if (isset($params['ORDER']))
+    return \App\v1\Models\Common::scopeofSort($query, $params);
+  }
+
+  /**
+   * Loop on properties to get the attribute (value, id...) of the property based on the internalname
+   */
+  public function getPropertyAttribute($internalname, $attribute = 'value')
+  {
+    foreach ($this->properties()->get() as $property)
     {
-      foreach ($params['ORDER'] as $order)
+      if ($property->internalname == $internalname)
       {
-        if (strstr($order, ' DESC'))
-        {
-          $order = str_replace(' DESC', '', $order);
-          if (isset($this->inverseMutators[$order]))
-          {
-            $order = $this->inverseMutators[$order];
-          }
-          $query->orderBy($order, 'desc');
-        }
-        else
-        {
-          if (isset($this->inverseMutators[$order]))
-          {
-            $order = $this->inverseMutators[$order];
-          }
-          $query->orderBy($order, 'asc');
-        }
+        return $property->{$attribute};
       }
     }
-    return $query->orderBy('id');
+    return null;
   }
 }

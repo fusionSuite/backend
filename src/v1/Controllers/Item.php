@@ -36,23 +36,49 @@ final class Item
    *
    * @apiUse AutorizationHeader
    *
+   * @apiParam {Number}     typeid      the id of type, used to get all items of this type.
+   *
    * @apiSuccess {Object[]}        -                               The list of the items.
    * @apiSuccess {Number}          -.id                            The id of the item.
    * @apiSuccess {String}          -.name                          The name of the item.
    * @apiSuccess {Number}          -.id_bytype                     The id of the item by type (this id will
    *    generate consecutive id for the same type_id).
+   * @apiSuccess {null|Number}     -.parent_id                     The id of the parent item.
+   * @apiSuccess {String}          -.treepath                      The complete path of tree of the item.
    * @apiSuccess {ISO8601}         -.created_at                    Date of the item creation.
    * @apiSuccess {null|ISO8601}    -.updated_at                    Date of the last item modification.
+   * @apiSuccess {null|ISO8601}    -.deleted_at                    Date of the soft delete of the item.
+   * @apiSuccess {null|Object}     -.created_by                    User has created the item.
+   * @apiSuccess {Number}          -.created_by.id                 Id of the user has created the item.
+   * @apiSuccess {String}          -.created_by.name               Name (login) of the user has created the item.
+   * @apiSuccess {String}          -.created_by.first_name         First name of the user has created the item.
+   * @apiSuccess {String}          -.created_by.last_name          Last name of the user has created the item.
+   * @apiSuccess {null|Object}     -.updated_by                    User has updated the item.
+   * @apiSuccess {Number}          -.updated_by.id                 Id of the user has updated the item.
+   * @apiSuccess {String}          -.updated_by.name               Name (login) of the user has updated the item.
+   * @apiSuccess {String}          -.updated_by.first_name         First name of the user has updated the item.
+   * @apiSuccess {String}          -.updated_by.last_name          Last name of the user has updated the item.
+   * @apiSuccess {null|Object}     -.deleted_by                    User has soft deleted the item.
+   * @apiSuccess {Number}          -.deleted_by.id                 Id of the user has soft deleted the item.
+   * @apiSuccess {String}          -.deleted_by.name               Name (login) of the user has soft deleted the item.
+   * @apiSuccess {String}          -.deleted_by.first_name         First name of the user has soft deleted the item.
+   * @apiSuccess {String}          -.deleted_by.last_name          Last name of the user has soft deleted the item.
+   * @apiSuccess {Object}          -.organization                  Information about the organization to which the
+   *    item belongs.
+   * @apiSuccess {Number}          -.organization.id               The id of the organization.
+   * @apiSuccess {Number}          -.organization.name             The name of the organization.
+   * @apiSuccess {Boolean}         -.sub_organization              The item is available or not in sub organizations.
    * @apiSuccess {Object[]}        -.properties                    List of properties of the item.
    * @apiSuccess {Number}          -.properties.id                 The id of the property.
    * @apiSuccess {String}          -.properties.name               The name of the property.
-   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
-   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}   -.properties.valuetype
-   *    The type of value.
+   * @codingStandardsIgnoreStart because break apidocsjs
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  -.properties.valuetype   The type of value.
+   * @codingStandardsIgnoreEnd
    * @apiSuccess {null|String}     -.properties.unit               The unit used for the property (example: Ko,
    *    seconds...).
    * @apiSuccess {null|String[]}   -.properties.listvalues         The list of values when valuetype="list", else null.
-   * @apiSuccess {String}          -.properties.value              The value of the property.
+   * @apiSuccess {Any}             -.properties.value              The value of the property defined for this item.
+   * @apiSuccess {Any}             -.properties.default            The default value of the property.
    * @apiSuccess {Boolean}         -.properties.byfusioninventory  Is updated by FusionInventory.
    * @apiSuccess {Object[]}        -.propertygroups                List of property groups of the item.
    * @apiSuccess {Number}          -.propertygroups.id             The id of the propertygroup.
@@ -70,7 +96,26 @@ final class Item
    *     "name": "LP-000345",
    *     "id_bytype": 23,
    *     "created_at": "2020-07-20 14:30:45",
-   *     "updated_at": null,
+   *     "updated_at": "2022-08-11T22:34:41.000000Z",
+   *     "deleted_at": null,
+   *     "created_by": {
+   *       "id": 2,
+   *       "name": "admin",
+   *       "first_name": "Steve",
+   *       "last_name": "Rogers"
+   *     },
+   *     "updated_by": {
+   *       "id": 2,
+   *       "name": "admin",
+   *       "first_name": "Steve",
+   *       "last_name": "Rogers"
+   *     },
+   *     "deleted_by": null,
+   *     "organization": {
+   *       "id": 4,
+   *       "name": "suborg_2"
+   *     },
+   *     "sub_organization": true,
    *     "properties": [
    *       {
    *         "id": 3,
@@ -116,6 +161,10 @@ final class Item
    */
   public function getAll(Request $request, Response $response, $args): Response
   {
+    $token = (object)$request->getAttribute('token');
+    $organizations = \App\v1\Common::getOrganizationsIds($token);
+    $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
+
     $paramsQuery = $request->getQueryParams();
     $pagination = $this->paramPagination($paramsQuery);
 
@@ -123,11 +172,20 @@ final class Item
 
     $items = \App\v1\Models\Item //::ofWhere($params)
       ::ofSort($params)->where('type_id', $args['typeid'])
-      ->with('properties:id,name,valuetype,unit', 'properties.listvalues');
+      ->where(function ($query) use ($organizations, $parentsOrganizations)
+      {
+        $query->whereIn('organization_id', $organizations)
+              ->orWhere(function ($query2) use ($parentsOrganizations)
+              {
+                $query2->whereIn('organization_id', $parentsOrganizations)
+                       ->where('sub_organization', true);
+              });
+      })
+      ->with('properties:id,name,valuetype,unit,organization_id', 'properties.listvalues');
 
     $items = $this->paramFilters($paramsQuery, $items);
     // Example filter on property value
-    // $items->whereHas('properties', function($q)
+    // $items->whereHas('properties', function ($q)
     // {
     //   $q->where('item_property.value', 'VirtualBox');
     // });
@@ -178,24 +236,48 @@ final class Item
    *
    * @apiUse AutorizationHeader
    *
-   * @apiParam {Number} The item unique ID.
+   * @apiParam {Number} id      The item unique ID.
    *
    * @apiSuccess {Number}          id                            The id of the item.
    * @apiSuccess {String}          name                          The name of the item.
-   * @apiSuccess {Number}          id_bytype                     The id of the item by type (this id will generate
-   *    consecutive id for the same type_id).
+   * @apiSuccess {Number}          id_bytype                     The id of the item by type (this id will
+   *    generate consecutive id for the same type_id).
+   * @apiSuccess {null|Number}     parent_id                     The id of the parent item.
+   * @apiSuccess {String}          treepath                      The complete path of tree of the item.
    * @apiSuccess {ISO8601}         created_at                    Date of the item creation.
    * @apiSuccess {null|ISO8601}    updated_at                    Date of the last item modification.
+   * @apiSuccess {null|ISO8601}    deleted_at                    Date of the soft delete of the item.
+   * @apiSuccess {null|Object}     created_by                    User has created the item.
+   * @apiSuccess {Number}          created_by.id                 Id of the user has created the item.
+   * @apiSuccess {String}          created_by.name               Name (login) of the user has created the item.
+   * @apiSuccess {String}          created_by.first_name         First name of the user has created the item.
+   * @apiSuccess {String}          created_by.last_name          Last name of the user has created the item.
+   * @apiSuccess {null|Object}     updated_by                    User has updated the item.
+   * @apiSuccess {Number}          updated_by.id                 Id of the user has updated the item.
+   * @apiSuccess {String}          updated_by.name               Name (login) of the user has updated the item.
+   * @apiSuccess {String}          updated_by.first_name         First name of the user has updated the item.
+   * @apiSuccess {String}          updated_by.last_name          Last name of the user has updated the item.
+   * @apiSuccess {null|Object}     deleted_by                    User has soft deleted the item.
+   * @apiSuccess {Number}          deleted_by.id                 Id of the user has soft deleted the item.
+   * @apiSuccess {String}          deleted_by.name               Name (login) of the user has soft deleted the item.
+   * @apiSuccess {String}          deleted_by.first_name         First name of the user has soft deleted the item.
+   * @apiSuccess {String}          deleted_by.last_name          Last name of the user has soft deleted the item.
+   * @apiSuccess {Object}          organization                  Information about the organization to which the
+   *    item belongs.
+   * @apiSuccess {Number}          organization.id               The id of the organization.
+   * @apiSuccess {Number}          organization.name             The name of the organization.
+   * @apiSuccess {Boolean}         sub_organization              The item is available or not in sub organizations.
    * @apiSuccess {Object[]}        properties                    List of properties of the item.
    * @apiSuccess {Number}          properties.id                 The id of the property.
    * @apiSuccess {String}          properties.name               The name of the property.
-   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
-   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  properties.valuetype
-   *    The type of value.
+   * @codingStandardsIgnoreStart because break apidocsjs
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  properties.valuetype   The type of value.
+   * @codingStandardsIgnoreEnd
    * @apiSuccess {null|String}     properties.unit               The unit used for the property (example: Ko,
    *    seconds...).
    * @apiSuccess {null|String[]}   properties.listvalues         The list of values when valuetype="list", else null.
-   * @apiSuccess {String}          properties.value              The value of the property.
+   * @apiSuccess {Any}             properties.value              The value of the property defined for this item.
+   * @apiSuccess {Any}             properties.default            The default value of the property.
    * @apiSuccess {Boolean}         properties.byfusioninventory  Is updated by FusionInventory.
    * @apiSuccess {Object[]}        propertygroups                List of property groups of the item.
    * @apiSuccess {Number}          propertygroups.id             The id of the propertygroup.
@@ -212,7 +294,26 @@ final class Item
    *   "name": "LP-000345",
    *   "id_bytype": 23,
    *   "created_at": "2020-07-20 14:30:45",
-   *   "updated_at": null,
+   *   "updated_at": "2022-08-11T22:34:41.000000Z",
+   *   "deleted_at": null,
+   *   "created_by": {
+   *     "id": 2,
+   *     "name": "admin",
+   *     "first_name": "Steve",
+   *     "last_name": "Rogers"
+   *   },
+   *   "updated_by": {
+   *     "id": 2,
+   *     "name": "admin",
+   *     "first_name": "Steve",
+   *     "last_name": "Rogers"
+   *   },
+   *   "deleted_by": null,
+   *   "organization": {
+   *     "id": 4,
+   *     "name": "suborg_2"
+   *   },
+   *   "sub_organization": true,
    *   "properties": [
    *     {
    *       "id": 3,
@@ -241,27 +342,38 @@ final class Item
    *       "value": "Dell",
    *       "byfusioninventory": true
    *     }
-   *     ],
-   *     "propertygroups": [
-   *       {
-   *         "id": 2,
-   *         "name": "Main",
-   *         "position": 0,
-   *         "properties": [3,4,5],
-   *         "created_at": "2022-06-02T04:35:44.000000Z",
-   *         "updated_at": "2022-06-02T04:35:44.000000Z"
-   *       }
-   *     ]
+   *   ],
+   *   "propertygroups": [
+   *     {
+   *       "id": 2,
+   *       "name": "Main",
+   *       "position": 0,
+   *       "properties": [3,4,5],
+   *       "created_at": "2022-06-02T04:35:44.000000Z",
+   *       "updated_at": "2022-06-02T04:35:44.000000Z"
+   *     }
+   *   ]
    * }
    *
    */
   public function getOne(Request $request, Response $response, $args): Response
   {
-    $item = \App\v1\Models\Item::with('properties:id,name,valuetype,unit', 'properties.listvalues')
-      ->find($args['id'])->makeVisible(['propertygroups']);
+    $token = (object)$request->getAttribute('token');
+    $organizations = \App\v1\Common::getOrganizationsIds($token);
+    $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
+
+    $item = \App\v1\Models\Item::with('properties:id,name,valuetype,unit,organization_id', 'properties.listvalues')
+      ->withTrashed()->find($args['id'])->makeVisible(['propertygroups']);
     if (is_null($item))
     {
       throw new \Exception("This item has not be found", 404);
+    }
+    if (
+        !in_array($item->organization_id, $organizations)
+        && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
+    )
+    {
+      throw new \Exception("This item is not in your organization", 403);
     }
 
     $itemData = $item->toArray();
@@ -303,6 +415,9 @@ final class Item
    * @apiBody {String}       name                      The name of the item.
    * @apiBody {Number}       type_id                   The id of the type of the item.
    * @apiBody {Null|Number}  [parent_id=null]          The itemid of the parent item in case type has tree enabled.
+   * @apiBody {Null|Number}  [organization_id]         The id of the organization. If null or not defined, use the
+   *    user default organization_id.
+   * @apiBody {boolean}      [sub_organization]        Define of the item can be viewed in sub organizations.
    * @apiBody {Object[]}     [properties]              List of properties
    * @apiBody {Number}       [properties.property_id]  The id of the property.
    * @apiBody {String[]}     [properties.value]        The value of the property for the item.
@@ -344,219 +459,11 @@ final class Item
    */
   public function postItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
-
+    $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
 
-    // Validate the data format
-    $dataFormat = [
-      'name'    => 'required|type:string',
-      'type_id' => 'required|type:integer|integer',
-      'parent_id' => 'type:integer|integer'
-    ];
-    \App\v1\Common::validateData($data, $dataFormat);
-    // Checks about tree type
-    $type = \App\v1\Models\Config\Type::find($data->type_id);
-    if ($type->tree)
-    {
-      // in case of type is a tree, check if parent_id exists
-      if (property_exists($data, 'parent_id'))
-      {
-        $parentItem = \App\v1\Models\Item::find($data->parent_id);
-        if (is_null($parentItem))
-        {
-          throw new \Exception("The parent item has not be found", 400);
-        }
-        // Check now if the parent_id is the same type_id
-        if ($parentItem->type_id != $data->type_id)
-        {
-          throw new \Exception("The parent item has not the same type", 400);
-        }
-      }
-      else
-      {
-        if (!$type->allowtreemultipleroots)
-        {
-          // check if have yet a root item
-          $otherItemsOfTree = \App\v1\Models\Item::where('type_id', $data->type_id)
-            ->take(1)
-            ->first();
-          if (!is_null($otherItemsOfTree))
-          {
-            throw new \Exception("This type can only have one root item", 400);
-          }
-        }
-      }
-    }
-    elseif (property_exists($data, 'parent_id'))
-    {
-      // in case of type is not a tree but have the parent_id, raise an error
-      throw new \Exception("The parent_id must not be defined on a non tree item", 400);
-    }
+    $item = $this->createItem($data, $token);
 
-    // validate for each properties
-    if (property_exists($data, 'properties'))
-    {
-      foreach ($data->properties as $property)
-      {
-        $this->validationPropertyValue($property);
-
-        $prop = \App\v1\Models\Config\Property::find($property->property_id);
-
-        if (!is_null($property->value))
-        {
-          if ($prop->valuetype == 'itemlinks')
-          {
-            foreach ($property->value as $itemId)
-            {
-              $item = \App\v1\Models\Item::find($itemId);
-              if (is_null($item))
-              {
-                throw new \Exception(
-                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
-                    strval($property->property_id) . ')',
-                  400
-                );
-              }
-            }
-          }
-          if ($prop->valuetype == 'typelinks')
-          {
-            foreach ($property->value as $typeId)
-            {
-              $item = \App\v1\Models\Config\Type::find($typeId);
-              if (is_null($item))
-              {
-                throw new \Exception(
-                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
-                    strval($property->property_id) . ')',
-                  400
-                );
-              }
-            }
-          }
-        }
-      }
-    }
-
-    $ruleData = [
-      'name' => $data->name
-    ];
-
-    $item = new \App\v1\Models\Item();
-    $item->name = $data->name;
-    $item->type_id = $data->type_id;
-    $item->owner_user_id = 0;
-    $item->owner_group_id = 0;
-    $item->state_id = 0;
-    if (property_exists($data, 'parent_id'))
-    {
-      $item->parent_id = $data->parent_id;
-    }
-    // To prevent deadlock on heavy charge because have a select in insert for managing id_bytype (see Item model)
-    $max_retries = 4;
-    $retries = 0;
-    $loop = true;
-    while ($loop)
-    {
-      try {
-        $item->save();
-        $loop = false;
-      }
-      catch (\Exception $e)
-      {
-        if ($retries > $max_retries)
-        {
-          throw $e;
-        }
-        $retries++;
-      }
-    }
-    $ruleData['id'] = $item->id;
-    $ruleData['name'] = $data->name;
-
-    $propertiesId = [];
-    if (property_exists($data, 'properties'))
-    {
-      foreach ($data->properties as $property)
-      {
-        $propertiesId[] = $property->property_id;
-        $ruleData[$property->property_id] = $property->value;
-        $propertyItem = \App\v1\Models\Config\Property::find($property->property_id);
-        $fieldName = 'value_' . $propertyItem->valuetype;
-        if ($propertyItem->valuetype == 'itemlinks' && !is_null($property->value))
-        {
-          foreach ($property->value as $value)
-          {
-            $item->properties()->attach($property->property_id, ['value_itemlink' => $value]);
-          }
-        }
-        elseif ($propertyItem->valuetype == 'typelinks' && !is_null($property->value))
-        {
-          foreach ($property->value as $value)
-          {
-            $item->properties()->attach($property->property_id, ['value_typelink' => $value]);
-          }
-        }
-        elseif ($propertyItem->valuetype == 'date' && $property->value == '')
-        {
-          $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d')]);
-        }
-        elseif ($propertyItem->valuetype == 'datetime' && $property->value == '')
-        {
-          $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d H:i:s')]);
-        }
-        elseif ($propertyItem->valuetype == 'time' && $property->value == '')
-        {
-          $item->properties()->attach($property->property_id, [$fieldName => date('H:i:s')]);
-        }
-        else
-        {
-          $item->properties()->attach($property->property_id, [$fieldName => $property->value]);
-        }
-      }
-    }
-
-    // Define the properties not in post with the default value
-    $type = \App\v1\Models\Config\Type::find($data->type_id);
-    foreach ($type->properties()->get() as $prop)
-    {
-      if (in_array($prop->id, $propertiesId))
-      {
-        continue;
-      }
-      $fieldName = 'value_' . $prop->valuetype;
-      if ($prop->valuetype == 'itemlinks')
-      {
-        // TODO
-      }
-      elseif ($prop->valuetype == 'typelinks' && !is_null($prop->default))
-      {
-        foreach ($prop->default as $typelink)
-        {
-          $item->properties()->attach($prop->id, ['value_typelink' => $typelink]);
-        }
-      }
-      elseif ($prop->valuetype == 'date' && $prop->default == '' && !is_null($prop->default))
-      {
-        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d')]);
-      }
-      elseif ($prop->valuetype == 'datetime' && $prop->default == '' && !is_null($prop->default))
-      {
-        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d H:i:s')]);
-      }
-      elseif ($prop->valuetype == 'time' && $prop->default == '' && !is_null($prop->default))
-      {
-        $item->properties()->attach($prop->id, [$fieldName => date('H:i:s')]);
-      }
-      else
-      {
-        $item->properties()->attach($prop->id, [$fieldName => $prop->default]);
-      }
-    }
-
-    // run rules
-    $item_id = \App\v1\Controllers\Rules\ActionScript::runRules($ruleData);
     // Get item to have the internal id
     $item = \App\v1\Models\Item::find($item->id);
     $returnData = [
@@ -578,7 +485,7 @@ final class Item
    *
    * @apiParam {Number}    id        Unique ID of the item.
    *
-   * @apiBody {String}  name      Name of the type.
+   * @apiBody {String}  [name]      Name of the type.
    *
    * @apiParamExample {json} Request-Example:
    * {
@@ -600,10 +507,10 @@ final class Item
    */
   public function patchItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $item = \App\v1\Models\Item::find($args['id']);
+    $item = \App\v1\Models\Item::withTrashed()->find($args['id']);
 
     if (is_null($item))
     {
@@ -612,11 +519,18 @@ final class Item
 
     // Validate the data format
     $dataFormat = [
-      'name' => 'required|type:string'
+      'name' => 'type:string'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $item->name = $data->name;
+    if (property_exists($data, 'name'))
+    {
+      $item->name = $data->name;
+    }
+    if ($item->trashed())
+    {
+      $item->restore();
+    }
     $item->save();
 
     $response->getBody()->write(json_encode([]));
@@ -643,7 +557,7 @@ final class Item
    */
   public function deleteItem(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
     $item = \App\v1\Models\Item::withTrashed()->find($args['id']);
 
@@ -651,6 +565,8 @@ final class Item
     {
       throw new \Exception("The item has not be found", 404);
     }
+
+    $this->denyDeleteItem($item);
 
     // If in soft trash, delete permanently
     if ($item->trashed())
@@ -709,7 +625,7 @@ final class Item
 
   public function patchProperty(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
     $args['propertyid'] = intval($args['propertyid']);
     $data = json_decode($request->getBody());
     $item = \App\v1\Models\Item::find($args['id']);
@@ -870,16 +786,15 @@ final class Item
         ]);
       }
     }
+    // use touch() to update updated_at in the item
+    $item->touch();
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
 
-
-
-
   public function postPropertyItemlink(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
     $this->checkProperty($args['propertyid'], 'itemlinks');
 
@@ -889,7 +804,7 @@ final class Item
 
   public function deletePropertyItemlink(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
     $this->checkProperty($args['propertyid']);
 
@@ -923,7 +838,7 @@ final class Item
    */
   public function postPropertyTypelink(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
 
     $item = \App\v1\Models\Item::find($args['id']);
@@ -975,7 +890,7 @@ final class Item
    */
   public function deletePropertyTypelink(Request $request, Response $response, $args): Response
   {
-    $token = $request->getAttribute('token');
+    $token = (object)$request->getAttribute('token');
 
     $item = \App\v1\Models\Item::find($args['id']);
     if (is_null($item))
@@ -1005,6 +920,247 @@ final class Item
     }
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
+  }
+
+  public function createItem($data, $token)
+  {
+    // Validate the data format
+    $dataFormat = [
+      'name'             => 'required|type:string',
+      'type_id'          => 'required|type:integer|integer',
+      'parent_id'        => 'type:integer|integer',
+      'organization_id'  => 'type:integer|integer',
+      'sub_organization' => 'type:boolean|boolean'
+    ];
+    \App\v1\Common::validateData($data, $dataFormat);
+    // Checks about tree type
+    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    if ($type->tree)
+    {
+      // in case of type is a tree, check if parent_id exists
+      if (property_exists($data, 'parent_id'))
+      {
+        $parentItem = \App\v1\Models\Item::find($data->parent_id);
+        if (is_null($parentItem))
+        {
+          throw new \Exception("The parent item has not be found", 400);
+        }
+        // Check now if the parent_id is the same type_id
+        if ($parentItem->type_id != $data->type_id)
+        {
+          throw new \Exception("The parent item has not the same type", 400);
+        }
+      }
+      else
+      {
+        if (!$type->allowtreemultipleroots)
+        {
+          // check if have yet a root item
+          $otherItemsOfTree = \App\v1\Models\Item::where('type_id', $data->type_id)
+            ->take(1)
+            ->first();
+          if (!is_null($otherItemsOfTree))
+          {
+            throw new \Exception("This type can only have one root item", 400);
+          }
+        }
+      }
+    }
+    elseif (property_exists($data, 'parent_id'))
+    {
+      // in case of type is not a tree but have the parent_id, raise an error
+      throw new \Exception("The parent_id must not be defined on a non tree item", 400);
+    }
+
+    // check organization_id if defined
+    if (property_exists($data, 'organization_id'))
+    {
+      $organization = \App\v1\Models\Item::find($data->organization_id);
+      if (is_null($organization) || $organization->type_id != 1)
+      {
+        throw new \Exception("The organization has not be found", 400);
+      }
+      // check if the user have access to this organization_id
+      $organizations = \App\v1\Common::getOrganizationsIds($token);
+      if (!in_array($data->organization_id, $organizations))
+      {
+        throw new \Exception("The user does not have access to this organization", 400);
+      }
+    }
+
+    // validate for each properties
+    if (property_exists($data, 'properties'))
+    {
+      foreach ($data->properties as $property)
+      {
+        $this->validationPropertyValue($property);
+
+        $prop = \App\v1\Models\Config\Property::find($property->property_id);
+
+        if (!is_null($property->value))
+        {
+          if ($prop->valuetype == 'itemlinks')
+          {
+            foreach ($property->value as $itemId)
+            {
+              $item = \App\v1\Models\Item::find($itemId);
+              if (is_null($item))
+              {
+                throw new \Exception(
+                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
+                    strval($property->property_id) . ')',
+                  400
+                );
+              }
+            }
+          }
+          if ($prop->valuetype == 'typelinks')
+          {
+            foreach ($property->value as $typeId)
+            {
+              $item = \App\v1\Models\Config\Type::find($typeId);
+              if (is_null($item))
+              {
+                throw new \Exception(
+                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
+                    strval($property->property_id) . ')',
+                  400
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    $ruleData = [
+      'name' => $data->name
+    ];
+
+    $item = new \App\v1\Models\Item();
+    $item->name = $data->name;
+    $item->type_id = $data->type_id;
+    $item->organization_id = $token->organization_id;
+    if (property_exists($data, 'organization_id'))
+    {
+      $item->organization_id = $data->organization_id;
+    }
+    if (property_exists($data, 'sub_organization'))
+    {
+      $item->sub_organization = $data->sub_organization;
+    }
+    $item->owner_user_id = 0;
+    $item->owner_group_id = 0;
+    $item->state_id = 0;
+    if (property_exists($data, 'parent_id'))
+    {
+      $item->parent_id = $data->parent_id;
+    }
+    // To prevent deadlock on heavy charge because have a select in insert for managing id_bytype (see Item model)
+    $max_retries = 4;
+    $retries = 0;
+    $loop = true;
+    while ($loop)
+    {
+      try {
+        $item->save();
+        $loop = false;
+      }
+      catch (\Exception $e)
+      {
+        if ($retries > $max_retries)
+        {
+          throw $e;
+        }
+        $retries++;
+      }
+    }
+    $ruleData['id'] = $item->id;
+    $ruleData['name'] = $data->name;
+
+    $propertiesId = [];
+    if (property_exists($data, 'properties'))
+    {
+      foreach ($data->properties as $property)
+      {
+        $propertiesId[] = $property->property_id;
+        $ruleData[$property->property_id] = $property->value;
+        $propertyItem = \App\v1\Models\Config\Property::find($property->property_id);
+        $fieldName = 'value_' . $propertyItem->valuetype;
+        if ($propertyItem->valuetype == 'itemlinks' && !is_null($property->value))
+        {
+          foreach($property->value as $value)
+          {
+            $item->properties()->attach($property->property_id, ['value_itemlink' => $value]);
+          }
+        }
+        elseif ($propertyItem->valuetype == 'typelinks' && !is_null($property->value))
+        {
+          foreach($property->value as $value)
+          {
+            $item->properties()->attach($property->property_id, ['value_typelink' => $value]);
+          }
+        }
+        elseif ($propertyItem->valuetype == 'date' && $property->value == '')
+        {
+          $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d')]);
+        }
+        elseif ($propertyItem->valuetype == 'datetime' && $property->value == '')
+        {
+          $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d H:i:s')]);
+        }
+        elseif ($propertyItem->valuetype == 'time' && $property->value == '')
+        {
+          $item->properties()->attach($property->property_id, [$fieldName => date('H:i:s')]);
+        }
+        else
+        {
+          $item->properties()->attach($property->property_id, [$fieldName => $property->value]);
+        }
+      }
+    }
+
+    // Define the properties not in post with the default value
+    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    foreach ($type->properties()->get() as $prop)
+    {
+      if (in_array($prop->id, $propertiesId))
+      {
+        continue;
+      }
+      $fieldName = 'value_' . $prop->valuetype;
+      if ($prop->valuetype == 'itemlinks')
+      {
+        // TODO
+      }
+      elseif ($prop->valuetype == 'typelinks' && !is_null($prop->default))
+      {
+        foreach ($prop->default as $typelink)
+        {
+          $item->properties()->attach($prop->id, ['value_typelink' => $typelink]);
+        }
+      }
+      elseif ($prop->valuetype == 'date' && $prop->default == '' && !is_null($prop->default))
+      {
+        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d')]);
+      }
+      elseif ($prop->valuetype == 'datetime' && $prop->default == '' && !is_null($prop->default))
+      {
+        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d H:i:s')]);
+      }
+      elseif ($prop->valuetype == 'time' && $prop->default == '' && !is_null($prop->default))
+      {
+        $item->properties()->attach($prop->id, [$fieldName => date('H:i:s')]);
+      }
+      else
+      {
+        $item->properties()->attach($prop->id, [$fieldName => $prop->default]);
+      }
+    }
+
+    // run rules
+    $item_id = \App\v1\Controllers\Rules\ActionScript::runRules($ruleData);
+    return $item;
   }
 
 
@@ -1196,5 +1352,19 @@ final class Item
     }
 
     return $data;
+  }
+
+  /**
+   * check if the item can be deleted, if not exception is thrown
+   */
+  private function denyDeleteItem($item)
+  {
+    $type = \App\v1\Models\Config\Type::find($item->type_id);
+
+    if ($type->internalname == 'organization' && $item->treepath == '0001')
+    {
+      // case Organization and User type cannot be deleted
+      throw new \Exception('Cannot delete this item, it is a system item', 403);
+    }
   }
 }

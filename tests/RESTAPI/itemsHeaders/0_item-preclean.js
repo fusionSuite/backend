@@ -14,7 +14,7 @@ describe('itemsHeaders | Pre clean to be sure not have items in DB /v1/items/:id
   global.itemsId = [];
   it('Get all items', function(done) {
     request
-    .get('/v1/items/type/2')
+    .get('/v1/items/type/3')
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)

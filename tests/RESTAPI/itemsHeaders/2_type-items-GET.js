@@ -11,14 +11,14 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 describe('itemsHeaders | GET all items per page of 2 items', function() {
   it('Get the first page', function(done) {
     request
-    .get('/v1/items/type/2?per_page=2')
+    .get('/v1/items/type/3?per_page=2')
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
     .expect('Content-Type', /json/)
     .expect('X-Total-Count', '15')
     .expect('Content-Range', 'items 1-2/15')
-    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=2>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=8>; rel="last"')
+    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=2>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=8>; rel="last"')
     .expect(function(response) {
       assert(is.not.empty(response.body));
       assert(is.array(response.body));
@@ -42,14 +42,14 @@ describe('itemsHeaders | GET all items per page of 2 items', function() {
 
   it('Get the second page', function(done) {
     request
-    .get('/v1/items/type/2?per_page=2&page=2')
+    .get('/v1/items/type/3?per_page=2&page=2')
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
     .expect('Content-Type', /json/)
     .expect('X-Total-Count', '15')
     .expect('Content-Range', 'items 3-4/15')
-    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=3>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=8>; rel="last", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=1>; rel="first", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=1>; rel="prev"')
+    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=3>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=8>; rel="last", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=1>; rel="first", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=1>; rel="prev"')
     .expect(function(response) {
       assert(is.not.empty(response.body));
       assert(is.array(response.body));
@@ -73,14 +73,14 @@ describe('itemsHeaders | GET all items per page of 2 items', function() {
 
   it('Get the third page', function(done) {
     request
-    .get('/v1/items/type/2?per_page=2&page=3')
+    .get('/v1/items/type/3?per_page=2&page=3')
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
     .expect('Content-Type', /json/)
     .expect('X-Total-Count', '15')
     .expect('Content-Range', 'items 5-6/15')
-    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=4>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=8>; rel="last", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=1>; rel="first", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=2>; rel="prev"')
+    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=4>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=8>; rel="last", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=1>; rel="first", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=2>; rel="prev"')
     .expect(function(response) {
       assert(is.not.empty(response.body));
       assert(is.array(response.body));
@@ -104,14 +104,14 @@ describe('itemsHeaders | GET all items per page of 2 items', function() {
 
   it('Get the last page', function(done) {
     request
-    .get('/v1/items/type/2?per_page=2&page=8')
+    .get('/v1/items/type/3?per_page=2&page=8')
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
     .expect('Content-Type', /json/)
     .expect('X-Total-Count', '15')
     .expect('Content-Range', 'items 15-15/15')
-    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=1>; rel="first", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=7>; rel="prev"')
+    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=1>; rel="first", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=7>; rel="prev"')
     .expect(function(response) {
       assert(is.not.empty(response.body));
       assert(is.array(response.body));
@@ -132,14 +132,14 @@ describe('itemsHeaders | GET all items per page of 2 items', function() {
 
   it('Return to first page with link', function(done) {
     request
-    .get('/v1/items/type/2?per_page=2')
+    .get('/v1/items/type/3?per_page=2')
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)
     .expect('Content-Type', /json/)
     .expect('X-Total-Count', '15')
     .expect('Content-Range', 'items 1-2/15')
-    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=2>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/2?per_page=2&page=8>; rel="last"')
+    .expect('Link', '<http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=2>; rel="next", <http://127.0.0.1/fusionsuite/backend/v1/items/type/3?per_page=2&page=8>; rel="last"')
     .expect(function(response) {
       assert(is.not.empty(response.body));
       assert(is.array(response.body));
@@ -166,7 +166,7 @@ describe('itemsHeaders | GET all items per page of 2 items', function() {
   global.itemsId = [];
   it('Get all items', function(done) {
     request
-    .get('/v1/items/type/2')
+    .get('/v1/items/type/3')
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(200)

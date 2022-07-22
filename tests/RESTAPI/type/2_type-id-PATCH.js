@@ -29,19 +29,14 @@ describe('type | Update /v1/config/types/:id', function() {
     });
   });
 
-  it('update the Firewall type, but forget name => error', function(done) {
+  it('update the Firewall type, but forget name => ok', function(done) {
     request
     .patch('/v1/config/types/' + global.id)
     .send({})
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
-    .expect(400)
+    .expect(200)
     .expect('Content-Type', /json/)
-    .expect(function(response) {
-      assert(is.propertyCount(response.body, 2));
-      assert(validator.equals(response.body.status, 'error'));
-      assert(validator.equals(response.body.message, 'The Name is required'));
-    })
     .end(function(err, response) {
       if (err) {
         return done(err + ' | Response: ' + response.text);

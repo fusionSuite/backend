@@ -22,6 +22,7 @@ namespace App\v1\Models\Config;
 
 use Illuminate\Database\Eloquent\Model as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class Type extends Model
 {
@@ -30,24 +31,88 @@ class Type extends Model
   protected $fillable = ['name', 'internalname'];
   protected $appends = [
     'properties',
-    'propertygroups'
+    'propertygroups',
+    'organization'
   ];
   protected $visible = [
     'id',
     'name',
     'internalname',
+    'organization',
+    'sub_organization',
     'modeling',
     'properties',
     'propertygroups',
     'tree',
     'allowtreemultipleroots',
     'created_at',
-    'updated_at'
+    'updated_at',
+    'deleted_at',
+    'created_by',
+    'updated_by',
+    'deleted_by',
   ];
   protected $hidden = [];
   protected $with = [
     'properties'
   ];
+
+  public static function boot()
+  {
+    parent::boot();
+    static::creating(function ($model)
+    {
+      $model->created_by = $GLOBALS['user_id'];
+    });
+
+    static::updating(function ($model)
+    {
+      $model->updated_by = $GLOBALS['user_id'];
+    });
+
+    static::deleting(function ($model)
+    {
+      // Disable timestamp to prevent updating updated_at field when soft delete
+      $model->timestamps = false;
+      // Update deleted_by to have user id
+      DB::table('types')->where('id', $model->id)
+        ->update(['deleted_by' => $GLOBALS['user_id']]);
+    });
+
+    static::restoring(function ($model)
+    {
+      $model->deleted_by = null;
+    });
+  }
+
+  public function getOrganizationAttribute()
+  {
+    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
+    return [
+      'id'   => $org->id,
+      'name' => $org->name
+    ];
+  }
+
+  public function getSubOrganizationAttribute($value)
+  {
+    return boolval($value);
+  }
+
+  public function getCreatedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
+  }
+
+  public function getUpdatedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
+  }
+
+  public function getDeletedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
+  }
 
   public function getTreeAttribute($value)
   {
@@ -78,5 +143,10 @@ class Type extends Model
   public function propertygroups()
   {
     return $this->hasMany('App\v1\Models\Config\Propertygroup');
+  }
+
+  public function scopeofSort($query, $params)
+  {
+    return \App\v1\Models\Common::scopeofSort($query, $params);
   }
 }

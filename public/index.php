@@ -73,12 +73,14 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
   // "callback" => function ($request, $response, $arguments) use ($container) { ???
   "before" => function ($request, $arguments)
   {
-    $myUser = \App\v1\Models\User::find($arguments['decoded']['user_id']);
-    if ($myUser['jwtid'] != $arguments['decoded']['jti'])
+    $myUser = \App\v1\Models\Item::find($arguments['decoded']['user_id']);
+    $jwtid = $myUser->getPropertyAttribute('userjwtid');
+    if (is_null($jwtid) || $jwtid != $arguments['decoded']['jti'])
     {
       throw new Exception('jti changed, ask for a new token ' . $myUser['jwtid'] . ' != ' .
                           $arguments['decoded']['jti'], 401);
     }
+    $GLOBALS['user_id'] = $arguments['decoded']['user_id'];
   },
   "error" => function ($response, $arguments)
   {
@@ -89,7 +91,6 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
       ->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES));
   }
 ]));
-
 
 $capsule = new Capsule();
 $capsule->addConnection($config['db']);

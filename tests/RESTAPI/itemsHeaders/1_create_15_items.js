@@ -14,7 +14,7 @@ describe('itemsHeaders | Endpoint /v1/items', function() {
     it('create a new item '+step, function(done) {
       request
       .post('/v1/items')
-      .send({name: 'Laptop'+step,type_id: 2})
+      .send({name: 'Laptop'+step,type_id: 3})
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)

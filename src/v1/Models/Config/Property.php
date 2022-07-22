@@ -21,14 +21,19 @@
 namespace App\v1\Models\Config;
 
 use Illuminate\Database\Eloquent\Model as Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class Property extends Model
 {
+  use SoftDeletes;
+
   protected $appends = [
     'listvalues',
     'value',
     'default',
-    'byfusioninventory'
+    'byfusioninventory',
+    'organization'
   ];
   protected $visible = [
     'id',
@@ -39,8 +44,6 @@ class Property extends Model
     'unit',
     'default',
     'description',
-    'created_at',
-    'updated_at',
     'canbenull',
     'setcurrentdate',
     'regexformat'
@@ -60,6 +63,33 @@ class Property extends Model
     parent::__construct($attributes);
   }
 
+  public static function boot()
+  {
+    parent::boot();
+    static::creating(function ($model)
+    {
+      $model->created_by = $GLOBALS['user_id'];
+    });
+
+    static::updating(function ($model)
+    {
+      $model->updated_by = $GLOBALS['user_id'];
+    });
+
+    static::deleting(function ($model)
+    {
+      // Disable timestamp to prevent updating updated_at field when soft delete
+      $model->timestamps = false;
+      // Update deleted_by to have user id
+      DB::table('properties')->where('id', $model->id)
+        ->update(['deleted_by' => $GLOBALS['user_id']]);
+    });
+
+    static::restoring(function ($model)
+    {
+      $model->deleted_by = null;
+    });
+  }
 
   public function getListvaluesAttribute()
   {
@@ -68,6 +98,35 @@ class Property extends Model
       return $this->listvalues()->get();
     }
     return [];
+  }
+
+  public function getOrganizationAttribute()
+  {
+    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
+    return [
+      'id'   => $org->id,
+      'name' => $org->name
+    ];
+  }
+
+  public function getSubOrganizationAttribute($value)
+  {
+    return boolval($value);
+  }
+
+  public function getCreatedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
+  }
+
+  public function getUpdatedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
+  }
+
+  public function getDeletedByAttribute($value)
+  {
+    return \App\v1\Models\Common::getUserAttributes($value);
   }
 
   public function getValueAttribute()
@@ -175,11 +234,20 @@ class Property extends Model
 
   public function getSetcurrentdateAttribute($value)
   {
+    if (!in_array($this->valuetype, ['date', 'datetime', 'time']))
+    {
+      return null;
+    }
     return boolval($value);
   }
 
   public function listvalues()
   {
     return $this->hasMany('\App\v1\Models\Config\Propertylist');
+  }
+
+  public function scopeofSort($query, $params)
+  {
+    return \App\v1\Models\Common::scopeofSort($query, $params);
   }
 }
