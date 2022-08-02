@@ -23,6 +23,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -61,10 +63,12 @@ jobs:
       run: phpstan analyse ActionScripts
 
     - name: Run phpcs
-      run: phpcs -q --report=checkstyle src public | cs2pr
-
-    - name: Run phpcs on rule action scripts
-      run: phpcs -q --report=checkstyle --ignore="ActionScripts/*/vendor/*" ActionScripts | cs2pr
+      run: |
+        files=$(git diff --name-only --diff-filter=d origin/${{ github.base_ref }} | grep '^\(src\|public\|ActionScripts\)' || true)
+        if [ -n "$files" ]; then
+          phpcs -q --report=checkstyle $files | cs2pr
+        fi
+      if: github.event_name == 'pull_request'
 
   unit_tests:
 
