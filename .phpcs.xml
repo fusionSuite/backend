@@ -5,6 +5,7 @@
     <rule ref="PSR12">
       <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace" />
       <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseParenthesis" />
+      <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword" />
       <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnNewLine" />
       <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.NewlineBeforeOpenBrace" />
     </rule>
