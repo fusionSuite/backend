@@ -1,0 +1,11 @@
+#!/bin/bash
+
+export COMPOSE_PROJECT_NAME=fusionsuite-backend
+export COMPOSE_FILE=docker/docker-compose.yml
+export USER=$(id -u):$(id -g)
+
+if [ -z `docker-compose ps -q database` ] || [ -z `docker ps -q --no-trunc | grep $(docker-compose ps -q database)` ]; then
+    docker-compose run --rm --no-deps database mariadb -u fusionsuite -p fusionsuite_development "$@"
+else
+    docker-compose exec database mariadb -u fusionsuite -p fusionsuite_development "$@"
+fi
