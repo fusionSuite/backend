@@ -48,10 +48,9 @@ final class Type
    * @apiSuccess {Number}                      types.properties.id                 The id of the property.
    * @apiSuccess {String}                      types.properties.name               The name of the property.
    * @apiSuccess {String}                      types.properties.internalname       The internalname of the property.
-   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
-   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}
-   *    types.properties.valuetype
-   *    The type of value.
+   * @codingStandardsIgnoreStart because break apidocsjs
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  types.properties.valuetype   The type of value.
+   * @codingStandardsIgnoreEnd
    * @apiSuccess {null|String}                 types.properties.unit               The unit used for the property
    *    (example: Ko, seconds...).
    * @apiSuccess {null|String}                 types.properties.description        The description of the propery.
@@ -118,9 +117,9 @@ final class Type
    * @apiSuccess {Number}                      properties.id                 The id of the property.
    * @apiSuccess {String}                      properties.name               The name of the property.
    * @apiSuccess {String}                      properties.internalname       The internalname of the property.
-   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
-   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}   properties.valuetype
-   *    The type of value.
+   * @codingStandardsIgnoreStart because break apidocsjs
+   * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}   properties.valuetype  The type of value.
+   * @codingStandardsIgnoreEnd
    * @apiSuccess {null|String}                 properties.unit               The unit used for the property (example:
    *    Ko, seconds...).
    * @apiSuccess {null|String}                 properties.description        The description of the propery.
@@ -471,9 +470,9 @@ final class Type
    *    (Array of Objects).
    * @apiBody {String}    types.propertygroups.properties.name              The name of the property.
    * @apiBody {String}    types.propertygroups.properties.internalname      The internal name of the property.
-   * @apiBody {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
-   *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}
-   *    types.propertygroups.properties.valuetype  The type of value.
+   * @codingStandardsIgnoreStart because break apidocsjs
+   * @apiBody {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  types.propertygroups.properties.valuetype  The type of value.
+   * @codingStandardsIgnoreEnd
    * @apiBody {null|String}   types.propertygroups.properties.regexformat   The regexformat to verify the value is
    *    conform (works only with valuetype is string or list).
    * @apiBody {null|String[]} types.propertygroups.properties.listvalues    The list of values when valuetype="list",
