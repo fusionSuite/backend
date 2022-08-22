@@ -218,6 +218,15 @@ class Item extends Model
     // return $this->belongsToMany('App\v1\Models\Config\Propertygroup', 'id', 'type_id');
   }
 
+  public function roles()
+  {
+    if ($this->attributes['type_id'] != TYPE_USER_ID)
+    {
+      return null;
+    }
+    return $this->belongsToMany(\App\v1\Models\Config\Role::class);
+  }
+
   public function getItems()
   {
     //  return $this->belongsToMany('App\v1\Models\Item', null, 'parent_item_id', 'child_item_id')

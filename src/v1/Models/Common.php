@@ -23,7 +23,7 @@ namespace App\v1\Models;
 class Common
 {
   /**
-   * Get the user attributes for created_by, udpated_by and deleted_by.
+   * Get the user attributes for created_by, updated_by and deleted_by.
    */
   public static function getUserAttributes($user_id)
   {

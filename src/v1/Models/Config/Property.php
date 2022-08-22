@@ -246,6 +246,11 @@ class Property extends Model
     return $this->hasMany('\App\v1\Models\Config\Propertylist');
   }
 
+  public function structureroles()
+  {
+      return $this->morphToMany('App\v1\Models\Config\Role', 'permissionstructure')->withTimestamps();
+  }
+
   public function scopeofSort($query, $params)
   {
     return \App\v1\Models\Common::scopeofSort($query, $params);

@@ -26,7 +26,10 @@ final class Post
   {
     foreach ($properties as $property)
     {
-      if (property_exists($obj, $property) === false)
+      if (
+          is_null($obj)
+          || property_exists($obj, $property) === false
+      )
       {
         return false;
       }

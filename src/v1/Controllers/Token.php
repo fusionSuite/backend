@@ -106,7 +106,7 @@ final class Token
     )
     {
       // Verify the account
-      $user = \App\v1\Models\Item::where('name', $data->login)->where('type_id', 2)->first();
+      $user = \App\v1\Models\Item::where('name', $data->login)->where('type_id', TYPE_USER_ID)->first();
       if (is_null($user))
       {
         throw new \Exception('Error when authentication, login or password not right', 401);
@@ -165,6 +165,13 @@ final class Token
     $future = new DateTime("+20 minutes");
     // For test / DEBUG
     // $future = new DateTime("+30 seconds");
+    // Get roles
+    $role = $user->roles()->first();
+
+    if (is_null($role))
+    {
+      throw new \Exception('No role assigned to the user', 401);
+    }
 
     $payload = [
       'iat'              => $now->getTimeStamp(),
@@ -173,6 +180,7 @@ final class Token
       'sub'              => '',
       'scope'            => $this->getScope($user->id),
       'user_id'          => $user->id,
+      'role_id'          => $role->id,
       'firstname'        => $firstName,
       'lastname'         => $lastName,
       'apiversion'       => "v1",

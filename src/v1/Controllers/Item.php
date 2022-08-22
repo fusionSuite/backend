@@ -165,6 +165,8 @@ final class Item
     $token = (object)$request->getAttribute('token');
     $organizations = \App\v1\Common::getOrganizationsIds($token);
     $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
+    // check permissions
+    \App\v1\Permission::checkPermissionToData('view', $args['typeid']);
 
     $paramsQuery = $request->getQueryParams();
     $pagination = $this->paramPagination($paramsQuery);
@@ -193,11 +195,22 @@ final class Item
     $totalCnt = $items->count();
     $items->skip(($params['skip'] * $params['take']))->take($params['take']);
     $allItems = $items->get()->toArray();
+    // permission to view or not properties
+    $permissionProps = \App\v1\Controllers\Config\Permissiondataproperty::getPropertiesCanView($args['typeid']);
     foreach ($allItems as $key => $item)
     {
       $itemProperties = [];
       foreach ($item['properties'] as $property)
       {
+        if (
+            !is_null($permissionProps)
+            && !in_array($property['id'], $permissionProps)
+        )
+        {
+          //no view right, so next
+          continue;
+        }
+
         if (isset($itemProperties[$property['id']]))
         {
           // itemlinks case
@@ -369,8 +382,14 @@ final class Item
       ->withTrashed()->find($args['id'])->makeVisible(['propertygroups']);
     if (is_null($item))
     {
+      // if global permission is none or custom, in this case will except 401
+      \App\v1\Permission::checkPermissionToData('view', 0);
+
       throw new \Exception("This item has not be found", 404);
     }
+    // check permissions
+    \App\v1\Permission::checkPermissionToData('view', $item->type_id);
+
     if (
         !in_array($item->organization_id, $organizations)
         && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
@@ -381,8 +400,19 @@ final class Item
 
     $itemData = $item->toArray();
     $itemProperties = [];
+    // permission to view or not properties
+    $permissionProps = \App\v1\Controllers\Config\Permissiondataproperty::getPropertiesCanView($item->type_id);
     foreach ($itemData['properties'] as $property)
     {
+      if (
+          !is_null($permissionProps)
+          && !in_array($property['id'], $permissionProps)
+      )
+      {
+        //no view right, so next
+        continue;
+      }
+
       if (isset($itemProperties[$property['id']]))
       {
         // itemlinks case
@@ -520,13 +550,24 @@ final class Item
       throw new \Exception("The item has not be found", 404);
     }
 
+    // check permissions
+    if (
+        $item->trashed()
+        && is_null($data)
+    )
+    {
+      \App\v1\Permission::checkPermissionToData('softdelete', $item->type_id);
+    } else {
+      \App\v1\Permission::checkPermissionToData('update', $item->type_id);
+    }
+
     // Validate the data format
     $dataFormat = [
       'name' => 'type:string'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    if (property_exists($data, 'name'))
+    if (!is_null($data) && property_exists($data, 'name'))
     {
       $item->name = $data->name;
     }
@@ -574,10 +615,16 @@ final class Item
     // If in soft trash, delete permanently
     if ($item->trashed())
     {
+      // check permissions
+      \App\v1\Permission::checkPermissionToData('delete', $item->type_id);
+
       $item->forceDelete();
     }
     else
     {
+      // check permissions
+      \App\v1\Permission::checkPermissionToData('softdelete', $item->type_id);
+
       $item->delete();
     }
 
@@ -639,6 +686,9 @@ final class Item
     }
 
     $this->checkProperty($args['propertyid']);
+
+    \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
+
     $property = \App\v1\Models\Config\Property::find($args['propertyid']);
     if (property_exists($data, 'reset_to_default') && $data->reset_to_default)
     {
@@ -850,6 +900,8 @@ final class Item
       throw new \Exception("The item has not be found", 404);
     }
 
+    \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
+
     $this->checkProperty($args['propertyid'], 'typelinks');
 
     $dataFormat = [
@@ -862,7 +914,6 @@ final class Item
     {
       throw new \Exception('The Value is an id than does not exist', 400);
     }
-
 
     $item->properties()->attach($args['propertyid'], [
       'value_typelink' => $data->value
@@ -902,6 +953,9 @@ final class Item
     }
 
     $this->checkProperty($args['propertyid'], 'typelinks');
+
+    \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
+
     $property = \App\v1\Models\Config\Property::find($args['propertyid']);
 
     $typelink = \App\v1\Models\Config\Type::find($args['typelinkid']);
@@ -990,6 +1044,8 @@ final class Item
         throw new \Exception("The user does not have access to this organization", 400);
       }
     }
+    // check permissions
+    \App\v1\Permission::checkPermissionToData('create', $data->type_id);
 
     // validate for each properties
     if (property_exists($data, 'properties'))
@@ -1033,6 +1089,8 @@ final class Item
             }
           }
         }
+        // check permission of property
+        \App\v1\Permission::checkPermissionToData('create', $data->type_id, $property->property_id);
       }
     }
 
