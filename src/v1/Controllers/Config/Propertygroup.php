@@ -47,6 +47,9 @@ final class Propertygroup
 
     $data = json_decode($request->getBody());
 
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/type', $args['id']);
+
     // Validate the data format
     $dataFormat = [
       'name'       => 'required|type:string',
@@ -73,6 +76,9 @@ final class Propertygroup
   // TODO
   public function patchItem(Request $request, Response $response, $args): Response
   {
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/type', $args['id']);
+
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }

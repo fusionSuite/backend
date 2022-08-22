@@ -27,6 +27,7 @@ use Illuminate\Container\Container;
 
 // use DateTime;
 
+include('../src/constant.php');
 require __DIR__ . '/../vendor/autoload.php';
 // Autoload in ActionScripts folder
 require __DIR__ . '/../ActionScripts/autoload.php';
@@ -81,6 +82,10 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
                           $arguments['decoded']['jti'], 401);
     }
     $GLOBALS['user_id'] = $arguments['decoded']['user_id'];
+    // Load permissions
+    $GLOBALS['permissions'] = \App\v1\Controllers\Config\Role::generatePermission(
+      $arguments['decoded']['role_id']
+    );
   },
   "error" => function ($response, $arguments)
   {

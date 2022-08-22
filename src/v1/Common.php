@@ -152,7 +152,8 @@ class Common
     if ($token->sub_organization)
     {
       $organization = \App\v1\Models\Item::find($token->organization_id);
-      $orgs = \App\v1\Models\Item::where('type_id', 1)->where('treepath', 'like', $organization->treepath . '%');
+      $orgs = \App\v1\Models\Item::where('type_id', TYPE_ORGANIZATION_ID)
+        ->where('treepath', 'like', $organization->treepath . '%');
       $listIds = $orgs->pluck('id')->toArray();
     }
     return $listIds;
@@ -165,7 +166,7 @@ class Common
   {
     $organization = \App\v1\Models\Item::find($token->organization_id);
     $ids_bytype = array_map('intval', str_split($organization->treepath, 4));
-    $orgs = \App\v1\Models\Item::where('type_id', 1)->whereIn('id_bytype', $ids_bytype);
+    $orgs = \App\v1\Models\Item::where('type_id', TYPE_ORGANIZATION_ID)->whereIn('id_bytype', $ids_bytype);
     return $orgs->pluck('id')->toArray();
   }
 }

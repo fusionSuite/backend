@@ -148,15 +148,51 @@ final class Route
             $propertyId->map(['DELETE'], '', \App\v1\Controllers\Config\Property::class . ':deleteItem');
           });
         });
+        $config->group("/roles", function (RouteCollectorProxy $role)
+        {
+          $role->map(['GET'], '', \App\v1\Controllers\Config\Role::class . ':getAll');
+          $role->map(['POST'], '', \App\v1\Controllers\Config\Role::class . ':postItem');
+          $role->group("/{id:[0-9]+}", function (RouteCollectorProxy $roleid)
+          {
+            $roleid->map(['GET'], '', \App\v1\Controllers\Config\Role::class . ':getOne');
+            $roleid->map(['PATCH'], '', \App\v1\Controllers\Config\Role::class . ':patchItem');
+            $roleid->map(['DELETE'], '', \App\v1\Controllers\Config\Role::class . ':deleteItem');
+            $roleid->group("/user", function (RouteCollectorProxy $user)
+            {
+              $user->map(
+                ['POST'],
+                '/{userid:[0-9]+}',
+                \App\v1\Controllers\Config\Role::class . ':postUser'
+              );
+              $user->map(
+                ['DELETE'],
+                '/{userid:[0-9]+}',
+                \App\v1\Controllers\Config\Role::class . ':deleteUser'
+              );
+            });
+            $roleid->map(
+              ['PATCH'],
+              '/permissiondata/{typeid:[0-9]+}',
+              \App\v1\Controllers\Config\Permissiondata::class . ':patchItem'
+            );
+            $roleid->map(
+              ['PATCH'],
+              '/permissiondata/{typeid:[0-9]+}/property/{propertyid:[0-9]+}',
+              \App\v1\Controllers\Config\Permissiondataproperty::class . ':patchItem'
+            );
+            $roleid->map(
+              ['PATCH'],
+              '/permissionstructure/{structureid:[0-9]+}',
+              \App\v1\Controllers\Config\Permissionstructure::class . ':patchItem'
+            );
+            $roleid->map(
+              ['PATCH'],
+              '/permissionstructure/{structureid:[0-9]+}/custom/{customid:[0-9]+}',
+              \App\v1\Controllers\Config\Permissionstructurecustom::class . ':patchItem'
+            );
+          });
+        });
       });
-
-      /*
-      * itemstate: get/post/put/delete
-      * property: get/post/put/delete
-      * propertylistvalue: get/post/put/delete
-      * item_property: put
-      */
-
       $v1->group("/rules/{type:searchitem|rewritefield|actionscript}", function (RouteCollectorProxy $rule)
       {
         $rule->map(['GET'], '', \App\v1\Controllers\Rule::class . ':getAll');

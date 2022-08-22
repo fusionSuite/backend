@@ -148,7 +148,7 @@ final class Type
 
     $params = $this->manageParams($request);
 
-    $items = \App\v1\Models\Config\Type::ofSort($params)
+    $type = \App\v1\Models\Config\Type::ofSort($params)
     ->where(function ($query) use ($organizations, $parentsOrganizations)
     {
       $query->whereIn('organization_id', $organizations)
@@ -157,7 +157,16 @@ final class Type
               $query2->whereIn('organization_id', $parentsOrganizations)
                      ->where('sub_organization', true);
             });
-    })->get();
+    });
+    // manage permissions
+    \App\v1\Permission::checkPermissionToStructure('view', 'config/type');
+    $permissionIds = \App\v1\Permission::getStructureViewIds('config/type');
+    if (!is_null($permissionIds))
+    {
+      $type->where('id', $permissionIds);
+    }
+
+    $items = $type->get();
     $response->getBody()->write($items->toJson());
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -278,11 +287,15 @@ final class Type
     $organizations = \App\v1\Common::getOrganizationsIds($token);
     $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
 
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('view', 'config/type', $args['id']);
+
     $item = \App\v1\Models\Config\Type::withTrashed()->find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("This type has not be found", 404);
     }
+
     if (
         !in_array($item->organization_id, $organizations)
         && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
@@ -385,6 +398,9 @@ final class Type
       throw new \Exception("The type has not be found", 404);
     }
 
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/type', $type->id);
+
     // Validate the data format
     $dataFormat = [
       'name' => 'type:string'
@@ -438,10 +454,19 @@ final class Type
     // If in soft trash, delete permanently
     if ($type->trashed())
     {
+      // check permissions
+      \App\v1\Permission::checkPermissionToStructure('delete', 'config/type', $type->id);
+
       $type->forceDelete();
+
+      // Post delete actions
+      \App\v1\Controllers\Config\Permissionstructure::deleteEndpointIdToRoles('config/type', $args['id']);
     }
     else
     {
+      // check permissions
+      \App\v1\Permission::checkPermissionToStructure('softdelete', 'config/type', $type->id);
+
       $type->properties()->detach();
       $type->delete();
     }
@@ -497,6 +522,9 @@ final class Type
     {
       throw new \Exception("The type has not be found", 404);
     }
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/type', $type->id);
+
     if (!in_array($type->organization_id, $organizations))
     {
       if (!(in_array($type->organization_id, $parentsOrganizations) && $type->sub_organization))
@@ -585,6 +613,8 @@ final class Type
     {
       throw new \Exception("The property has not be found", 404);
     }
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/type', $type->id);
 
     $this->denyDetachProperty($type->internalname, $property->internalname);
 
@@ -718,6 +748,9 @@ final class Type
 
   public function createType($data, $token)
   {
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('create', 'config/type');
+
     // Validate the data format
     $dataFormat = [
       'name'                   => 'required|type:string',
@@ -762,11 +795,18 @@ final class Type
     }
     $type->save();
 
+    // Add to permissions
+    \App\v1\Controllers\Config\Permissionstructure::addEndpointIdToRoles('config/type', $type->id);
+
     return $type;
   }
 
   public function createTemplate($data, $token)
   {
+    // check permissions (need check create type and properties)
+    \App\v1\Permission::checkPermissionToStructure('create', 'config/type');
+    \App\v1\Permission::checkPermissionToStructure('create', 'config/property');
+
     // Validate the data format
     $dataFormat = [
       'types'   => 'required|type:array'

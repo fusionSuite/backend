@@ -69,9 +69,10 @@ final class Properties extends AbstractMigration
           ->addColumn('created_by', 'integer')
           ->addColumn('updated_by', 'integer', ['null' => true])
           ->addColumn('deleted_by', 'integer', ['null' => true])
-          ->addIndex(['internalname'], ['unique' => true])
           ->addColumn('canbenull', 'boolean', ['default' => true])
           ->addColumn('setcurrentdate', 'boolean', ['default' => false])
+          ->addIndex(['internalname'], ['unique' => true])
+          ->addIndex('deleted_at')
           ->create();
   }
 }

@@ -145,6 +145,16 @@ class Type extends Model
     return $this->hasMany('App\v1\Models\Config\Propertygroup');
   }
 
+  public function structureroles()
+  {
+      return $this->morphToMany('App\v1\Models\Config\Role', 'permissionstructure')->withTimestamps();
+  }
+
+  public function permissiondatas()
+  {
+    return $this->hasMany('App\v1\Models\Config\Permissiondata')->withTimestamps();
+  }
+
   public function scopeofSort($query, $params)
   {
     return \App\v1\Models\Common::scopeofSort($query, $params);

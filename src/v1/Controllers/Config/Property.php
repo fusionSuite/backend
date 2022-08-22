@@ -180,7 +180,7 @@ final class Property
 
     $params = $this->manageParams($request);
 
-    $items = \App\v1\Models\Config\Property::ofSort($params)
+    $property = \App\v1\Models\Config\Property::ofSort($params)
     ->where(function ($query) use ($organizations, $parentsOrganizations)
     {
       $query->whereIn('organization_id', $organizations)
@@ -189,7 +189,16 @@ final class Property
               $query2->whereIn('organization_id', $parentsOrganizations)
                      ->where('sub_organization', true);
             });
-    })->get()
+    });
+    // manage permissions
+    \App\v1\Permission::checkPermissionToStructure('view', 'config/property');
+    $permissionIds = \App\v1\Permission::getStructureViewIds('config/property');
+    if (!is_null($permissionIds))
+    {
+      $property->where('id', $permissionIds);
+    }
+
+    $items = $property->get()
       ->makeHidden(['value', 'byfusioninventory'])
       ->makeVisible($this->getVisibleFields());
     $response->getBody()->write($items->toJson());
@@ -292,13 +301,15 @@ final class Property
     $organizations = \App\v1\Common::getOrganizationsIds($token);
     $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
 
-    $item = \App\v1\Models\Config\Property::withTrashed()->find($args['id'])
-      ->makeHidden(['value', 'byfusioninventory'])
-      ->makeVisible($this->getVisibleFields());
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('view', 'config/property', $args['id']);
+
+    $item = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("This item has not be found", 404);
     }
+
     if (
         !in_array($item->organization_id, $organizations)
         && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
@@ -306,6 +317,9 @@ final class Property
     {
       throw new \Exception("This property is not in your organization", 403);
     }
+
+    $item->makeHidden(['value', 'byfusioninventory'])
+    ->makeVisible($this->getVisibleFields());
 
     $response->getBody()->write($item->toJson());
     return $response->withHeader('Content-Type', 'application/json');
@@ -416,6 +430,9 @@ final class Property
       throw new \Exception("The property has not be found", 404);
     }
 
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/property', $property->id);
+
     // Validate the data format
     $dataFormat = [
       'name'           => $this->validateNameAttribute(),
@@ -501,10 +518,23 @@ final class Property
     // If in soft trash, delete permanently
     if ($property->trashed())
     {
+      // check permissions
+      \App\v1\Permission::checkPermissionToStructure('delete', 'config/property', $property->id);
+
       $property->forceDelete();
+
+      // Post delete actions
+      \App\v1\Controllers\Config\Permissionstructure::deleteEndpointIdToRoles('config/property', $args['id']);
     }
     else
     {
+      // check permissions
+      \App\v1\Permission::checkPermissionToStructure(
+        'softdelete',
+        'config/property',
+        $property->id
+      );
+
       $property->delete();
     }
 
@@ -529,6 +559,9 @@ final class Property
 
   public function createProperty($data, $token)
   {
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('create', 'config/property');
+
     $this->validateDefaultForSaveMethods($data);
     $properties = $this->fillArrayForSaveMethods($data);
 
@@ -579,7 +612,13 @@ final class Property
         $propertytypelink->save();
       }
     }
-    return $property->id;
+
+    $propertyId = $property->id;
+
+    // Add to permissions
+    \App\v1\Controllers\Config\Permissionstructure::addEndpointIdToRoles('config/property', $propertyId);
+
+    return $propertyId;
   }
 
   /**
