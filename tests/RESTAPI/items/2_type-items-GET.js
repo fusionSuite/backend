@@ -44,6 +44,7 @@ describe('items | Endpoint /v1/items/type/3 (GET all)', function() {
         if (property.id === global.propertyid) {
           $serialnumber = property;
         }
+        assert(is.string(property.internalname));
       }
       assert($serialnumber !== null, 'the item must have a property named serialnumber');
       assert(is.integer($serialnumber.id), 'the first property id must be an integer');

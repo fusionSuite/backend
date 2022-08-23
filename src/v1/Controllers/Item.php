@@ -71,6 +71,7 @@ final class Item
    * @apiSuccess {Object[]}        -.properties                    List of properties of the item.
    * @apiSuccess {Number}          -.properties.id                 The id of the property.
    * @apiSuccess {String}          -.properties.name               The name of the property.
+   * @apiSuccess {String}          -.properties.internalname       The internalname of the property.
    * @codingStandardsIgnoreStart because break apidocsjs
    * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  -.properties.valuetype   The type of value.
    * @codingStandardsIgnoreEnd
@@ -181,7 +182,7 @@ final class Item
                        ->where('sub_organization', true);
               });
       })
-      ->with('properties:id,name,valuetype,unit,organization_id', 'properties.listvalues');
+      ->with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues');
 
     $items = $this->paramFilters($paramsQuery, $items);
     // Example filter on property value
@@ -270,6 +271,7 @@ final class Item
    * @apiSuccess {Object[]}        properties                    List of properties of the item.
    * @apiSuccess {Number}          properties.id                 The id of the property.
    * @apiSuccess {String}          properties.name               The name of the property.
+   * @apiSuccess {String}          properties.internalname       The internalname of the property.
    * @codingStandardsIgnoreStart because break apidocsjs
    * @apiSuccess {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  properties.valuetype   The type of value.
    * @codingStandardsIgnoreEnd
@@ -362,7 +364,8 @@ final class Item
     $organizations = \App\v1\Common::getOrganizationsIds($token);
     $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
 
-    $item = \App\v1\Models\Item::with('properties:id,name,valuetype,unit,organization_id', 'properties.listvalues')
+    $item = \App\v1\Models\Item::
+      with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues')
       ->withTrashed()->find($args['id'])->makeVisible(['propertygroups']);
     if (is_null($item))
     {
