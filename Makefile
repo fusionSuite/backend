@@ -67,6 +67,10 @@ setup: ## Setup the database
 		-P $(DB_PORT)
 	$(CLI) install
 
+.PHONY: db-reset
+db-reset: ## Reset the database
+	$(CLI) reset
+
 .PHONY: help
 help:
 	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

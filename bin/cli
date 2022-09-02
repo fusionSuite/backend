@@ -36,5 +36,6 @@ $app->add(new \App\v1\Controllers\Cli\EnvironmentCreate);
 $app->add(new \App\v1\Controllers\Cli\EnvironmentList);
 $app->add(new \App\v1\Controllers\Cli\EnvironmentSwitch);
 $app->add(new \App\v1\Controllers\Cli\Install);
+$app->add(new \App\v1\Controllers\Cli\Reset);
 
 $app->handle($_SERVER['argv']);
