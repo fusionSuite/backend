@@ -195,6 +195,9 @@ final class Token
       "refreshtoken" => $refreshtoken,
       "expires"      => $future->getTimeStamp()
     ];
+    $GLOBALS['user_id'] = $user->id;
+    \App\v1\Controllers\Log\Audit::addEntry($request, 'CONNECTION', '', 'User', $user->id);
+
     $response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES));
     return $response->withHeader("Content-Type", "application/json");
   }

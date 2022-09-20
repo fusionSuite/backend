@@ -352,6 +352,8 @@ final class Type
 
     $type = $this->createType($data, $token);
 
+    \App\v1\Controllers\Log\Audit::addEntry($request, 'CREATE', '', 'Config\Type', $type->id);
+
     $response->getBody()->write(json_encode(["id" => intval($type->id)]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -412,9 +414,18 @@ final class Type
     }
     if ($type->trashed())
     {
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'SOFTDELETE',
+        'restore',
+        'Config\Type',
+        $type->id
+      );
       $type->restore();
+    } else {
+      \App\v1\Controllers\Log\Audit::addEntry($request, 'UPDATE', '', 'Config\Type', $type->id);
+      $type->save();
     }
-    $type->save();
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -457,6 +468,7 @@ final class Type
       // check permissions
       \App\v1\Permission::checkPermissionToStructure('delete', 'config/type', $type->id);
 
+      \App\v1\Controllers\Log\Audit::addEntry($request, 'DELETE', '', 'Config\Type', $type->id);
       $type->forceDelete();
 
       // Post delete actions
@@ -467,6 +479,7 @@ final class Type
       // check permissions
       \App\v1\Permission::checkPermissionToStructure('softdelete', 'config/type', $type->id);
 
+      \App\v1\Controllers\Log\Audit::addEntry($request, 'SOFTDELETE', '', 'Config\Type', $type->id);
       $type->properties()->detach();
       $type->delete();
     }

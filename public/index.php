@@ -89,11 +89,8 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
   },
   "error" => function ($response, $arguments)
   {
-    $data["status"] = "error";
-    $data["message"] = $arguments["message"];
-    return $response
-      ->withHeader("Content-Type", "application/json")
-      ->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES));
+    $GLOBALS['user_id'] = null;
+    throw new Exception($arguments["message"], 401);
   }
 ]));
 
@@ -124,6 +121,28 @@ $customErrorHandler = function (
   }
   elseif ($exception->getCode() > 0)
   {
+    if (strstr($request->getUri()->getPath(), 'token'))
+    {
+      $data = json_decode($request->getBody());
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'CONNECTION',
+        'fail, login: ' . $data->login,
+        'User',
+        null,
+        $exception->getCode()
+      );
+    } else {
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        '',
+        $exception->getMessage(),
+        null,
+        null,
+        $exception->getCode()
+      );
+    }
+
     $error = [
       "status"  => "error",
       "message" => $exception->getMessage()
