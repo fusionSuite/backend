@@ -204,6 +204,11 @@ jobs:
         cd tests/RESTAPI/
         ./node_modules/.bin/mb --configfile mountebank/imposters.ejs &
 
+    - name: run php server to act on database
+      run: |
+        cd tests/RESTAPI/
+        php -S 127.0.0.1:8012 testDatabaseAccess.php &
+
     - name: run REST API tests
       run: |
         cd tests/RESTAPI/
@@ -302,6 +307,11 @@ jobs:
         cd tests/RESTAPI/
         ./node_modules/.bin/mb --configfile mountebank/imposters.ejs &
 
+    - name: run php server to act on database
+      run: |
+        cd tests/RESTAPI/
+        php -S 127.0.0.1:8012 testDatabaseAccess.php &
+
     - name: run REST API tests
       run: |
         cd tests/RESTAPI/
@@ -398,6 +408,11 @@ jobs:
       run: |
         cd tests/RESTAPI/
         ./node_modules/.bin/mb --configfile mountebank/imposters.ejs &
+
+    - name: run php server to act on database
+      run: |
+        cd tests/RESTAPI/
+        php -S 127.0.0.1:8012 testDatabaseAccess.php &
 
     - name: run REST API tests
       run: |

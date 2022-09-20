@@ -193,6 +193,15 @@ final class Route
           });
         });
       });
+
+      $v1->group("/log", function (RouteCollectorProxy $log)
+      {
+        $log->group("/audits", function (RouteCollectorProxy $properties)
+        {
+          $properties->map(['GET'], '', \App\v1\Controllers\Log\Audit::class . ':getAll');
+        });
+      });
+
       $v1->group("/rules/{type:searchitem|rewritefield|actionscript}", function (RouteCollectorProxy $rule)
       {
         $rule->map(['GET'], '', \App\v1\Controllers\Rule::class . ':getAll');

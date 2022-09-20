@@ -379,7 +379,7 @@ final class Item
 
     $item = \App\v1\Models\Item::
       with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues')
-      ->withTrashed()->find($args['id'])->makeVisible(['propertygroups']);
+      ->withTrashed()->find($args['id']);
     if (is_null($item))
     {
       // if global permission is none or custom, in this case will except 401
@@ -390,6 +390,7 @@ final class Item
     // check permissions
     \App\v1\Permission::checkPermissionToData('view', $item->type_id);
 
+    $item->makeVisible(['propertygroups']);
     if (
         !in_array($item->organization_id, $organizations)
         && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
@@ -504,6 +505,8 @@ final class Item
       "id_bytype" => intval($item->id_bytype)
     ];
 
+    \App\v1\Controllers\Log\Audit::addEntry($request, 'CREATE', '', 'Item', $item->id);
+
     $response->getBody()->write(json_encode($returnData));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -573,9 +576,12 @@ final class Item
     }
     if ($item->trashed())
     {
+      \App\v1\Controllers\Log\Audit::addEntry($request, 'SOFTDELETE', 'restore', 'Item', $item->id);
       $item->restore();
+    } else {
+      \App\v1\Controllers\Log\Audit::addEntry($request, 'UPDATE', '', 'Item', $item->id);
+      $item->save();
     }
-    $item->save();
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -618,6 +624,7 @@ final class Item
       // check permissions
       \App\v1\Permission::checkPermissionToData('delete', $item->type_id);
 
+      \App\v1\Controllers\Log\Audit::addEntry($request, 'DELETE', '', 'Item', $item->id);
       $item->forceDelete();
     }
     else
@@ -625,6 +632,7 @@ final class Item
       // check permissions
       \App\v1\Permission::checkPermissionToData('softdelete', $item->type_id);
 
+      \App\v1\Controllers\Log\Audit::addEntry($request, 'SOFTDELETE', '', 'Item', $item->id);
       $item->delete();
     }
 
@@ -841,6 +849,15 @@ final class Item
     }
     // use touch() to update updated_at in the item
     $item->touch();
+
+    \App\v1\Controllers\Log\Audit::addEntry(
+      $request,
+      'UPDATE',
+      'update a property',
+      'Item',
+      $item->id
+    );
+
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -919,6 +936,14 @@ final class Item
       'value_typelink' => $data->value
     ]);
 
+    \App\v1\Controllers\Log\Audit::addEntry(
+      $request,
+      'UPDATE',
+      'update a property',
+      'Item',
+      $item->id
+    );
+
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -975,6 +1000,14 @@ final class Item
       $pivot = \App\v1\Models\ItemProperty::find($t->pivot->id);
       $pivot->delete();
     }
+    \App\v1\Controllers\Log\Audit::addEntry(
+      $request,
+      'UPDATE',
+      'update a property',
+      'Item',
+      $item->id
+    );
+
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }

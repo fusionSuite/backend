@@ -310,6 +310,8 @@ final class Property
       throw new \Exception("This item has not be found", 404);
     }
 
+    $item->makeHidden(['value', 'byfusioninventory'])
+      ->makeVisible($this->getVisibleFields());
     if (
         !in_array($item->organization_id, $organizations)
         && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
@@ -393,6 +395,8 @@ final class Property
 
     $propId = $this->createProperty($data, $token);
 
+    \App\v1\Controllers\Log\Audit::addEntry($request, 'CREATE', '', 'Config\Property', $propId);
+
     $response->getBody()->write(json_encode(["id" => intval($propId)]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -463,9 +467,24 @@ final class Property
     }
     if ($property->trashed())
     {
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'SOFTDELETE',
+        'restore',
+        'Config\Property',
+        $property->id
+      );
       $property->restore();
+    } else {
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'UPDATE',
+        '',
+        'Config\Property',
+        $property->id
+      );
+      $property->save();
     }
-    $property->save();
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -521,6 +540,13 @@ final class Property
       // check permissions
       \App\v1\Permission::checkPermissionToStructure('delete', 'config/property', $property->id);
 
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'DELETE',
+        '',
+        'Config\Property',
+        $property->id
+      );
       $property->forceDelete();
 
       // Post delete actions
@@ -535,6 +561,13 @@ final class Property
         $property->id
       );
 
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'SOFTDELETE',
+        '',
+        'Config\Property',
+        $property->id
+      );
       $property->delete();
     }
 
