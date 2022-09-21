@@ -56,6 +56,7 @@ class Item extends Model
   protected $with = [
     // 'getItems'
   ];
+  protected $fillable = ['name', 'type_id'];
 
   public static function boot()
   {

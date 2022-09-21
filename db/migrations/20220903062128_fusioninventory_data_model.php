@@ -291,7 +291,8 @@ final class FusioninventoryDataModel extends AbstractMigration
     // Create users
     $myType = $type->createType((object)[
       'name'         => 'Users',
-      'internalname' => 'users'
+      'internalname' => 'users',
+      'unique_name'  => true
     ], $token);
     $this->itemsId['users'] = $myType->id;
 

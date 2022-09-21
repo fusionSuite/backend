@@ -18,7 +18,7 @@ describe('type | Endpoint /v1/config/types', function() {
     .expect('Content-Type', /json/)
     .expect(function(response) {
       const laptopType = response.body[2]; // laptops
-      assert(is.propertyCount(laptopType, 16));
+      assert(is.propertyCount(laptopType, 17));
       assert(is.number(laptopType.id));
       assert(is.string(laptopType.name));
       assert(is.string(laptopType.internalname));

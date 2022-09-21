@@ -45,6 +45,7 @@ class Type extends Model
     'propertygroups',
     'tree',
     'allowtreemultipleroots',
+    'unique_name',
     'created_at',
     'updated_at',
     'deleted_at',
@@ -132,6 +133,11 @@ class Type extends Model
   public function getPropertygroupsAttribute()
   {
     return $this->propertygroups()->get();
+  }
+
+  public function getUniqueNameAttribute($value)
+  {
+    return boolval($value);
   }
 
 

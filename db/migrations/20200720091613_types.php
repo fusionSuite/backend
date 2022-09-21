@@ -45,6 +45,7 @@ final class Types extends AbstractMigration
           ->addColumn('tree', 'boolean', ['default' => false])
           ->addColumn('allowtreemultipleroots', 'boolean', ['default' => false])
           ->addColumn('default_sub_organization', 'boolean', ['default' => false])
+          ->addColumn('unique_name', 'boolean', ['default' => false])
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
