@@ -23,10 +23,13 @@ namespace App\v1\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use stdClass;
+use Illuminate\Database\Capsule\Manager as DB;
 
 final class Item
 {
   use \App\v1\Read;
+
+  protected $exceptionMessageUniqueName = 'The name must be unique and another item has yet this name';
 
   /**
    * @api {get} /v1/items/type/:typeid Get all items with type defined
@@ -572,7 +575,14 @@ final class Item
 
     if (!is_null($data) && property_exists($data, 'name'))
     {
+      $data->name = trim($data->name);
       $item->name = $data->name;
+      DB::transaction(function () use ($item, $data)
+      {
+        // Check if the name exists in case type has option unique_name enabled
+        $this->checkUniqueName($data->name, $item->type_id, $item->id);
+        $item->save();
+      });
     }
     if ($item->trashed())
     {
@@ -1023,6 +1033,7 @@ final class Item
       'sub_organization' => 'type:boolean|boolean'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
+    $data->name = trim($data->name);
     // Checks about tree type
     $type = \App\v1\Models\Config\Type::find($data->type_id);
     if ($type->tree)
@@ -1157,11 +1168,21 @@ final class Item
     while ($loop)
     {
       try {
-        $item->save();
+        DB::transaction(function () use ($item, $data)
+        {
+          // Check if the name exists in case type has option unique_name enabled
+          $this->checkUniqueName($data->name, $data->type_id);
+          $item->save();
+        });
         $loop = false;
       }
       catch (\Exception $e)
       {
+        // case error comme from unique_name and not from id_bytype
+        if ($e->getMessage() == $this->exceptionMessageUniqueName)
+        {
+          throw $e;
+        }
         if ($retries > $max_retries)
         {
           throw $e;
@@ -1459,6 +1480,29 @@ final class Item
     {
       // case Organization and User type cannot be deleted
       throw new \Exception('Cannot delete this item, it is a system item', 403);
+    }
+  }
+
+  /**
+   * check if an item with same name exists in case type is set with unique_name
+   */
+  private function checkUniqueName($name, $typeId, $excludeId = null)
+  {
+    $type = \App\v1\Models\Config\Type::find($typeId);
+    if (!$type->unique_name)
+    {
+      return;
+    }
+    $item = \App\v1\Models\Item::withTrashed()->where('type_id', $typeId)->where('name', $name);
+    if (!is_null($excludeId))
+    {
+      $item->where('id', '!=', $excludeId);
+    }
+    // The sharedlock prevents the selected rows from being modified until the transaction is committed
+    $item->sharedLock();
+    if (!is_null($item->first()))
+    {
+      throw new \Exception($this->exceptionMessageUniqueName, 400);
     }
   }
 }
