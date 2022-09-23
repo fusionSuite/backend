@@ -4,6 +4,7 @@ const assert = require('assert');
 const is = require('is_js');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
+const requestDB = supertest('http://127.0.0.1:8012');
 
 const createItem = (done, withProperty, value = null) => {
   // Special case for list
@@ -550,6 +551,154 @@ const checkItemOkPropertylink = (done, value) => {
     });
 };
 
+const checkItemsOkPassword = (done, value) => {
+  request
+    .get('/v1/items/type/' + global.propertytypesid.toString())
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + global.token)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function (response) {
+      assert(is.not.empty(response.body), 'The body must contain something');
+      assert(is.array(response.body), 'the body response must be an array');
+      const firstElement = response.body[0];
+      assert(is.equal(response.body.length, 1));
+      assert(is.propertyCount(firstElement.properties, 1));
+      for (const prop of firstElement.properties) {
+        if (value === null) {
+          assert(is.null(prop.value), 'the property value must be null');
+        } else {
+          assert(is.string(prop.value), 'the property value must be a string type');
+          assert(is.equal(prop.value, value), 'the property value must be ' + value);
+        }
+      }
+    })
+    .end(function (err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+};
+
+const checkItemOkPassword = (done, value) => {
+  request
+    .get('/v1/items/' + global.itemId)
+    .set('Accept', 'application/json')
+    .set('Authorization', 'Bearer ' + global.token)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function (response) {
+      assert(is.propertyCount(response.body.properties, 1));
+      for (const prop of response.body.properties) {
+        if (value === null) {
+          assert(is.null(prop.value), 'the property value must be null');
+        } else {
+          assert(is.string(prop.value), 'the property value must be a string type');
+          assert(is.equal(prop.value, value), 'the property value must be ' + value);
+        }
+      }
+    })
+    .end(function (err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+};
+
+const checkItemOkPasswordEncryptedDatabase = (done, value) => {
+  requestDB
+    .get('/item_property/itemid/' + global.itemId + '/propertyid/' + global.propertyvaluesid)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function (response) {
+      assert(is.equal(1, response.body.count), 'must have only 1 property');
+      if (value === null) {
+        assert(is.null(response.body.rows[0].value_password), 'the password must be null');
+      } else {
+        assert(is.not.null(response.body.rows[0].value_password), 'the password must not be null');
+        assert(is.not.equal(value, response.body.rows[0].value_password), 'the password must be encrypted into database');
+        assert(is.not.equal('', response.body.rows[0].value_password), 'the password must be encrypted into database and not empty');
+      }
+    })
+    .end(function (err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+};
+
+const checkDefaultPropertyPasswordEncryptedDatabase = (done, value) => {
+  requestDB
+    .get('/property/' + global.propertyvaluesid)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function (response) {
+      assert(is.equal(1, response.body.count), 'must have only 1 property');
+      if (value === null) {
+        assert(is.null(response.body.rows[0].default_password), 'the password must be null');
+      } else {
+        assert(is.not.null(response.body.rows[0].default_password), 'the password must not be null');
+        assert(is.not.equal(value, response.body.rows[0].default_password), 'the default password must be encrypted into database');
+        assert(is.not.equal('', response.body.rows[0].value_password), 'the password must be encrypted into database and not empty');
+      }
+    })
+    .end(function (err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+};
+
+const checkItemOkPasswordHashedDatabase = (done, value) => {
+  requestDB
+    .get('/item_property/itemid/' + global.itemId + '/propertyid/' + global.propertyvaluesid)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function (response) {
+      assert(is.equal(1, response.body.count), 'must have only 1 property');
+      if (value === null) {
+        assert(is.null(response.body.rows[0].value_passwordhash), 'the passwordhash must be null');
+      } else {
+        assert(is.not.null(response.body.rows[0].value_passwordhash), 'the passwordhash must not be null');
+        assert(is.not.equal(value, response.body.rows[0].value_passwordhash), 'the passwordhash must be encrypted into database');
+        assert(is.not.equal('', response.body.rows[0].value_passwordhash), 'the passwordhash must be encrypted into database and not empty');
+      }
+    })
+    .end(function (err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+};
+
+const checkDefaultPropertyPasswordHashedDatabase = (done, value) => {
+  requestDB
+    .get('/property/' + global.propertyvaluesid)
+    .expect(200)
+    .expect('Content-Type', /json/)
+    .expect(function (response) {
+      assert(is.equal(1, response.body.count), 'must have only 1 property');
+      if (value === null) {
+        assert(is.null(response.body.rows[0].default_passwordhash), 'the passwordhash must be null');
+      } else {
+        assert(is.not.null(response.body.rows[0].default_passwordhash), 'the passwordhash must not be null');
+        assert(is.not.equal(value, response.body.rows[0].default_passwordhash), 'the default passwordhash must be encrypted into database');
+        assert(is.not.equal('', response.body.rows[0].default_passwordhash), 'the default passwordhash must be encrypted into database and not empty');
+      }
+    })
+    .end(function (err, response) {
+      if (err) {
+        return done(err + ' | Response: ' + response.text);
+      }
+      return done();
+    });
+};
+
 exports.createItem = createItem;
 exports.updateItem = updateItem;
 exports.updateItemToDefault = updateItemToDefault;
@@ -567,4 +716,10 @@ exports.checkItemOkItemlinks = checkItemOkItemlinks;
 exports.checkItemOkList = checkItemOkList;
 exports.checkItemOkNumber = checkItemOkNumber;
 exports.checkItemOkString = checkItemOkString;
+exports.checkItemOkPassword = checkItemOkPassword;
+exports.checkItemsOkPassword = checkItemsOkPassword;
 exports.checkItemOkPropertylink = checkItemOkPropertylink;
+exports.checkItemOkPasswordEncryptedDatabase = checkItemOkPasswordEncryptedDatabase;
+exports.checkDefaultPropertyPasswordEncryptedDatabase = checkDefaultPropertyPasswordEncryptedDatabase;
+exports.checkItemOkPasswordHashedDatabase = checkItemOkPasswordHashedDatabase;
+exports.checkDefaultPropertyPasswordHashedDatabase = checkDefaultPropertyPasswordHashedDatabase;

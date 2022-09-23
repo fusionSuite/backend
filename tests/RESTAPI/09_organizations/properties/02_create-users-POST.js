@@ -13,6 +13,12 @@ describe('organizations | properties | create users', function () {
         name: 'user1',
         type_id: 2,
         organization_id: global.subOrg1,
+        properties: [
+          {
+            property_id: 5,
+            value: 'test',
+          },
+        ],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
@@ -75,6 +81,12 @@ describe('organizations | properties | create users', function () {
         name: 'user2',
         type_id: 2,
         organization_id: global.subOrg2,
+        properties: [
+          {
+            property_id: 5,
+            value: 'test',
+          },
+        ],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)

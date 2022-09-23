@@ -37,7 +37,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -78,7 +78,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'yarn'
@@ -115,7 +115,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -143,7 +143,7 @@ jobs:
     strategy:
       matrix:
         php-versions: ['8.1', '8.2', 8.3]
-        mariadb-versions: ['10.4', '10.5', '10.6', '10.11']
+        mariadb-versions: ['10.5', '10.6', '10.11', '11.4']
     services:
       mariadb:
         image: mariadb:${{ matrix.mariadb-versions }}
@@ -168,7 +168,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -221,7 +221,7 @@ jobs:
         sudo cp -fr ./ /var/www/
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'yarn'
@@ -262,7 +262,7 @@ jobs:
     strategy:
       matrix:
         php-versions: ['8.1', '8.2', '8.3']
-        pg-versions: ['12', '13', '14', '15']
+        pg-versions: ['13', '14', '15', '16']
 
     steps:
     - uses: actions/checkout@v4
@@ -277,7 +277,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -330,7 +330,7 @@ jobs:
         sudo cp -fr ./ /var/www/
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'yarn'
@@ -384,7 +384,7 @@ jobs:
 
   #   - name: Cache Composer packages
   #     id: composer-cache
-  #     uses: actions/cache@v3
+  #     uses: actions/cache@v4
   #     with:
   #       path: vendor
   #       key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}

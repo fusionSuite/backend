@@ -585,6 +585,12 @@ describe('changes | items | prepare type and properties', function () {
         name: 'user1',
         type_id: 2,
         organization_id: 1,
+        properties: [
+          {
+            property_id: 5,
+            value: 'test',
+          },
+        ],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)

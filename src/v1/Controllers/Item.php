@@ -200,6 +200,24 @@ final class Item
           continue;
         }
 
+        if (in_array($property['id'], [3, 4]))
+        {
+          // it's token refresh of user and jwtid
+          continue;
+        }
+
+        // Not display password in list of many items, for security reasons
+        if ($property['valuetype'] == 'password')
+        {
+          $property['value'] = null;
+        }
+
+        // Not display passwordhash in list of many items, for security reasons
+        if ($property['valuetype'] == 'passwordhash')
+        {
+          $property['value'] = null;
+        }
+
         if (isset($itemProperties[$property['id']]))
         {
           // itemlinks case
@@ -388,6 +406,18 @@ final class Item
       {
         //no view right, so next
         continue;
+      }
+
+      if (in_array($property['id'], [3, 4]))
+      {
+        // it's token refresh of user and jwtid
+        continue;
+      }
+
+      if ($property['valuetype'] == 'passwordhash')
+      {
+        // it's passwordhash, never transmit it
+        $property['value'] = null;
       }
 
       if (isset($itemProperties[$property['id']]))
@@ -706,6 +736,12 @@ final class Item
 
     \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
 
+    // not allow update user jwtid and refresh token here directly
+    if (in_array($args['propertyid'], [3, 4]))
+    {
+      throw new \Exception("No permission on this property", 401);
+    }
+
     $property = \App\v1\Models\Config\Property::with('listvalues')->find($args['propertyid']);
     if (property_exists($data, 'reset_to_default') && $data->reset_to_default)
     {
@@ -742,6 +778,19 @@ final class Item
       elseif ($property->valuetype == 'typelinks' && is_null($property->default))
       {
         $this->updatePropertyOfLinksToNull('type', $args['propertyid'], $item);
+      }
+      elseif ($property->valuetype == 'password' && !is_null($property->default))
+      {
+        $item->properties()->updateExistingPivot(
+          $args['propertyid'],
+          ['value_' . $property->valuetype => $property->default_password]
+        );
+      }
+      elseif ($property->valuetype == 'passwordhash' && !is_null($property->default_passwordhash))
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => $property->default_passwordhash
+        ]);
       }
       else
       {
@@ -792,6 +841,18 @@ final class Item
       elseif ($property->valuetype == 'typelinks' && is_null($data->value))
       {
         $this->updatePropertyOfLinksToNull('type', $args['propertyid'], $item);
+      }
+      elseif ($property->valuetype == 'password')
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => \App\v1\Controllers\Config\Property::encryptMessage($data->value)
+        ]);
+      }
+      elseif ($property->valuetype == 'passwordhash')
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => \App\v1\Controllers\Config\Property::hashMessage($data->value)
+        ]);
       }
       else
       {
@@ -1236,6 +1297,12 @@ final class Item
     {
       foreach ($data->properties as $property)
       {
+        // not set the jwtid and refreshtoken when create user.
+        if (in_array($property->property_id, [3, 4]))
+        {
+          continue;
+        }
+
         $propertiesId[] = $property->property_id;
         $ruleData[$property->property_id] = $property->value;
         $propertyItem = \App\v1\Models\Config\Property::find($property->property_id);
@@ -1266,6 +1333,16 @@ final class Item
         elseif ($propertyItem->valuetype == 'time' && $property->value == '' && !is_null($property->value))
         {
           $item->properties()->attach($property->property_id, [$fieldName => date('H:i:s')]);
+        }
+        elseif ($propertyItem->valuetype == 'password')
+        {
+          $encoded = \App\v1\Controllers\Config\Property::encryptMessage($property->value);
+          $item->properties()->attach($property->property_id, [$fieldName => $encoded]);
+        }
+        elseif ($propertyItem->valuetype == 'passwordhash')
+        {
+          $hashedMessage = \App\v1\Controllers\Config\Property::hashMessage($property->value);
+          $item->properties()->attach($property->property_id, [$fieldName => $hashedMessage]);
         }
         else
         {
@@ -1322,6 +1399,14 @@ final class Item
     elseif ($property->valuetype == 'time' && $property->default == '' && !is_null($property->default))
     {
       $item->properties()->attach($property->id, [$fieldName => date('H:i:s')]);
+    }
+    elseif ($property->valuetype == 'passwordhash')
+    {
+      $item->properties()->attach($property->id, [$fieldName => $property->default_passwordhash]);
+    }
+    elseif ($property->valuetype == 'password' && !is_null($property->default))
+    {
+      $item->properties()->attach($property->id, [$fieldName => $property->default_password]);
     }
     else
     {
@@ -1417,7 +1502,7 @@ final class Item
     {
       $dataFormat['value'] = 'required|type:integer|regex:/^[0-9]+$/';
     }
-    elseif (in_array($property->valuetype, ['string', 'text']))
+    elseif (in_array($property->valuetype, ['string', 'text', 'password', 'passwordhash']))
     {
       $dataFormat['value'] = 'required|type:string';
     }

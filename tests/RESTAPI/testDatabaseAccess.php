@@ -51,6 +51,7 @@ if (count($matches) == 2)
   ];
   $data['count'] = $capsule->table($matches[1][0])->count();
   echo json_encode($data);
+  exit;
 }
 
 preg_match('/\/allowedtypes\/property_id\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
@@ -65,6 +66,7 @@ if (count($matches) == 2)
   $data['count'] = $item->count();
   $data['rows']  = $item->get()->toArray();
   echo json_encode($data);
+  exit;
 }
 
 
@@ -80,6 +82,7 @@ if (count($matches) == 2)
   $data['count'] = $item->count();
   $data['rows']  = $item->get()->toArray();
   echo json_encode($data);
+  exit;
 }
 
 preg_match('/\/menuitemcustom\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
@@ -93,6 +96,7 @@ if (count($matches) == 2)
 
 $data['count'] = $capsule->table('menuitemcustoms')->where('user_id', $matches[1][0])->count();
   echo json_encode($data);
+  exit;
 }
 
 preg_match('/\/typepanels\/typeid\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
@@ -107,6 +111,7 @@ if (count($matches) == 2)
   $data['count'] = $capsule->table('typepanels')->where('type_id', $matches[1][0])->count();
   $data['rows'] = $capsule->table('typepanels')->where('type_id', $matches[1][0])->get()->toArray();
   echo json_encode($data);
+  exit;
 }
 
 preg_match('/\/typepanelitems\/typeid\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
@@ -125,4 +130,33 @@ if (count($matches) == 2)
     $data['rows'] = array_merge($data['rows'], $capsule->table('typepanelitems')->where('typepanel_id', $typepanel->id)->get()->toArray());
   }
   echo json_encode($data);
+  exit;
+}
+
+preg_match('/\/item_property\/itemid\/(\d+)\/propertyid\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
+if (count($matches) == 3)
+{
+  header('Content-Type: application/json; charset=utf-8');
+  $data = [
+    'count' => 0,
+    'rows'  => []
+  ];
+  $data['count'] = $capsule->table('item_property')->where('item_id', $matches[1][0])->where('property_id', $matches[2][0])->count();
+  $data['rows'] = $capsule->table('item_property')->where('item_id', $matches[1][0])->where('property_id', $matches[2][0])->get()->toArray();
+  echo json_encode($data);
+  exit;
+}
+
+preg_match('/\/property\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
+if (count($matches) == 2)
+{
+  header('Content-Type: application/json; charset=utf-8');
+  $data = [
+    'count' => 0,
+    'rows'  => []
+  ];
+  $data['count'] = $capsule->table('properties')->where('id', $matches[1][0])->count();
+  $data['rows'] = $capsule->table('properties')->where('id', $matches[1][0])->get()->toArray();
+  echo json_encode($data);
+  exit;
 }

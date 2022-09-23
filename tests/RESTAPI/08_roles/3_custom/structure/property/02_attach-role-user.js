@@ -12,6 +12,12 @@ describe('roles | custom > structure > property | attach the role to user', func
       .send({
         name: 'user1',
         type_id: 2,
+        properties: [
+          {
+            property_id: 5,
+            value: 'test',
+          },
+        ],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)

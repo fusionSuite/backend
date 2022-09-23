@@ -4,21 +4,13 @@ const assert = require('assert');
 const is = require('is_js');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
+const requestDB = supertest('http://127.0.0.1:8012');
 
-describe('roles | permissionsBetterThanMine | attach the role to user', function () {
-  it('create a user (user1), will be used to test the permissions', function (done) {
+describe('items_users_properties_hidden | Endpoint /v1/items', function () {
+  it('create a new user with refreshtoken', function (done) {
     request
       .post('/v1/items')
-      .send({
-        name: 'user1',
-        type_id: 2,
-        properties: [
-          {
-            property_id: 5,
-            value: 'test',
-          },
-        ],
-      })
+      .send({ name: 'test_user_001', type_id: 2, properties: [{ property_id: 3, value: 'refresh01' }] })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)
@@ -28,7 +20,7 @@ describe('roles | permissionsBetterThanMine | attach the role to user', function
         assert(is.integer(response.body.id));
         assert(is.integer(response.body.id_bytype));
         assert(validator.matches('' + response.body.id, /^\d+$/));
-        global.user1 = response.body.id;
+        global.id = response.body.id;
       })
       .end(function (err, response) {
         if (err) {
@@ -38,32 +30,14 @@ describe('roles | permissionsBetterThanMine | attach the role to user', function
       });
   });
 
-  it('attach user to the role', function (done) {
-    request
-      .post('/v1/config/roles/' + global.roleId + '/user/' + global.user1)
-      .set('Accept', 'application/json')
-      .set('Authorization', 'Bearer ' + global.token)
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function (err, response) {
-        if (err) {
-          return done(err + ' | Response: ' + response.text);
-        }
-        return done();
-      });
-  });
-
-  it('get the role and check if user associated', function (done) {
-    request
-      .get('/v1/config/roles/' + global.roleId)
-      .set('Accept', 'application/json')
-      .set('Authorization', 'Bearer ' + global.token)
+  it('check the refreshtoken not set into database', function (done) {
+    requestDB
+      .get('/item_property/itemid/' + global.id.toString() + '/propertyid/3')
       .expect(200)
       .expect('Content-Type', /json/)
       .expect(function (response) {
-        assert(is.not.empty(response.body));
-        assert(is.array(response.body.users));
-        assert(is.equal('user1', response.body.users[0].name));
+        assert(is.equal(1, response.body.count), 'must have only 1 property');
+        assert(is.equal('', response.body.rows[0].value_string), 'the refreshtoken must be empty into database');
       })
       .end(function (err, response) {
         if (err) {
@@ -73,22 +47,37 @@ describe('roles | permissionsBetterThanMine | attach the role to user', function
       });
   });
 
-  it('get the token for user user1', function (done) {
+  it('create a new user with jwtid property', function (done) {
     request
-      .post('/v1/token')
-      .send({ login: 'user1', password: 'test' })
+      .post('/v1/items')
+      .send({ name: 'test_user_002', type_id: 2, properties: [{ property_id: 4, value: 'token' }] })
       .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
       .expect(200)
       .expect('Content-Type', /json/)
       .expect(function (response) {
-        assert(is.propertyCount(response.body, 3));
+        assert(is.propertyCount(response.body, 2));
+        assert(is.integer(response.body.id));
+        assert(is.integer(response.body.id_bytype));
+        assert(validator.matches('' + response.body.id, /^\d+$/));
+        global.id002 = response.body.id;
+      })
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
 
-        assert(validator.isJWT(response.body.token));
-        assert(validator.matches(response.body.refreshtoken, /^\w+$/));
-
-        assert(is.integer(response.body.expires));
-        assert(validator.matches('' + response.body.expires, /^\d{10}$/));
-        global.tokenUser1 = response.body.token;
+  it('check the jwtid not set into database', function (done) {
+    requestDB
+      .get('/item_property/itemid/' + global.id002.toString() + '/propertyid/4')
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .expect(function (response) {
+        assert(is.equal(1, response.body.count), 'must have only 1 property');
+        assert(is.equal('', response.body.rows[0].value_string), 'the jwtid must be empty into database');
       })
       .end(function (err, response) {
         if (err) {

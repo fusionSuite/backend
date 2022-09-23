@@ -104,6 +104,10 @@ final class FusioninventoryDataModel extends AbstractMigration
     $dataProp = $this->createPropObject('jwtid', 'userjwtid');
     $this->propertiesId['propIdJwtid'] = $property->createProperty($dataProp, $token);
 
+    // Create userpassword
+    $dataProp = $this->createPropObject('User password', 'userpassword', 'passwordhash');
+    $this->propertiesId['propIduserpassword'] = $property->createProperty($dataProp, $token);
+
     // Create active
     $dataProp = $this->createPropObject('activated', 'activated', 'boolean', true);
     $this->propertiesId['propIdActivated'] = $property->createProperty($dataProp, $token);
@@ -362,14 +366,15 @@ final class FusioninventoryDataModel extends AbstractMigration
         (object)[
           'property_id' => $this->propertiesId['propIdLastname'],
           'value'       => 'Rogers'
+        ],
+        (object)[
+          'property_id' => $this->propertiesId['propIduserpassword'],
+          'value'       => 'admin'
         ]
       ]
     ];
     $item = new \App\v1\Controllers\Item();
     $item->createItem($data, $token);
-      // TODO + add password
-      // password_hash('admin', PASSWORD_ARGON2I)
-
 
     // Create Laptop
     $myType = $type->createType((object)[

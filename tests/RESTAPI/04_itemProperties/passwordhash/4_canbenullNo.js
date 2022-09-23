@@ -8,25 +8,32 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 const common = require('../common.js');
 const commonCreateItem = require('../commonCreateItem.js');
 
-describe('itemProperties | string type | null not allowed | create & update items', function () {
+/**
+* /v1/types endpoint
+*/
+describe('itemProperties | passwordhash type | null not allowed | create & update items', function () {
   describe('prepare', function () {
-    it('define the type string', function (done) {
-      common.defineValuetype(done, 'string');
+    it('define the type passwordhash', function (done) {
+      common.defineValuetype(done, 'passwordhash');
     });
 
-    it('create a new type string', function (done) {
-      common.createType(done, 'string');
+    it('create a new type passwordhash', function (done) {
+      common.createType(done, 'passwordhash');
     });
 
     it('create the property', function (done) {
-      common.createProperty(done, 'my default string', false);
+      common.createProperty(done, 'my default passwordhash', false);
     });
 
-    it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, 'my default string');
+    it('Get the property to check value is null', function (done) {
+      common.checkProperty(done, null);
     });
 
-    it('Attach a property to the type string', function (done) {
+    it('Check if default passwordhash is right defined into database', function (done) {
+      commonCreateItem.checkDefaultPropertyPasswordHashedDatabase(done, 'my default passwordhash');
+    });
+
+    it('Attach a property to the type passwordhash', function (done) {
       common.attachPropertyToType(done);
     });
   });
@@ -43,8 +50,16 @@ describe('itemProperties | string type | null not allowed | create & update item
       commonCreateItem.createItem(done, true, 'test');
     });
 
-    it('Get the item to check value is good', function (done) {
-      commonCreateItem.checkItemOkString(done, 'test');
+    it('Get the item to check value is null when get all items of the type', function (done) {
+      commonCreateItem.checkItemsOkPassword(done, null);
+    });
+
+    it('Get the item to check value is null when get only the item', function (done) {
+      commonCreateItem.checkItemOkPassword(done, null);
+    });
+
+    it('Check if password is right hashed into database', function (done) {
+      commonCreateItem.checkItemOkPasswordHashedDatabase(done, 'test');
     });
 
     it('try udpate item with null value => error', function (done) {
@@ -58,14 +73,14 @@ describe('itemProperties | string type | null not allowed | create & update item
         .post('/v1/config/properties')
         .send(
           {
-            name: 'Test for string',
-            internalname: 'testforstring',
-            valuetype: 'string',
+            name: 'Test for passwordhash',
+            internalname: 'testforpasswordhash',
+            valuetype: 'passwordhash',
             regexformat: '',
             listvalues: [],
             unit: '',
             default: null,
-            description: 'Test of the type string',
+            description: 'Test of the type passwordhash',
             canbenull: false,
           })
         .set('Accept', 'application/json')
@@ -95,11 +110,11 @@ describe('itemProperties | string type | null not allowed | create & update item
       common.deleteItem(done);
     });
 
-    it('Soft delete the type: test string', function (done) {
+    it('Soft delete the type: test passwordhash', function (done) {
       common.deleteType(done);
     });
 
-    it('Hard delete the type: test string', function (done) {
+    it('Hard delete the type: test passwordhash', function (done) {
       common.deleteType(done);
     });
 
