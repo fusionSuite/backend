@@ -47,7 +47,7 @@
             {
               "name": "password",
               "internalname": "password",
-              "valuetype": "string",
+              "valuetype": "password",
               "regexformat": "",
               "listvalues": [],
               "unit": "",

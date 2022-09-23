@@ -64,8 +64,7 @@ if (strstr($_SERVER['REQUEST_URI'], '/ping'))
 }
 
 $configSecret = include(__DIR__ . '/../config/current/config.php');
-// $secret = "123456789helo_secret";
-$secret = $configSecret['jwtsecret'];
+$secret = sodium_base642bin($configSecret['jwtsecret'], SODIUM_BASE64_VARIANT_ORIGINAL);
 
 $app->add(new Tuupola\Middleware\JwtAuthentication([
   "ignore" => [$prefix . "/v1/token", $prefix . "/ping", $prefix . "/v1/fusioninventory", $prefix . "/v1/status"],

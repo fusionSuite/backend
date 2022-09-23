@@ -174,6 +174,14 @@ class Property extends Model
       {
         return floatval($this->pivot->value_decimal);
       }
+      elseif ($this->valuetype == 'passwordhash')
+      {
+        return null;
+      }
+      elseif ($this->valuetype == 'password' && !is_null($this->pivot->{'value_' . $this->valuetype}))
+      {
+        return \App\v1\Controllers\Config\Property::decryptMessage($this->pivot->{'value_' . $this->valuetype});
+      }
       return $this->pivot->{'value_' . $this->valuetype};
     }
     return null;

@@ -772,6 +772,13 @@ final class Item
           'value_typelink' => null
         ]);
       }
+      elseif ($property->valuetype == 'password' && !is_null($property->default))
+      {
+        $item->properties()->updateExistingPivot(
+          $args['propertyid'], 
+          ['value_' . $property->valuetype => \App\v1\Controllers\Config\Property::encryptMessage($property->default)]
+        );
+      }
       else
       {
         $item->properties()->updateExistingPivot($args['propertyid'], [
@@ -848,6 +855,12 @@ final class Item
         }
         $item->properties()->updateExistingPivot($args['propertyid'], [
           'value_typelink' => null
+        ]);
+      }
+      elseif ($property->valuetype == 'password')
+      {
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_' . $property->valuetype => \App\v1\Controllers\Config\Property::encryptMessage($data->value)
         ]);
       }
       else
@@ -1228,6 +1241,16 @@ final class Item
         {
           $item->properties()->attach($property->property_id, [$fieldName => date('H:i:s')]);
         }
+        elseif ($propertyItem->valuetype == 'password')
+        {
+          $encoded = \App\v1\Controllers\Config\Property::encryptMessage($property->value);
+          $item->properties()->attach($property->property_id, [$fieldName => $encoded]);
+        }
+        elseif ($propertyItem->valuetype == 'passwordhash')
+        {
+          $hashedMessage = \App\v1\Controllers\Config\Property::hashMessage($property->value);
+          $item->properties()->attach($property->property_id, [$fieldName => $hashedMessage]);
+        }
         else
         {
           $item->properties()->attach($property->property_id, [$fieldName => $property->value]);
@@ -1266,6 +1289,17 @@ final class Item
       elseif ($prop->valuetype == 'time' && $prop->default == '' && !is_null($prop->default))
       {
         $item->properties()->attach($prop->id, [$fieldName => date('H:i:s')]);
+      }
+      elseif ($prop->valuetype == 'passwordhash')
+      {
+        $item->properties()->attach($prop->id, [$fieldName => null]);
+      }
+      elseif ($prop->valuetype == 'password' && !is_null($prop->default))
+      {
+        $item->properties()->attach(
+          $prop->id,
+          [$fieldName => \App\v1\Controllers\Config\Property::encryptMessage($prop->default)]
+        );
       }
       else
       {
@@ -1343,7 +1377,7 @@ final class Item
     {
       $dataFormat['value'] = 'required|type:integer|regex:/^[0-9]+$/';
     }
-    elseif (in_array($property->valuetype, ['string', 'text']))
+    elseif (in_array($property->valuetype, ['string', 'text', 'password', 'passwordhash']))
     {
       $dataFormat['value'] = 'required|type:string';
     }

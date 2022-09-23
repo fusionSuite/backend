@@ -202,7 +202,14 @@ class EnvironmentCreate extends Command
     $content = "<?php\n" .
     "return\n" .
     "[\n" .
-    "  'jwtsecret' => '" . addslashes(random_bytes(64)) . "'\n" .
+    "  'jwtsecret' => '" . sodium_bin2base64(
+      random_bytes(64),
+      SODIUM_BASE64_VARIANT_ORIGINAL
+    ) . "',\n" .
+    "  'pwdsecret' => '" . sodium_bin2base64(
+      random_bytes(SODIUM_CRYPTO_SECRETBOX_KEYBYTES),
+      SODIUM_BASE64_VARIANT_ORIGINAL
+    ) . "'\n" .
     "];\n" .
     "\n";
     file_put_contents($dirName . '/config.php', $content);

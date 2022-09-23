@@ -861,7 +861,7 @@ final class Type
                 'name'        => 'required|type:string',
                 'internalname' => 'type:string|regex:/^[a-z.]+$/',
                 'valuetype'   => 'required|in:boolean,date,datetime,decimal,integer,itemlink,itemlinks,list,number,' .
-                                 'propertylink,string,text,time,typelink,typelinks|type:string',
+                                 'propertylink,string,text,time,typelink,typelinks,passwordhash,password|type:string',
                 'regexformat' => 'present|type:string',
                 'listvalues'  => 'present|type:array',
                 'unit'        => 'type:string',
