@@ -48,7 +48,7 @@ describe('itemSearch | search | property | propertylink', function () {
 
   it('property in `[xx, yy]`', function (done) {
     request
-      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.propertylink + '_in=1,6')
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.propertylink + '_in=1,7')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)
@@ -230,7 +230,7 @@ describe('itemSearch | search | property | propertylink', function () {
 
   it('property not `first name` and not `address`', function (done) {
     request
-      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.propertylink + '_not[]=1&property' + global.properties.propertylink + '_not[]=6')
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.propertylink + '_not[]=1&property' + global.properties.propertylink + '_not[]=7')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)

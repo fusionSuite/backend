@@ -8,25 +8,28 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 const common = require('../common.js');
 const commonCreateItem = require('../commonCreateItem.js');
 
-describe('itemProperties | string type | null not allowed | create & update items', function () {
+/**
+* /v1/types endpoint
+*/
+describe('itemProperties | password type | null not allowed | create & update items', function () {
   describe('prepare', function () {
-    it('define the type string', function (done) {
-      common.defineValuetype(done, 'string');
+    it('define the type password', function (done) {
+      common.defineValuetype(done, 'password');
     });
 
-    it('create a new type string', function (done) {
-      common.createType(done, 'string');
+    it('create a new type password', function (done) {
+      common.createType(done, 'password');
     });
 
     it('create the property', function (done) {
-      common.createProperty(done, 'my default string', false);
+      common.createProperty(done, 'my default password', false);
     });
 
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, 'my default string');
+      common.checkProperty(done, 'my default password');
     });
 
-    it('Attach a property to the type string', function (done) {
+    it('Attach a property to the type password', function (done) {
       common.attachPropertyToType(done);
     });
   });
@@ -43,8 +46,12 @@ describe('itemProperties | string type | null not allowed | create & update item
       commonCreateItem.createItem(done, true, 'test');
     });
 
-    it('Get the item to check value is good', function (done) {
-      commonCreateItem.checkItemOkString(done, 'test');
+    it('Get the item to check value is null when get all items of the type', function (done) {
+      commonCreateItem.checkItemsOkPassword(done, null);
+    });
+
+    it('Get the item to check value is `test` when get only the item', function (done) {
+      commonCreateItem.checkItemOkPassword(done, 'test');
     });
 
     it('try udpate item with null value => error', function (done) {
@@ -58,14 +65,14 @@ describe('itemProperties | string type | null not allowed | create & update item
         .post('/v1/config/properties')
         .send(
           {
-            name: 'Test for string',
-            internalname: 'testforstring',
-            valuetype: 'string',
+            name: 'Test for password',
+            internalname: 'testforpassword',
+            valuetype: 'password',
             regexformat: '',
             listvalues: [],
             unit: '',
             default: null,
-            description: 'Test of the type string',
+            description: 'Test of the type password',
             canbenull: false,
           })
         .set('Accept', 'application/json')
@@ -95,11 +102,11 @@ describe('itemProperties | string type | null not allowed | create & update item
       common.deleteItem(done);
     });
 
-    it('Soft delete the type: test string', function (done) {
+    it('Soft delete the type: test password', function (done) {
       common.deleteType(done);
     });
 
-    it('Hard delete the type: test string', function (done) {
+    it('Hard delete the type: test password', function (done) {
       common.deleteType(done);
     });
 

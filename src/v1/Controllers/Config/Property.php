@@ -1291,6 +1291,14 @@ final class Property
           $properties['default_' . $properties['valuetype']] = 0;
         }
       }
+      if ($properties['valuetype'] == 'password')
+      {
+        $properties['default_' . $properties['valuetype']] = $this->encryptMessage($data->default);
+      }
+      if ($properties['valuetype'] == 'passwordhash')
+      {
+        $properties['default_' . $properties['valuetype']] = $this->hashMessage($data->default);
+      }
     }
     if (\App\v1\Post::postHasProperties($data, ['description']) === true)
     {
@@ -1410,5 +1418,54 @@ final class Property
       'organization',
       'sub_organization'
     ];
+  }
+
+  public static function encryptMessage($message)
+  {
+    if (is_null($message) || empty($message))
+    {
+      return null;
+    }
+    $key = self::getBinPwdsecretFromConfig();
+    $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+    $encrypted_result = sodium_crypto_secretbox($message, $nonce, $key);
+    return sodium_bin2base64($nonce, SODIUM_BASE64_VARIANT_ORIGINAL) . '.' .
+      sodium_bin2base64($encrypted_result, SODIUM_BASE64_VARIANT_URLSAFE);
+  }
+
+  public static function decryptMessage($encodedMessage)
+  {
+    if (is_null($encodedMessage))
+    {
+      return null;
+    }
+    $key = self::getBinPwdsecretFromConfig();
+    $keys = explode('.', $encodedMessage);
+    $nonce = sodium_base642bin($keys[0], SODIUM_BASE64_VARIANT_ORIGINAL);
+    $encrypted_result = sodium_base642bin($keys[1], SODIUM_BASE64_VARIANT_URLSAFE);
+    return sodium_crypto_secretbox_open($encrypted_result, $nonce, $key);
+  }
+
+  public static function hashMessage($message)
+  {
+    if (is_null($message) || $message == "")
+    {
+      return null;
+    }
+    return sodium_crypto_pwhash_str(
+      $message,
+      SODIUM_CRYPTO_PWHASH_OPSLIMIT_INTERACTIVE,
+      SODIUM_CRYPTO_PWHASH_MEMLIMIT_INTERACTIVE
+    );
+  }
+
+  protected static function getBinPwdsecretFromConfig()
+  {
+    $configSecret = include(__DIR__ . '/../../../../config/current/config.php');
+    if (!isset($configSecret['pwdsecret']))
+    {
+      throw new \Exception("The environment configuration of the backend is not right", 400);
+    }
+    return sodium_base642bin($configSecret['pwdsecret'], SODIUM_BASE64_VARIANT_ORIGINAL);
   }
 }

@@ -5,8 +5,8 @@ const is = require('is_js');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
-describe('roles | permissionsBetterThanMine | attach the role to user', function () {
-  it('create a user (user1), will be used to test the permissions', function (done) {
+describe('password user login | create user with password', function () {
+  it('create a user', function (done) {
     request
       .post('/v1/items')
       .send({
@@ -15,7 +15,7 @@ describe('roles | permissionsBetterThanMine | attach the role to user', function
         properties: [
           {
             property_id: 5,
-            value: 'test',
+            value: 'test my password',
           },
         ],
       })
@@ -38,32 +38,16 @@ describe('roles | permissionsBetterThanMine | attach the role to user', function
       });
   });
 
-  it('attach user to the role', function (done) {
+  it('check if the user is created', function (done) {
     request
-      .post('/v1/config/roles/' + global.roleId + '/user/' + global.user1)
-      .set('Accept', 'application/json')
-      .set('Authorization', 'Bearer ' + global.token)
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function (err, response) {
-        if (err) {
-          return done(err + ' | Response: ' + response.text);
-        }
-        return done();
-      });
-  });
-
-  it('get the role and check if user associated', function (done) {
-    request
-      .get('/v1/config/roles/' + global.roleId)
+      .get('/v1/items/' + global.user1)
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)
       .expect('Content-Type', /json/)
       .expect(function (response) {
         assert(is.not.empty(response.body));
-        assert(is.array(response.body.users));
-        assert(is.equal('user1', response.body.users[0].name));
+        assert(is.equal('user1', response.body.name));
       })
       .end(function (err, response) {
         if (err) {
@@ -73,23 +57,13 @@ describe('roles | permissionsBetterThanMine | attach the role to user', function
       });
   });
 
-  it('get the token for user user1', function (done) {
+  it('attach user1 to the admin role', function (done) {
     request
-      .post('/v1/token')
-      .send({ login: 'user1', password: 'test' })
+      .post('/v1/config/roles/1/user/' + global.user1)
       .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
       .expect(200)
       .expect('Content-Type', /json/)
-      .expect(function (response) {
-        assert(is.propertyCount(response.body, 3));
-
-        assert(validator.isJWT(response.body.token));
-        assert(validator.matches(response.body.refreshtoken, /^\w+$/));
-
-        assert(is.integer(response.body.expires));
-        assert(validator.matches('' + response.body.expires, /^\d{10}$/));
-        global.tokenUser1 = response.body.token;
-      })
       .end(function (err, response) {
         if (err) {
           return done(err + ' | Response: ' + response.text);

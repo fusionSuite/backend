@@ -13,6 +13,12 @@ describe('organizations | items | create users', function () {
         name: 'user1',
         type_id: 2,
         organization_id: global.subOrg1,
+        properties: [
+          {
+            property_id: 5,
+            value: 'test',
+          },
+        ],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
@@ -33,14 +39,29 @@ describe('organizations | items | create users', function () {
           .expect(200)
           .expect('Content-Type', /json/)
           .expect(function (response) {
-            assert(is.not.empty(response.body));
-            assert(is.equal('user1', response.body.name));
-            assert(is.equal(global.subOrg1, response.body.organization.id));
-          })
-          .end(function (err, response) {
-            if (err) {
-              return done(err + ' | Response: ' + response.text);
-            }
+            assert(is.propertyCount(response.body, 2));
+            assert(is.integer(response.body.id));
+            assert(is.integer(response.body.id_bytype));
+            assert(validator.matches('' + response.body.id, /^\d+$/));
+            global.user1 = response.body.id;
+
+            // Test get it
+            request
+              .get('/v1/items/' + global.user1)
+              .set('Accept', 'application/json')
+              .set('Authorization', 'Bearer ' + global.token)
+              .expect(200)
+              .expect('Content-Type', /json/)
+              .expect(function (response) {
+                assert(is.not.empty(response.body));
+                assert(is.equal('user1', response.body.name));
+                assert(is.equal(global.subOrg1, response.body.organization.id));
+              })
+              .end(function (err, response) {
+                if (err) {
+                  return done(err + ' | Response: ' + response.text);
+                }
+              });
           });
       })
       .end(function (err, response) {
@@ -73,6 +94,12 @@ describe('organizations | items | create users', function () {
         name: 'user2',
         type_id: 2,
         organization_id: global.subOrg2,
+        properties: [
+          {
+            property_id: 5,
+            value: 'test',
+          },
+        ],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)

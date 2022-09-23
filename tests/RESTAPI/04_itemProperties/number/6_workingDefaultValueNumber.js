@@ -26,7 +26,7 @@ describe('itemProperties | number type | working set | default value number', fu
 
   describe('item, create: no property', function () {
     it('create a new item', function (done) {
-      commonCreateItem.createItem(done, false, 5);
+      commonCreateItem.createItem(done, false);
     });
 
     it('Get the item to check value is good', function (done) {

@@ -12,6 +12,12 @@ describe('roles | custom > data | attach the role to user', function () {
       .send({
         name: 'user1',
         type_id: 2,
+        properties: [
+          {
+            property_id: 5,
+            value: 'test',
+          },
+        ],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)

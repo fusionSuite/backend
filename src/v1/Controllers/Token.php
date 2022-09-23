@@ -96,27 +96,27 @@ final class Token
         throw new \Exception('Error when authentication, login or password not right', 401);
       }
       // check if user account is activated
+      $hashPassword = '';
       foreach ($user->properties()->get() as $property)
       {
         if ($property->internalname == 'activated' && !$property->value)
         {
           throw new \Exception('Error when authentication, account not activated', 403);
         }
+        elseif ($property->internalname == 'userpassword')
+        {
+          $hashPassword = $property->pivot->value_passwordhash;
+        }
       }
-      // TODO check password in property (need manage properties with password)
 
-      // $user = \App\v1\Models\User::where([['login', $data->login]])->get()->makeHidden(
-      //   \App\v1\Common::getFieldsToHide($model->getVisible(), ['id', 'login', 'password',
-      //   'jwtid', 'refreshtoken', 'firstname', 'lastname', 'displayname']))
-      //   ->makeVisible(["password", "jwtid"])->toArray();
-      // if (count($user) == 0)
-      // {
-      //   throw new \Exception('Error when authentication, login or password not right', 401);
-      // }
-      // else if (password_verify($data->password, $user[0]['password']) === false)
-      // {
-      //   throw new \Exception('Error when authentication, login or password not right', 401);
-      // }
+      if ($hashPassword == '')
+      {
+        throw new \Exception('Error when authentication, login or password not right', 401);
+      }
+      if (!sodium_crypto_pwhash_str_verify($hashPassword, $data->password))
+      {
+        throw new \Exception('Error when authentication, login or password not right', 401);
+      }
     }
     else
     {
@@ -186,7 +186,7 @@ final class Token
     $GLOBALS['user_id'] = null;
 
     $configSecret = include(__DIR__ . '/../../../config/current/config.php');
-    $secret = $configSecret['jwtsecret'];
+    $secret = sodium_base642bin($configSecret['jwtsecret'], SODIUM_BASE64_VARIANT_ORIGINAL);
 
     $dataFormat = [
       'token'            => 'required|type:string',
@@ -302,7 +302,7 @@ final class Token
       'sub_organization' => true
     ];
     $configSecret = include(__DIR__ . '/../../../config/current/config.php');
-    $secret = $configSecret['jwtsecret'];
+    $secret = sodium_base642bin($configSecret['jwtsecret'], SODIUM_BASE64_VARIANT_ORIGINAL);
     $token = JWT::encode($payload, $secret, "HS256");
     $responseData = [
       "token"        => $token,
