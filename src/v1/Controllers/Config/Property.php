@@ -1043,7 +1043,7 @@ final class Property
     );
   }
 
-  private function getBinPwdsecretFromConfig()
+  protected static function getBinPwdsecretFromConfig()
   {
     $configSecret = include(__DIR__ . '/../../../../config/current/config.php');
     if (!isset($configSecret['pwdsecret']))

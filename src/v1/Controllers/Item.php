@@ -775,7 +775,7 @@ final class Item
       elseif ($property->valuetype == 'password' && !is_null($property->default))
       {
         $item->properties()->updateExistingPivot(
-          $args['propertyid'], 
+          $args['propertyid'],
           ['value_' . $property->valuetype => \App\v1\Controllers\Config\Property::encryptMessage($property->default)]
         );
       }
