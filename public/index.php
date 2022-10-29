@@ -68,7 +68,13 @@ $configSecret = include(__DIR__ . '/../config/current/config.php');
 $secret = $configSecret['jwtsecret'];
 
 $app->add(new Tuupola\Middleware\JwtAuthentication([
-  "ignore" => [$prefix . "/v1/token", $prefix . "/ping", $prefix . "/v1/fusioninventory", $prefix . "/v1/status"],
+  "ignore" => [
+    $prefix . "/v1/token",
+    $prefix . "/v1/refreshtoken",
+    $prefix . "/ping",
+    $prefix . "/v1/fusioninventory",
+    $prefix . "/v1/status"
+  ],
   "secure" => false,
   "secret" => $secret,
   // "callback" => function ($request, $response, $arguments) use ($container) { ???
@@ -121,7 +127,17 @@ $customErrorHandler = function (
   }
   elseif ($exception->getCode() > 0)
   {
-    if (strstr($request->getUri()->getPath(), 'token'))
+    if (strstr($request->getUri()->getPath(), 'refreshtoken'))
+    {
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'CONNECTION',
+        'fail on refreshtoken',
+        'User',
+        null,
+        $exception->getCode()
+      );
+    } elseif (strstr($request->getUri()->getPath(), 'token'))
     {
       $data = json_decode($request->getBody());
       \App\v1\Controllers\Log\Audit::addEntry(
