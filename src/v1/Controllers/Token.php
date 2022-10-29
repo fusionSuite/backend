@@ -34,10 +34,8 @@ final class Token
    * @apiGroup Authentication
    * @apiVersion 1.0.0-draft
    *
-   * @apiParam (Request body - login)   {String} login         The username to login.
-   * @apiParam (Request body - login)   {String} password      The password of the login.
-   * @apiParam (Request body - refresh) {String} refreshtoken  The token (refresh_token) sent previously when you
-   *                                                           post in this endpoint to get the token.
+   * @apiParam {String} login         The username to login.
+   * @apiParam {String} password      The password of the login.
    *
    * @apiParamExample {json} Request-Example:
    * {
@@ -68,7 +66,6 @@ final class Token
    * }
    *
    * @apiError (Error 401) LoginError The authentication can't be processed because login or password invalid.
-   * @apiError (Error 401) LoginErrorrefresh The authentication can't be processed because refresh_token invalid.
    *
    * @apiErrorExample (Error 401) Error-Response:
    * HTTP/1.1 401 Unauthorized
@@ -80,25 +77,9 @@ final class Token
    */
   public function postToken(Request $request, Response $response, $args): Response
   {
-    /* Here generate and return JWT to the client. */
     $data = json_decode($request->getBody());
 
-    if (\App\v1\Post::postHasProperties($data, ['refresh_token']) === true)
-    {
-      if ($data->refresh_token == '' || is_null($data->refresh_token))
-      {
-        throw new \Exception('Error when authentication, refresh_token not right', 401);
-      }
-
-      // Verify the token
-      // TODO
-      // $user = \App\v1\Models\User::where([['refreshtoken', $data->refresh_token]])->get()->toArray();
-      // if (count($user) == 0)
-      // {
-      //   throw new \Exception('Error when authentication, refresh_token not right', 401);
-      // }
-    }
-    elseif (
+    if (
         \App\v1\Post::postHasProperties($data, ['login']) === true
         && \App\v1\Post::postHasProperties($data, ['password']) === true
         && trim($data->login !== '')
@@ -139,6 +120,137 @@ final class Token
         throw new \Exception('Missing request body, check the documentation', 400);
     }
 
+    $responseData = $this->generateJWTToken($user);
+    $GLOBALS['user_id'] = $user->id;
+
+    \App\v1\Controllers\Log\Audit::addEntry($request, 'CONNECTION', '', 'User', $user->id);
+
+    $response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES));
+    return $response->withHeader("Content-Type", "application/json");
+  }
+
+  /**
+   * @api {post} /v1/refreshtoken Request a JWT token for authentication with refreshtoken
+   * @apiName PostRefreshToken
+   * @apiGroup Authentication
+   * @apiVersion 1.0.0-draft
+   *
+   * @apiParam {String} token         The JWT token.
+   * @apiParam {String} refreshtoken  The token (refreshtoken) sent previously when you
+   *                                  post in the endpoint /v1/token to get the token.
+   *
+   * @apiParamExample {json} Request-Example:
+   * {
+   *   "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NjcwMjkxMzksImV4cCI6MTY2NzE0OTEzOSwianRpIjoiIiwic3ViIjoiIiwic2NvcGUiOltdLCJ1c2VyX2lkIjoyLCJyb2xlX2lkIjoxLCJmaXJzdG5hbWUiOiJTdGV2ZSIsImxhc3RuYW1lIjoiUm9nZXJzIiwiYXBpdmVyc2lvbiI6InYxIiwib3JnYW5pemF0aW9uX2lkIjoxLCJzdWJfb3JnYW5pemF0aW9uIjp0cnVlfQ.E_Vrb4n-Yr_37mBUGVvTQ7rUAAYhTG_V2CZOsuI",
+   *   "refreshtoken": "3laDvs4PSTJ4tYkm3PuR5q"
+   * }
+   *
+   * @apiSuccess {String}  token         The token string.
+   * @apiSuccess {String}  refreshtoken  The token string can be used to refresh / regenerate a new token when this
+   *                                     token expire.
+   * @apiSuccess {Integer} expires       The expiration timestamp.
+   *
+   * @apiSuccessExample Success-Response:
+   * HTTP/1.1 200 OK
+   * {
+   *   "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1ODMxMzQ0NzIsImV4cCI6MTU4MzIyMDg3MiwianRpIjoiNE5odXg0RWY5WmdEVk9FVXRDNFg2ViIsInN1YiI6IiIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSIsImRlbGV0ZSJdfQ.m4qf3e9M3Nwrl5A3wCrZ2l84HO1wB3d4oJr_1ZekYVk",
+   *   "refreshtoken": "zE6vnZIyeWubw1X1toEbZ2yErdK9f5oYbcuFxzSf",
+   *   "expires": 1583220872
+   * }
+   *
+   * @apiError (Error 400) DataNotConform The data sent are not conform.
+   *
+   * @apiErrorExample (Error 400) Error-Response:
+   * HTTP/1.1 400 Bad Request
+   * {
+   *   "status": "error",
+   *   "message": "Missing request body, check the documentation"
+   * }
+   *
+   * @apiError (Error 401) LoginError The token is invalid.
+   * @apiError (Error 401) LoginErrorrefresh The authentication can't be processed because refreshtoken invalid.
+   *
+   * @apiErrorExample (Error 401) Error-Response:
+   * HTTP/1.1 401 Unauthorized
+   * {
+   *   "status": "error",
+   *   "message": "Error when authentication, The token is invalid"
+   * }
+   *
+   */
+  public function postRefreshToken(Request $request, Response $response, $args): Response
+  {
+    $data = json_decode($request->getBody());
+    $GLOBALS['user_id'] = null;
+
+    $configSecret = include(__DIR__ . '/../../../config/current/config.php');
+    $secret = $configSecret['jwtsecret'];
+
+    $dataFormat = [
+      'token'            => 'required|type:string',
+      'refreshtoken'     => 'required|type:string'
+    ];
+    \App\v1\Common::validateData($data, $dataFormat);
+
+    if ($data->refreshtoken == '' || is_null($data->refreshtoken))
+    {
+      throw new \Exception('Error when authentication, refreshtoken not right', 401);
+    }
+
+    // we check the validity of the token (JWT)
+    try {
+      $decoded = JWT::decode(
+        $data->token,
+        $secret,
+        ['HS256']
+      );
+    } catch (\Exception $exception) {
+      // we only want have the encryption and the data OK, no need to validate the time
+      if ($exception->getMessage() != 'Expired token')
+      {
+        throw $exception;
+      }
+    }
+    // decode the paylod
+    $tks = \explode('.', $data->token);
+    $payload = JWT::jsonDecode(JWT::urlsafeB64Decode($tks[1]));
+
+    // Verify the token
+    $user = \App\v1\Models\Item::find($payload->user_id);
+    if (is_null($user))
+    {
+      throw new \Exception('Error when authentication, account not found', 401);
+    }
+    $refreshtokenPropId = $user->getPropertyAttribute('userrefreshtoken', 'id');
+    if (is_null($refreshtokenPropId))
+    {
+      throw new \Exception('The database is corrupted', 500);
+    }
+    foreach ($user->properties()->get() as $property)
+    {
+      if ($property->internalname == 'activated' && !$property->value)
+      {
+        throw new \Exception('Error when authentication, account not activated', 403);
+      }
+
+      if ($property->id == $refreshtokenPropId && $data->refreshtoken != $property->value)
+      {
+        throw new \Exception('Error when authentication, refreshtoken not right', 401);
+      }
+    }
+
+    $GLOBALS['user_id'] = $user->id;
+
+    $responseData = $this->generateJWTToken($user);
+
+    \App\v1\Controllers\Log\Audit::addEntry($request, 'CONNECTION', 'refresh token', 'User', $user->id);
+
+    $response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES));
+    return $response->withHeader("Content-Type", "application/json");
+  }
+
+  private function generateJWTToken(\App\v1\Models\Item $user)
+  {
     $firstName = $user->getPropertyAttribute('userfirstname');
     $lastName = $user->getPropertyAttribute('userlastname');
     $jwtid = $user->getPropertyAttribute('userjwtid');
@@ -153,7 +265,7 @@ final class Token
     $refreshtoken = $this->generateToken();
     $user->properties()->updateExistingPivot($refreshtokenPropId, ['value_string' => $refreshtoken]);
 
-    // the jwtid (jit), used to revoke the jwt by server (for example when change rights, disable user...)
+    // the jwtid (jit), used to revoke the JWT by server (for example when change rights, disable user...)
     if (is_null($jwtid)) {
       $jti = $this->generateToken();
       $user->properties()->updateExistingPivot($jwtidId, ['value_string' => $jti]);
@@ -195,11 +307,7 @@ final class Token
       "refreshtoken" => $refreshtoken,
       "expires"      => $future->getTimeStamp()
     ];
-    $GLOBALS['user_id'] = $user->id;
-    \App\v1\Controllers\Log\Audit::addEntry($request, 'CONNECTION', '', 'User', $user->id);
-
-    $response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES));
-    return $response->withHeader("Content-Type", "application/json");
+    return $responseData;
   }
 
   // get rights of this user.
