@@ -78,7 +78,7 @@ final class Token
   public function postToken(Request $request, Response $response, $args): Response
   {
     $data = json_decode($request->getBody());
-
+    $GLOBALS['user_id'] = null;
     if (
         \App\v1\Post::postHasProperties($data, ['login']) === true
         && \App\v1\Post::postHasProperties($data, ['password']) === true
