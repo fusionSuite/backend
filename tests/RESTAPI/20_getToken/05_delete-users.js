@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
-describe('refresh token | delete users', function() {
+describe('get token | delete users', function() {
 
   it('Soft delete the user1', function(done) {
     request
