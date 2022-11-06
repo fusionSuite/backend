@@ -872,27 +872,137 @@ final class Item
     return $response->withHeader('Content-Type', 'application/json');
   }
 
+  /**
+   * @api {post} /v1/items/:id/property/:propertyid/itemlinks Add an itemlink
+   * @apiName PostItemPropertyItemlink
+   * @apiGroup Items
+   * @apiVersion 1.0.0-draft
+   *
+   * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id         Unique ID of the item.
+   * @apiParam {Number}    propertyid Unique ID of the property.
+   *
+   * @apiSuccess {Number}  value      Unique ID of the type.
+   *
+   * @apiParamExample {json} Request-Example:
+   * {
+   *   "value": 3
+   * }
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   *
+   */
   public function postPropertyItemlink(Request $request, Response $response, $args): Response
   {
     $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
+
+    $item = \App\v1\Models\Item::find($args['id']);
+    if (is_null($item))
+    {
+      throw new \Exception("The item has not be found", 404);
+    }
+
+    \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
+
     $this->checkProperty($args['propertyid'], 'itemlinks');
+
+    $dataFormat = [
+      'value' => 'required|type:integer|regex:/^[0-9]+$/'
+    ];
+    \App\v1\Common::validateData($data, $dataFormat);
+
+    $itemlink = \App\v1\Models\Item::find($data->value);
+    if (is_null($itemlink))
+    {
+      throw new \Exception('The Value is an id than does not exist', 400);
+    }
+
+    $item->properties()->attach($args['propertyid'], [
+      'value_itemlink' => $data->value
+    ]);
+
+    \App\v1\Controllers\Log\Audit::addEntry(
+      $request,
+      'UPDATE',
+      'update a property',
+      'Item',
+      $item->id
+    );
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
 
+  /**
+   * @api {delete} /v1/items/:id/property/:propertyid/itemlinks/:typelinkid Delete an itemlink
+   * @apiName DeleteItemPropertyItemlink
+   * @apiGroup Items
+   * @apiVersion 1.0.0-draft
+   * @apiDescription Delete an itemlink in a property
+   *
+   * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id         Unique ID of the item.
+   * @apiParam {Number}    propertyid Unique ID of the property.
+   * @apiParam {Number}    itemlinkid Unique ID of the itemlink.
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   *
+   */
   public function deletePropertyItemlink(Request $request, Response $response, $args): Response
   {
     $token = (object)$request->getAttribute('token');
-    $data = json_decode($request->getBody());
-    $this->checkProperty($args['propertyid']);
+
+    $item = \App\v1\Models\Item::find($args['id']);
+    if (is_null($item))
+    {
+      throw new \Exception("The item has not be found", 404);
+    }
+
+    $this->checkProperty($args['propertyid'], 'itemlinks');
+
+    \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
+
+    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+
+    $itemlink = \App\v1\Models\Config\Type::find($args['itemlinkid']);
+    if (is_null($itemlink))
+    {
+      throw new \Exception('The itemlink is an id than does not exist', 400);
+    }
+
+    $currentItems = [];
+    foreach (
+        $item->propertiesLinks()
+        ->where('property_id', $args['propertyid'])
+        ->where('value_itemlink', $args['itemlinkid'])
+        ->get() as $t
+    )
+    {
+      $pivot = \App\v1\Models\ItemProperty::find($t->pivot->id);
+      $pivot->delete();
+    }
+    \App\v1\Controllers\Log\Audit::addEntry(
+      $request,
+      'UPDATE',
+      'update a property',
+      'Item',
+      $item->id
+    );
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
 
-    /**
+  /**
    * @api {post} /v1/items/:id/property/:propertyid/typelinks Add a typelink
    * @apiName PostItemPropertyTypelink
    * @apiGroup Items
