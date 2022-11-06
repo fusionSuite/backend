@@ -136,7 +136,9 @@ class Property extends Model
         && isset($this->pivot->value_itemlink)
     )
     {
-      $item = \App\v1\Models\Item::find(intval($this->pivot->value_itemlink));
+      $item = \App\v1\Models\Item
+        ::with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues')
+        ->find(intval($this->pivot->value_itemlink));
       return $item;
     }
     elseif (
