@@ -578,6 +578,13 @@ final class Type
     // use touch() to update updated_at in the type
     $type->touch();
 
+    // add this property to all items yet created for this type
+    $items = \App\v1\Models\Item::where('type_id', $args['id'])->get();
+    foreach ($items as $item)
+    {
+      \App\v1\Controllers\Item::attachPropertyDefaultToItem($property, $item);
+    }
+
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -638,6 +645,13 @@ final class Type
     $type->properties()->detach($args['propertyid']);
     // use touch() to update updated_at in the type
     $type->touch();
+
+    // delete the property to all items have this property
+    $items = \App\v1\Models\Item::where('type_id', $args['id'])->get();
+    foreach ($items as $item)
+    {
+      $item->properties()->detach($args['propertyid']);
+    }
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -922,6 +936,13 @@ final class Type
           if (!in_array($propId, $propertiesId))
           {
             $typeItem->properties()->attach($propId);
+            // add this property to all items yet created for this type
+            $items = \App\v1\Models\Item::where('type_id', $typeId)->get();
+            $property = \App\v1\Models\Config\Property::find($propId);
+            foreach ($items as $item)
+            {
+              \App\v1\Controllers\Item::attachPropertyDefaultToItem($property, $item);
+            }
           }
         }
 

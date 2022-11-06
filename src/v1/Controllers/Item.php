@@ -1353,34 +1353,7 @@ final class Item
       {
         continue;
       }
-      $fieldName = 'value_' . $prop->valuetype;
-      if ($prop->valuetype == 'itemlinks')
-      {
-        // TODO
-      }
-      elseif ($prop->valuetype == 'typelinks' && !is_null($prop->default))
-      {
-        foreach ($prop->default as $typelink)
-        {
-          $item->properties()->attach($prop->id, ['value_typelink' => $typelink]);
-        }
-      }
-      elseif ($prop->valuetype == 'date' && $prop->default == '' && !is_null($prop->default))
-      {
-        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d')]);
-      }
-      elseif ($prop->valuetype == 'datetime' && $prop->default == '' && !is_null($prop->default))
-      {
-        $item->properties()->attach($prop->id, [$fieldName => date('Y-m-d H:i:s')]);
-      }
-      elseif ($prop->valuetype == 'time' && $prop->default == '' && !is_null($prop->default))
-      {
-        $item->properties()->attach($prop->id, [$fieldName => date('H:i:s')]);
-      }
-      else
-      {
-        $item->properties()->attach($prop->id, [$fieldName => $prop->default]);
-      }
+      $this->attachPropertyDefaultToItem($prop, $item);
     }
 
     // run rules
@@ -1388,6 +1361,40 @@ final class Item
     return $item;
   }
 
+  /**
+   * Attach a property with default value to an item
+   */
+  public static function attachPropertyDefaultToItem($property, $item)
+  {
+    $fieldName = 'value_' . $property->valuetype;
+    if ($property->valuetype == 'itemlinks')
+    {
+      // TODO
+    }
+    elseif ($property->valuetype == 'typelinks' && !is_null($property->default))
+    {
+      foreach ($property->default as $typelink)
+      {
+        $item->properties()->attach($property->id, ['value_typelink' => $typelink]);
+      }
+    }
+    elseif ($property->valuetype == 'date' && $property->default == '' && !is_null($property->default))
+    {
+      $item->properties()->attach($property->id, [$fieldName => date('Y-m-d')]);
+    }
+    elseif ($property->valuetype == 'datetime' && $property->default == '' && !is_null($property->default))
+    {
+      $item->properties()->attach($property->id, [$fieldName => date('Y-m-d H:i:s')]);
+    }
+    elseif ($property->valuetype == 'time' && $property->default == '' && !is_null($property->default))
+    {
+      $item->properties()->attach($property->id, [$fieldName => date('H:i:s')]);
+    }
+    else
+    {
+      $item->properties()->attach($property->id, [$fieldName => $property->default]);
+    }
+  }
 
   private function checkProperty($id, $valuetype = null)
   {
