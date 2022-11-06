@@ -17,7 +17,13 @@ describe('usereventTimestamp | create users', function() {
     .send({
       name: 'user1',
       type_id: 2,
-      organization_id: 1
+      organization_id: 1,
+      properties:[
+        {
+          property_id: 5,
+          value: "test"
+        }
+      ]
     })
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
@@ -76,7 +82,13 @@ describe('usereventTimestamp | create users', function() {
     .send({
       name: 'user2',
       type_id: 2,
-      organization_id: 1
+      organization_id: 1,
+      properties:[
+        {
+          property_id: 5,
+          value: "test"
+        }
+      ]
     })
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
