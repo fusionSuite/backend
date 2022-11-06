@@ -115,26 +115,13 @@ $customErrorHandler = function (
   bool $logErrorDetails
 ) use ($app)
 {
-  $response = $app->getResponseFactory()->createResponse();
-  // Set headers for CORS if required
-  $headers = $request->getHeaders();
-  if (isset($headers['Origin']))
-  {
-    $response = $response->withHeader('Access-Control-Allow-Origin', $headers['Origin']);
-    $response = $response->withHeader(
-      'Access-Control-Allow-Headers',
-      'Origin,Content-Type,Accept,Authorization,Cache-Control,Pragma,Expires'
-    );
-    $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
-    $response = $response->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  }
-
   if ($exception->getCode() == 23000 || $exception->getCode() == 23505)
   {
     $error = [
       "status"  => "error",
       "message" => "The element already exists"
     ];
+    $response = $app->getResponseFactory()->createResponse();
     $response->getBody()->write(json_encode($error));
     return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
   }
@@ -176,6 +163,7 @@ $customErrorHandler = function (
       "status"  => "error",
       "message" => $exception->getMessage()
     ];
+    $response = $app->getResponseFactory()->createResponse();
     $response->getBody()->write(json_encode($error));
     return $response->withStatus($exception->getCode())->withHeader('Content-Type', 'application/json');
   }
@@ -184,6 +172,7 @@ $customErrorHandler = function (
     "status"  => "error",
     "message" => $exception->getMessage()
   ];
+  $response = $app->getResponseFactory()->createResponse();
   $response->getBody()->write(json_encode($error));
   return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
 };
