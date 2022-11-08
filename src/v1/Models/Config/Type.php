@@ -23,16 +23,19 @@ namespace App\v1\Models\Config;
 use Illuminate\Database\Eloquent\Model as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Capsule\Manager as DB;
+use GeneaLabs\LaravelPivotEvents\Traits\PivotEventTrait;
 
 class Type extends Model
 {
   use SoftDeletes;
+  use PivotEventTrait;
 
   protected $fillable = ['name', 'internalname'];
   protected $appends = [
     'properties',
     'propertygroups',
-    'organization'
+    'organization',
+    'changes'
   ];
   protected $visible = [
     'id',
@@ -98,6 +101,44 @@ class Type extends Model
     });
   }
 
+  public static function booted()
+  {
+    parent::booted();
+    static::updated(function ($model)
+    {
+      \App\v1\Models\Common::changesOnUpdated($model, $model->original);
+    });
+
+    static::deleted(function ($model)
+    {
+      if (!$model->isForceDeleting())
+      {
+        \App\v1\Models\Common::changesOnSoftDeleted($model, $model->original);
+      }
+    });
+
+    static::restored(function ($model)
+    {
+      \App\v1\Models\Common::changesOnRestored($model, $model->original);
+    });
+
+    static::forceDeleted(function ($model)
+    {
+      \App\v1\Models\Common::changesOnDeleted($model, $model->original);
+    });
+
+    static::pivotAttached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    {
+      self::changesOnPivotAttached($model, $pivotIds, $pivotIdsAttributes);
+    });
+
+    static::pivotDetached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    {
+      self::changesOnPivotDetached($model, $pivotIds, $pivotIdsAttributes);
+    });
+  }
+
+
   public function getOrganizationAttribute()
   {
     $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
@@ -132,6 +173,11 @@ class Type extends Model
     return $this->propertygroups()->get();
   }
 
+  public function getChangesAttribute()
+  {
+    return $this->changes()->get();
+  }
+
 
   public function properties()
   {
@@ -153,8 +199,70 @@ class Type extends Model
     return $this->hasMany('App\v1\Models\Config\Permissiondata')->withTimestamps();
   }
 
+  /**
+   * Get the item's changes.
+   */
+  public function changes()
+  {
+    return $this->morphMany(\App\v1\Models\Log\Change::class, 'model')->orderBy('id');
+  }
+
   public function scopeofSort($query, $params)
   {
     return \App\v1\Models\Common::scopeofSort($query, $params);
+  }
+
+  public static function changesOnPivotAttached($model, $pivotIds, $pivotIdsAttributes)
+  {
+    if (isset($GLOBALS['no-changes']) && $GLOBALS['no-changes'])
+    {
+      return;
+    }
+
+    $message = '{username} added the property "{new_value.item.name}"';
+    foreach ($pivotIds as $propertyId)
+    {
+      $property = \App\v1\Models\Config\Property::find($propertyId);
+      $newValue = (object)[
+        'item' => (object)[
+          'id'   => $propertyId,
+          'name' => $property->name
+        ]
+      ];
+      \App\v1\Controllers\Log\Change::addEntry(
+        $model,
+        $message,
+        $newValue,
+        null
+      );
+    }
+  }
+
+  public static function changesOnPivotDetached($model, $pivotIds, $pivotIdsAttributes)
+  {
+    if (isset($GLOBALS['no-changes']) && $GLOBALS['no-changes'])
+    {
+      return;
+    }
+
+    $message = '{username} deleted the property "{old_value.item.name}"';
+    foreach ($pivotIds as $propertyId)
+    {
+      $property = \App\v1\Models\Config\Property::find($propertyId);
+      $oldValue = (object)[
+        'item' => (object)[
+          'id'   => $propertyId,
+          'name' => $property->name
+        ]
+      ];
+      \App\v1\Controllers\Log\Change::addEntry(
+        $model,
+        $message,
+        null,
+        $oldValue
+      );
+    }
+
+    $message = '{username} deleted "{property.name}"';
   }
 }

@@ -125,7 +125,7 @@ $customErrorHandler = function (
     $response->getBody()->write(json_encode($error));
     return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
   }
-  elseif ($exception->getCode() > 0)
+  elseif (is_int($exception->getCode()) && $exception->getCode() > 0)
   {
     if (strstr($request->getUri()->getPath(), 'refreshtoken'))
     {

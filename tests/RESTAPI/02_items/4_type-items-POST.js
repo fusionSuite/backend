@@ -60,7 +60,7 @@ describe('items | Endpoint /v1/items', function () {
         })
         .end(function (err, response) {
           if (err) {
-            return done(err + ' | Response: ' + response.text);
+            return done(err + ' ' + name + ' ' + ' | Response: ' + response.text);
           }
         });
     }

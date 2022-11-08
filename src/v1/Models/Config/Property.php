@@ -33,7 +33,8 @@ class Property extends Model
     'value',
     'default',
     'byfusioninventory',
-    'organization'
+    'organization',
+    'changes'
   ];
   protected $visible = [
     'id',
@@ -98,6 +99,33 @@ class Property extends Model
     static::restoring(function ($model)
     {
       $model->deleted_by = null;
+    });
+  }
+
+  public static function booted()
+  {
+    parent::booted();
+    static::updated(function ($model)
+    {
+      \App\v1\Models\Common::changesOnUpdated($model, $model->original);
+    });
+
+    static::deleted(function ($model)
+    {
+      if (!$model->isForceDeleting())
+      {
+        \App\v1\Models\Common::changesOnSoftDeleted($model, $model->original);
+      }
+    });
+
+    static::restored(function ($model)
+    {
+      \App\v1\Models\Common::changesOnRestored($model, $model->original);
+    });
+
+    static::forceDeleted(function ($model)
+    {
+      \App\v1\Models\Common::changesOnDeleted($model, $model->original);
     });
   }
 
@@ -249,6 +277,11 @@ class Property extends Model
     return boolval($value);
   }
 
+  public function getChangesAttribute()
+  {
+    return $this->changes()->get();
+  }
+
   public function listvalues()
   {
     return $this->hasMany('\App\v1\Models\Config\Propertylist');
@@ -257,6 +290,14 @@ class Property extends Model
   public function structureroles()
   {
       return $this->morphToMany('App\v1\Models\Config\Role', 'permissionstructure')->withTimestamps();
+  }
+
+  /**
+   * Get the item's changes.
+   */
+  public function changes()
+  {
+    return $this->morphMany(\App\v1\Models\Log\Change::class, 'model')->orderBy('id');
   }
 
   public function scopeofSort($query, $params)

@@ -23,16 +23,19 @@ namespace App\v1\Models;
 use Illuminate\Database\Eloquent\Model as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Capsule\Manager as DB;
+use GeneaLabs\LaravelPivotEvents\Traits\PivotEventTrait;
 
 class Item extends Model
 {
   use SoftDeletes;
+  use PivotEventTrait;
 
   protected $appends = [
     'properties',
     // 'child_items',
     'propertygroups',
-    'organization'
+    'organization',
+    'changes'
   ];
   protected $visible = [
     'id',
@@ -57,6 +60,8 @@ class Item extends Model
     // 'getItems'
   ];
   protected $fillable = ['name', 'type_id'];
+
+  public $oldProperties = [];
 
   /**
    * The attributes that should be cast.
@@ -108,6 +113,15 @@ class Item extends Model
     {
       $model->deleted_by = null;
     });
+
+    static::pivotUpdating(function ($model, $modelClassName, $relationName, $pivotIds)
+    {
+      foreach ($pivotIds as $propertyId)
+      {
+        $currentItemProperty = $model->properties()->where('property_id', $propertyId)->first();
+        $model->oldProperties[$propertyId] = $currentItemProperty->value;
+      }
+    });
   }
 
   public static function booted()
@@ -144,6 +158,44 @@ class Item extends Model
         $currItem->organization_id = $model->id;
         $currItem->save();
       }
+    });
+
+    static::updated(function ($model)
+    {
+      \App\v1\Models\Common::changesOnUpdated($model, $model->original);
+    });
+
+    static::deleted(function ($model)
+    {
+      if (!$model->isForceDeleting())
+      {
+        \App\v1\Models\Common::changesOnSoftDeleted($model, $model->original);
+      }
+    });
+
+    static::restored(function ($model)
+    {
+      \App\v1\Models\Common::changesOnRestored($model, $model->original);
+    });
+
+    static::forceDeleted(function ($model)
+    {
+      \App\v1\Models\Common::changesOnDeleted($model, $model->original);
+    });
+
+    static::pivotUpdated(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    {
+      \App\v1\Models\Common::changesOnPivotUpdated($model, $pivotIds, $pivotIdsAttributes);
+    });
+
+    static::pivotAttached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    {
+      \App\v1\Models\Common::changesOnPivotAttached($model, $pivotIds, $pivotIdsAttributes);
+    });
+
+    static::pivotDetached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    {
+      \App\v1\Models\Common::changesOnPivotDetached($model, $pivotIds, $pivotIdsAttributes);
     });
   }
 
@@ -187,6 +239,11 @@ class Item extends Model
     return $this->getItems()->get()->makeHidden(['properties']);
   }
 
+  public function getChangesAttribute()
+  {
+    return $this->changes()->get();
+  }
+
   public function properties()
   {
     return $this->belongsToMany('App\v1\Models\Config\Property')->withPivot(
@@ -218,6 +275,28 @@ class Item extends Model
     )->orderByPivot('id', 'asc');
   }
 
+  public function propertyItemlinks($propertyId)
+  {
+    return $this->belongsToMany('App\v1\Models\Config\Property')->withPivot(
+      'id',
+      'value_itemlink'
+    )
+    ->wherePivot('property_id', $propertyId)
+    ->orderByPivot('id', 'asc')
+    ->withTimestamps();
+  }
+
+  public function propertyTypelinks($propertyId)
+  {
+    return $this->belongsToMany('App\v1\Models\Config\Property')->withPivot(
+      'id',
+      'value_typelink'
+    )
+    ->wherePivot('property_id', $propertyId)
+    ->orderByPivot('id', 'asc')
+    ->withTimestamps();
+  }
+
   public function propertygroups()
   {
     // return $this->belongsToMany('App\v1\Models\Config\Propertygroup', 'id', 'type_id');
@@ -237,6 +316,14 @@ class Item extends Model
     //  return $this->belongsToMany('App\v1\Models\Item', null, 'parent_item_id', 'child_item_id')
     // ->withPivot(['relationshiptype_id', 'logical', 'physicalinternal', 'propagate'])->withTimestamps();
     return $this->belongsToMany('App\v1\Models\Item', null, 'parent_item_id', 'child_item_id')->withTimestamps();
+  }
+
+  /**
+   * Get the item's changes.
+   */
+  public function changes()
+  {
+    return $this->morphMany(\App\v1\Models\Log\Change::class, 'model')->orderBy('id');
   }
 
   public function scopeofWhere($query, $params)

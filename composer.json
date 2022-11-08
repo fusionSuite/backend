@@ -18,7 +18,8 @@
         "hoa/ruler": "^2.17.05.16",
         "illuminate/events": "^8.73",
         "rakit/validation": "^1.4",
-        "adhocore/cli": "^0.9.0"
+        "adhocore/cli": "^0.9.0",
+        "genealabs/laravel-pivot-events": "^8.0"
     },
     "autoload": {
         "psr-4": {
