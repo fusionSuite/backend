@@ -322,6 +322,7 @@ final class Property
 
     $item->makeHidden(['value', 'byfusioninventory'])
     ->makeVisible($this->getVisibleFields());
+    $item->makeVisible('changes');
 
     $response->getBody()->write($item->toJson());
     return $response->withHeader('Content-Type', 'application/json');
@@ -511,7 +512,8 @@ final class Property
   {
     $token = (object)$request->getAttribute('token');
 
-    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
+    $property = \App\v1\Models\Config\Property::withTrashed()
+    ->find($args['id']);
 
     if (is_null($property))
     {
@@ -547,6 +549,8 @@ final class Property
         'Config\Property',
         $property->id
       );
+      $property->makeHidden(['value', 'byfusioninventory'])
+      ->makeVisible($this->getVisibleFields());
       $property->forceDelete();
 
       // Post delete actions
@@ -926,10 +930,10 @@ final class Property
     {
       $properties['description'] = $data->description;
     }
-    if (property_exists($data, 'canbenull') && !$data->canbenull)
+    if (property_exists($data, 'canbenull'))
     {
-      $properties['canbenull'] = false;
-      if (property_exists($data, 'default') && is_null($data->default))
+      $properties['canbenull'] = $data->canbenull;
+      if (property_exists($data, 'default') && !$data->canbenull && is_null($data->default))
       {
         throw new \Exception('The Default can\'t be null', 400);
       }

@@ -306,6 +306,8 @@ final class Type
       throw new \Exception("This type is not in your organization", 403);
     }
 
+    $item->makeVisible('changes');
+
     $response->getBody()->write($item->toJson());
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -471,6 +473,7 @@ final class Type
       \App\v1\Permission::checkPermissionToStructure('delete', 'config/type', $type->id);
 
       \App\v1\Controllers\Log\Audit::addEntry($request, 'DELETE', '', 'Config\Type', $type->id);
+      $type->properties()->detach();
       $type->forceDelete();
 
       // Post delete actions
@@ -482,7 +485,6 @@ final class Type
       \App\v1\Permission::checkPermissionToStructure('softdelete', 'config/type', $type->id);
 
       \App\v1\Controllers\Log\Audit::addEntry($request, 'SOFTDELETE', '', 'Config\Type', $type->id);
-      $type->properties()->detach();
       $type->delete();
     }
 

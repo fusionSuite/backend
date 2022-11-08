@@ -393,7 +393,7 @@ final class Item
     // check permissions
     \App\v1\Permission::checkPermissionToData('view', $item->type_id);
 
-    $item->makeVisible(['propertygroups']);
+    $item->makeVisible(['propertygroups', 'changes']);
     if (
         !in_array($item->organization_id, $organizations)
         && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
@@ -401,7 +401,6 @@ final class Item
     {
       throw new \Exception("This item is not in your organization", 403);
     }
-
     $itemData = $item->toArray();
     $itemProperties = [];
     // permission to view or not properties
@@ -663,7 +662,7 @@ final class Item
    * @apiParam {Number}    id           Unique ID of the item.
    * @apiParam {Number}    propertyid   Unique ID of the property.
    *
-   * @apiBody {String}  value                     Value of the property to update.
+   * @apiBody {any}     value                     Value of the property to update.
    * @apiBody {Boolean} [reset_to_default=false]  To update with default value of property.
    *
    * @apiParamExample {json} Request-Example:
@@ -736,91 +735,19 @@ final class Item
       }
       elseif ($property->valuetype == 'itemlinks' && !is_null($property->default))
       {
-        // get current values and add or remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
-        }
-        foreach ($currentItems as $key => $idPivot)
-        {
-          if (!in_array($key, $property->default))
-          {
-            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-            $pivot->delete();
-          }
-        }
-        foreach ($property->default as $itemlink)
-        {
-          if (!isset($currentItems[$itemlink]))
-          {
-            $item->properties()->attach($args['propertyid'], [
-              'value_itemlink' => $itemlink
-            ]);
-          }
-        }
+        $this->updatePropertyOfLinksToNotNull('item', $args['propertyid'], $item, $property->default);
       }
       elseif ($property->valuetype == 'itemlinks' && is_null($property->default))
       {
-        // get current values and remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
-        }
-        array_shift($currentItems);
-        foreach ($currentItems as $key => $idPivot)
-        {
-          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-          $pivot->delete();
-        }
-        $item->properties()->updateExistingPivot($args['propertyid'], [
-          'value_itemlink' => null
-        ]);
+        $this->updatePropertyOfLinksToNull('item', $args['propertyid'], $item);
       }
       elseif ($property->valuetype == 'typelinks' && !is_null($property->default))
       {
-        // get current values and add or remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
-        }
-        foreach ($currentItems as $key => $idPivot)
-        {
-          if (!in_array($key, $property->default))
-          {
-            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-            $pivot->delete();
-          }
-        }
-        foreach ($property->default as $typelink)
-        {
-          if (!isset($currentItems[$typelink]))
-          {
-            $item->properties()->attach($args['propertyid'], [
-              'value_typelink' => $typelink
-            ]);
-          }
-        }
+        $this->updatePropertyOfLinksToNotNull('type', $args['propertyid'], $item, $property->default);
       }
       elseif ($property->valuetype == 'typelinks' && is_null($property->default))
       {
-        // get current values and remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
-        }
-        array_shift($currentItems);
-        foreach ($currentItems as $key => $idPivot)
-        {
-          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-          $pivot->delete();
-        }
-        $item->properties()->updateExistingPivot($args['propertyid'], [
-          'value_typelink' => null
-        ]);
+        $this->updatePropertyOfLinksToNull('type', $args['propertyid'], $item);
       }
       else
       {
@@ -858,91 +785,19 @@ final class Item
       }
       elseif ($property->valuetype == 'itemlinks' && !is_null($data->value))
       {
-        // get current values and add or remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
-        }
-        foreach ($currentItems as $key => $idPivot)
-        {
-          if (!in_array($key, $data->value))
-          {
-            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-            $pivot->delete();
-          }
-        }
-        foreach ($data->value as $itemlink)
-        {
-          if (!isset($currentItems[$itemlink]))
-          {
-            $item->properties()->attach($args['propertyid'], [
-              'value_itemlink' => $itemlink
-            ]);
-          }
-        }
+        $this->updatePropertyOfLinksToNotNull('item', $args['propertyid'], $item, $data->value);
       }
       elseif ($property->valuetype == 'itemlinks' && is_null($data->value))
       {
-        // get current values and remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
-        }
-        array_shift($currentItems);
-        foreach ($currentItems as $key => $idPivot)
-        {
-          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-          $pivot->delete();
-        }
-        $item->properties()->updateExistingPivot($args['propertyid'], [
-          'value_itemlink' => null
-        ]);
+        $this->updatePropertyOfLinksToNull('item', $args['propertyid'], $item);
       }
       elseif ($property->valuetype == 'typelinks' && !is_null($data->value))
       {
-        // get current values and add or remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
-        }
-        foreach ($currentItems as $key => $idPivot)
-        {
-          if (!in_array($key, $data->value))
-          {
-            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-            $pivot->delete();
-          }
-        }
-        foreach ($data->value as $typelink)
-        {
-          if (!isset($currentItems[$typelink]))
-          {
-            $item->properties()->attach($args['propertyid'], [
-              'value_typelink' => $typelink
-            ]);
-          }
-        }
+        $this->updatePropertyOfLinksToNotNull('type', $args['propertyid'], $item, $data->value);
       }
       elseif ($property->valuetype == 'typelinks' && is_null($data->value))
       {
-        // get current values and remove from the list
-        $currentItems = [];
-        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
-        {
-          $currentItems[$t->pivot->value_typelink] = $t->pivot->id;
-        }
-        array_shift($currentItems);
-        foreach ($currentItems as $key => $idPivot)
-        {
-          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
-          $pivot->delete();
-        }
-        $item->properties()->updateExistingPivot($args['propertyid'], [
-          'value_typelink' => null
-        ]);
+        $this->updatePropertyOfLinksToNull('type', $args['propertyid'], $item);
       }
       else
       {
@@ -961,7 +816,6 @@ final class Item
       'Item',
       $item->id
     );
-
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -1039,7 +893,7 @@ final class Item
   }
 
   /**
-   * @api {delete} /v1/items/:id/property/:propertyid/itemlinks/:typelinkid Delete an itemlink
+   * @api {delete} /v1/items/:id/property/:propertyid/itemlinks/:itemlinkid Delete an itemlink
    * @apiName DeleteItemPropertyItemlink
    * @apiGroup Items
    * @apiVersion 1.0.0-draft
@@ -1079,7 +933,6 @@ final class Item
       throw new \Exception('The itemlink is an id than does not exist', 400);
     }
 
-    $currentItems = [];
     foreach (
         $item->propertiesLinks()
         ->where('property_id', $args['propertyid'])
@@ -1087,8 +940,10 @@ final class Item
         ->get() as $t
     )
     {
-      $pivot = \App\v1\Models\ItemProperty::find($t->pivot->id);
-      $pivot->delete();
+      $this->defineLinksOldProperties($item, $args['itemlinkid'], $args['propertyid']);
+      $item->properties()
+      ->wherePivot('value_itemlink', $args['itemlinkid'])
+      ->detach($args['propertyid']);
     }
     \App\v1\Controllers\Log\Audit::addEntry(
       $request,
@@ -1209,7 +1064,6 @@ final class Item
       throw new \Exception('The typelink is an id than does not exist', 400);
     }
 
-    $currentItems = [];
     foreach (
         $item->propertiesLinks()
         ->where('property_id', $args['propertyid'])
@@ -1217,8 +1071,10 @@ final class Item
         ->get() as $t
     )
     {
-      $pivot = \App\v1\Models\ItemProperty::find($t->pivot->id);
-      $pivot->delete();
+      $this->defineLinksOldProperties($item, $args['typelinkid'], $args['propertyid'], 'type');
+      $item->properties()
+      ->wherePivot('value_typelink', $args['typelinkid'])
+      ->detach($args['propertyid']);
     }
     \App\v1\Controllers\Log\Audit::addEntry(
       $request,
@@ -1373,6 +1229,7 @@ final class Item
     $ruleData['name'] = $data->name;
 
     $propertiesId = [];
+    $GLOBALS['no-changes'] = true;
     if (property_exists($data, 'properties'))
     {
       foreach ($data->properties as $property)
@@ -1424,6 +1281,7 @@ final class Item
       }
       $this->attachPropertyDefaultToItem($prop, $item);
     }
+    $GLOBALS['no-changes'] = false;
 
     // run rules
     $item_id = \App\v1\Controllers\Rules\ActionScript::runRules($ruleData);
@@ -1756,6 +1614,102 @@ final class Item
     if (!is_null($item->first()))
     {
       throw new \Exception($this->exceptionMessageUniqueName, 400);
+    }
+  }
+
+  private function defineLinksOldProperties($item, $linkId, $propertyId, $modelType = 'item')
+  {
+    if (is_null($linkId))
+    {
+      return;
+    }
+    if ($modelType == 'item')
+    {
+      $link = \App\v1\Models\Item::find($linkId);
+      $type = \App\v1\Models\Config\Type::find($link->type_id);
+    }
+    elseif ($modelType == 'type')
+    {
+      $link = \App\v1\Models\Config\Type::find($linkId);
+      $type = $link;
+    } else {
+      return;
+    }
+    $item->oldProperties[$propertyId] = (object)[
+      'item' => (object)[
+        'id'   => $link->id,
+        'name' => $link->name
+      ],
+      'type' => (object)[
+        'id'   => $type->id,
+        'name' => $type->name
+      ],
+    ];
+  }
+
+  private function updatePropertyOfLinksToNull($type, $propertyId, $item)
+  {
+    $currentItems = [];
+    foreach ($item->{'property' . ucfirst($type) . 'links'}($propertyId)->get() as $t)
+    {
+      $currentItems[$t->pivot->{'value_' . $type . 'link'}] = $t->pivot->id;
+    }
+    foreach (array_keys($currentItems) as $linkId)
+    {
+      if (!($linkId == '' || is_null($linkId)))
+      {
+        $this->defineLinksOldProperties($item, $linkId, $propertyId, $type);
+        $item->properties()
+        ->wherePivot('value_' . $type . 'link', $linkId)
+        ->detach($propertyId);
+        unset($item->oldProperties[$propertyId]);
+      }
+    }
+    if (!(isset($currentItems['']) || isset($currentItems[null])))
+    {
+      $item->properties()->attach($propertyId, [
+        'value_' . $type . 'link' => null
+      ]);
+    }
+  }
+
+  private function updatePropertyOfLinksToNotNull($type, $propertyId, $item, $value)
+  {
+    $currentItems = [];
+    foreach ($item->{'property' . ucfirst($type) . 'links'}($propertyId)->get() as $t)
+    {
+      $currentItems[$t->pivot->{'value_' . $type . 'link'}] = $t->pivot->id;
+    }
+    foreach (array_keys($currentItems) as $linkId)
+    {
+      if ($linkId == '')
+      {
+        $linkId = null;
+      }
+      if (!in_array($linkId, $value))
+      {
+        $this->defineLinksOldProperties($item, $linkId, $propertyId, $type);
+        if (is_null($linkId))
+        {
+          $item->properties()
+          ->wherePivotNull('value_' . $type . 'link')
+          ->detach($propertyId);
+        } else {
+          $item->properties()
+          ->wherePivot('value_' . $type . 'link', $linkId)
+          ->detach($propertyId);
+        }
+        unset($item->oldProperties[$propertyId]);
+      }
+    }
+    foreach ($value as $linkId)
+    {
+      if (!isset($currentItems[$linkId]))
+      {
+        $item->properties()->attach($propertyId, [
+          'value_' . $type . 'link' => $linkId
+        ]);
+      }
     }
   }
 }
