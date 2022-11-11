@@ -49,6 +49,16 @@ class Property extends Model
     'regexformat'
   ];
 
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'sub_organization' => 'boolean',
+    'canbenull'        => 'boolean',
+  ];
+
   protected $hidden = [];
   protected $with = [];
 
@@ -107,11 +117,6 @@ class Property extends Model
       'id'   => $org->id,
       'name' => $org->name
     ];
-  }
-
-  public function getSubOrganizationAttribute($value)
-  {
-    return boolval($value);
   }
 
   public function getCreatedByAttribute($value)
@@ -227,11 +232,6 @@ class Property extends Model
       return floatval($this->{'default_decimal'});
     }
     return $this->{'default_' . $valuetype};
-  }
-
-  public function getCanbenullAttribute($value)
-  {
-    return boolval($value);
   }
 
   public function getSetcurrentdateAttribute($value)

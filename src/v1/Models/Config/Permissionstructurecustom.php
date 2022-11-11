@@ -36,6 +36,18 @@ class Permissionstructurecustom extends Model
     'delete'
   ];
 
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'view'       => 'boolean',
+    'update'     => 'boolean',
+    'softdelete' => 'boolean',
+    'delete'     => 'boolean',
+  ];
+
   public static function boot()
   {
     parent::boot();
@@ -58,26 +70,6 @@ class Permissionstructurecustom extends Model
       'name'         => $property->name,
       'internalname' => $property->internalname
     ];
-  }
-
-  public function getViewAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getUpdateAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getSoftdeleteAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getDeleteAttribute($value)
-  {
-    return boolval($value);
   }
 
   public function permissionstructure()
