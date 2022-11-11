@@ -58,6 +58,18 @@ class Type extends Model
     'properties'
   ];
 
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'sub_organization'       => 'boolean',
+    'tree'                   => 'boolean',
+    'allowtreemultipleroots' => 'boolean',
+    'unique_name'            => 'boolean',
+  ];
+
   public static function boot()
   {
     parent::boot();
@@ -95,11 +107,6 @@ class Type extends Model
     ];
   }
 
-  public function getSubOrganizationAttribute($value)
-  {
-    return boolval($value);
-  }
-
   public function getCreatedByAttribute($value)
   {
     return \App\v1\Models\Common::getUserAttributes($value);
@@ -115,16 +122,6 @@ class Type extends Model
     return \App\v1\Models\Common::getUserAttributes($value);
   }
 
-  public function getTreeAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getAllowtreemultiplerootsAttribute($value)
-  {
-    return boolval($value);
-  }
-
   public function getPropertiesAttribute()
   {
     return [];
@@ -133,11 +130,6 @@ class Type extends Model
   public function getPropertygroupsAttribute()
   {
     return $this->propertygroups()->get();
-  }
-
-  public function getUniqueNameAttribute($value)
-  {
-    return boolval($value);
   }
 
 

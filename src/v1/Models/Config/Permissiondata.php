@@ -42,6 +42,20 @@ class Permissiondata extends Model
     'properties'
   ];
 
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'view'             => 'boolean',
+    'create'           => 'boolean',
+    'update'           => 'boolean',
+    'softdelete'       => 'boolean',
+    'delete'           => 'boolean',
+    'propertiescustom' => 'boolean',
+  ];
+
   public static function boot()
   {
     parent::boot();
@@ -54,36 +68,6 @@ class Permissiondata extends Model
     {
       $model->updated_by = $GLOBALS['user_id'];
     });
-  }
-
-  public function getViewAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getCreateAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getUpdateAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getSoftdeleteAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getDeleteAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getPropertiescustomAttribute($value)
-  {
-    return boolval($value);
   }
 
   public function getRoleAttribute()

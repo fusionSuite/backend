@@ -35,6 +35,16 @@ class Permissiondataproperty extends Model
     'update'
   ];
 
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'view'   => 'boolean',
+    'update' => 'boolean',
+  ];
+
   public static function boot()
   {
     parent::boot();
@@ -57,16 +67,6 @@ class Permissiondataproperty extends Model
       'name'         => $property->name,
       'internalname' => $property->internalname
     ];
-  }
-
-  public function getViewAttribute($value)
-  {
-    return boolval($value);
-  }
-
-  public function getUpdateAttribute($value)
-  {
-    return boolval($value);
   }
 
   public function permissiondata()

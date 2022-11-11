@@ -58,6 +58,15 @@ class Item extends Model
   ];
   protected $fillable = ['name', 'type_id'];
 
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'sub_organization' => 'boolean',
+  ];
+
   public static function boot()
   {
     parent::boot();
@@ -155,11 +164,6 @@ class Item extends Model
       'id'   => $org->id,
       'name' => $org->name
     ];
-  }
-
-  public function getSubOrganizationAttribute($value)
-  {
-    return boolval($value);
   }
 
   public function getCreatedByAttribute($value)
