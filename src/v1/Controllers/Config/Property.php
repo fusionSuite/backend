@@ -635,6 +635,16 @@ final class Property
         }
       }
     }
+    if ($data->valuetype == 'itemlinks' && !is_null($data->default))
+    {
+      foreach ($data->default as $typeId)
+      {
+        $propertyitemlink = new \App\v1\Models\Config\Propertyitemlink();
+        $propertyitemlink->property_id = $property->id;
+        $propertyitemlink->item_id = $typeId;
+        $propertyitemlink->save();
+      }
+    }
     if ($data->valuetype == 'typelinks' && !is_null($data->default))
     {
       foreach ($data->default as $typeId)
@@ -759,7 +769,7 @@ final class Property
       case 'itemlink':
       case 'typelink':
       case 'propertylink':
-        $dataFormat['default'] = 'type:integer|regex:/^[0-9]+$/';
+        $dataFormat['default'] = 'type:integer';
           break;
 
       case 'itemlinks':
@@ -787,6 +797,12 @@ final class Property
       {
         foreach ($data->default as $itemId)
         {
+          // validatation of the item type
+          $dataFormat = [
+            'default' => 'type:integer|regex:/^[0-9]+$/'
+          ];
+          \App\v1\Common::validateData((object)['default' => $itemId], $dataFormat);
+
           $item = \App\v1\Models\Item::find($itemId);
           if (is_null($item))
           {
@@ -797,6 +813,16 @@ final class Property
       // check if the type id exists
       if ($data->valuetype == 'typelink')
       {
+        \App\v1\Common::validateData($data, $dataFormat);
+        $dataFormat['default'] = 'regex:/^[0-9]+$/';
+        \App\v1\Common::validateData($data, $dataFormat);
+
+        $item = \App\v1\Models\Config\Type::find($data->default);
+        if (is_null($item))
+        {
+          throw new \Exception("The Default type does not exist", 400);
+        }
+
         $item = \App\v1\Models\Config\Type::find($data->default);
         if (is_null($item))
         {
@@ -807,6 +833,12 @@ final class Property
       {
         foreach ($data->default as $typeId)
         {
+          // validatation of the item type
+          $dataFormat = [
+            'default' => 'type:integer|regex:/^[0-9]+$/'
+          ];
+          \App\v1\Common::validateData((object)['default' => $typeId], $dataFormat);
+
           $item = \App\v1\Models\Config\Type::find($typeId);
           if (is_null($item))
           {
@@ -817,6 +849,12 @@ final class Property
       // check if the property id exists
       if ($data->valuetype == 'propertylink')
       {
+        // validatation of the item type
+        $dataFormat = [
+          'default' => 'regex:/^[0-9]+$/'
+        ];
+        \App\v1\Common::validateData($data, $dataFormat);
+
         $item = \App\v1\Models\Config\Property::find($data->default);
         if (is_null($item))
         {

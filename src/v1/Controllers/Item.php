@@ -705,6 +705,12 @@ final class Item
 
     $this->checkProperty($args['propertyid']);
 
+    $propToValidate = (object)[
+      'property_id' => $args['propertyid'],
+      'value'       => $data->value
+    ];
+    $this->validationPropertyValue($propToValidate);
+
     \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
 
     $property = \App\v1\Models\Config\Property::find($args['propertyid']);
@@ -726,6 +732,50 @@ final class Item
       {
         $item->properties()->updateExistingPivot($args['propertyid'], [
           'value_' . $property->valuetype => date('H:i:s')
+        ]);
+      }
+      elseif ($property->valuetype == 'itemlinks' && !is_null($property->default))
+      {
+        // get current values and add or remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
+        }
+        foreach ($currentItems as $key => $idPivot)
+        {
+          if (!in_array($key, $property->default))
+          {
+            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+            $pivot->delete();
+          }
+        }
+        foreach ($property->default as $itemlink)
+        {
+          if (!isset($currentItems[$itemlink]))
+          {
+            $item->properties()->attach($args['propertyid'], [
+              'value_itemlink' => $itemlink
+            ]);
+          }
+        }
+      }
+      elseif ($property->valuetype == 'itemlinks' && is_null($property->default))
+      {
+        // get current values and remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
+        }
+        array_shift($currentItems);
+        foreach ($currentItems as $key => $idPivot)
+        {
+          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+          $pivot->delete();
+        }
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_itemlink' => null
         ]);
       }
       elseif ($property->valuetype == 'typelinks' && !is_null($property->default))
@@ -804,6 +854,50 @@ final class Item
       {
         $item->properties()->updateExistingPivot($args['propertyid'], [
           'value_' . $property->valuetype => date('H:i:s')
+        ]);
+      }
+      elseif ($property->valuetype == 'itemlinks' && !is_null($data->value))
+      {
+        // get current values and add or remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
+        }
+        foreach ($currentItems as $key => $idPivot)
+        {
+          if (!in_array($key, $data->value))
+          {
+            $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+            $pivot->delete();
+          }
+        }
+        foreach ($data->value as $itemlink)
+        {
+          if (!isset($currentItems[$itemlink]))
+          {
+            $item->properties()->attach($args['propertyid'], [
+              'value_itemlink' => $itemlink
+            ]);
+          }
+        }
+      }
+      elseif ($property->valuetype == 'itemlinks' && is_null($data->value))
+      {
+        // get current values and remove from the list
+        $currentItems = [];
+        foreach ($item->propertiesLinks()->where('property_id', $args['propertyid'])->get() as $t)
+        {
+          $currentItems[$t->pivot->value_itemlink] = $t->pivot->id;
+        }
+        array_shift($currentItems);
+        foreach ($currentItems as $key => $idPivot)
+        {
+          $pivot = \App\v1\Models\ItemProperty::find($idPivot);
+          $pivot->delete();
+        }
+        $item->properties()->updateExistingPivot($args['propertyid'], [
+          'value_itemlink' => null
         ]);
       }
       elseif ($property->valuetype == 'typelinks' && !is_null($data->value))
@@ -912,7 +1006,13 @@ final class Item
     $this->checkProperty($args['propertyid'], 'itemlinks');
 
     $dataFormat = [
-      'value' => 'required|type:integer|regex:/^[0-9]+$/'
+      'value' => 'required|type:integer'
+    ];
+    \App\v1\Common::validateData($data, $dataFormat);
+
+    // need to be in 2 parts, because if value is an array, have exception on variable type for preg_match (regex)
+    $dataFormat = [
+      'value' => 'required|regex:/^[0-9]+$/'
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
@@ -973,7 +1073,7 @@ final class Item
 
     $property = \App\v1\Models\Config\Property::find($args['propertyid']);
 
-    $itemlink = \App\v1\Models\Config\Type::find($args['itemlinkid']);
+    $itemlink = \App\v1\Models\Item::find($args['itemlinkid']);
     if (is_null($itemlink))
     {
       throw new \Exception('The itemlink is an id than does not exist', 400);
@@ -1146,6 +1246,10 @@ final class Item
     $data->name = trim($data->name);
     // Checks about tree type
     $type = \App\v1\Models\Config\Type::find($data->type_id);
+    if (is_null($type))
+    {
+      throw new \Exception("The type has not be found", 404);
+    }
     if ($type->tree)
     {
       // in case of type is a tree, check if parent_id exists
@@ -1208,41 +1312,6 @@ final class Item
       {
         $this->validationPropertyValue($property);
 
-        $prop = \App\v1\Models\Config\Property::find($property->property_id);
-
-        if (!is_null($property->value))
-        {
-          if ($prop->valuetype == 'itemlinks')
-          {
-            foreach ($property->value as $itemId)
-            {
-              $item = \App\v1\Models\Item::find($itemId);
-              if (is_null($item))
-              {
-                throw new \Exception(
-                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
-                    strval($property->property_id) . ')',
-                  400
-                );
-              }
-            }
-          }
-          if ($prop->valuetype == 'typelinks')
-          {
-            foreach ($property->value as $typeId)
-            {
-              $item = \App\v1\Models\Config\Type::find($typeId);
-              if (is_null($item))
-              {
-                throw new \Exception(
-                  'The Value is an id than does not exist (property ' . $prop->name . ' - ' .
-                    strval($property->property_id) . ')',
-                  400
-                );
-              }
-            }
-          }
-        }
         // check permission of property
         \App\v1\Permission::checkPermissionToData('create', $data->type_id, $property->property_id);
       }
@@ -1369,7 +1438,10 @@ final class Item
     $fieldName = 'value_' . $property->valuetype;
     if ($property->valuetype == 'itemlinks')
     {
-      // TODO
+      foreach ($property->default as $itemlink)
+      {
+        $item->properties()->attach($property->id, ['value_itemlink' => $itemlink]);
+      }
     }
     elseif ($property->valuetype == 'typelinks' && !is_null($property->default))
     {
@@ -1470,7 +1542,8 @@ final class Item
     }
     elseif (in_array($property->valuetype, ['itemlink', 'typelink', 'propertylink', 'list']))
     {
-      $dataFormat['value'] = 'required|type:integer|regex:/^[0-9]+$/';
+      // need to be in 2 parts, because if value is an array, have exception on variable type for preg_match (regex)
+      $dataFormat['value'] = 'required|type:integer';
     }
     elseif (in_array($property->valuetype, ['itemlinks', 'typelinks']))
     {
@@ -1479,6 +1552,13 @@ final class Item
     elseif ($property->valuetype == 'boolean')
     {
       $dataFormat['value'] = 'present|type:boolean|boolean';
+    }
+    \App\v1\Common::validateData($data, $dataFormat);
+
+    // it's the part 2, because if value is an array, have exception on variable type for preg_match (regex)
+    if (in_array($property->valuetype, ['itemlink', 'typelink', 'propertylink', 'list']))
+    {
+      $dataFormat['value'] = 'required|regex:/^[0-9]+$/';
     }
     \App\v1\Common::validateData($data, $dataFormat);
 
@@ -1497,6 +1577,34 @@ final class Item
           );
         }
       }
+
+      if ($property->valuetype == 'itemlinks')
+      {
+        foreach ($data->value as $itemId)
+        {
+          // validatation of the item type
+          $dataFormat = [
+            'property_id' => 'required|type:integer|integer|min:1',
+            'value'       => 'type:integer|regex:/^[0-9]+$/'
+          ];
+          $propToValidate = (object)[
+            'property_id' => $data->property_id,
+            'value'       => $itemId
+          ];
+          \App\v1\Common::validateData($propToValidate, $dataFormat);
+
+          $item = \App\v1\Models\Item::find($itemId);
+          if (is_null($item))
+          {
+            throw new \Exception(
+              'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+                strval($property->id) . ')',
+              400
+            );
+          }
+        }
+      }
+
       // check if the type id exists
       if ($property->valuetype == 'typelink')
       {
@@ -1504,12 +1612,40 @@ final class Item
         if (is_null($item))
         {
           throw new \Exception(
-            'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+            'The Value type does not exist (property ' . $property->name . ' - ' .
               strval($data->property_id) . ')',
             400
           );
         }
       }
+
+      if ($property->valuetype == 'typelinks')
+      {
+        foreach ($data->value as $typeId)
+        {
+          // validatation of the item type
+          $dataFormat = [
+            'property_id' => 'required|type:integer|integer|min:1',
+            'value'       => 'type:integer|regex:/^[0-9]+$/'
+          ];
+          $propToValidate = (object)[
+            'property_id' => $data->property_id,
+            'value'       => $typeId
+          ];
+          \App\v1\Common::validateData($propToValidate, $dataFormat);
+
+          $item = \App\v1\Models\Config\Type::find($typeId);
+          if (is_null($item))
+          {
+            throw new \Exception(
+              'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+                strval($property->id) . ')',
+              400
+            );
+          }
+        }
+      }
+
       // check if the property id exists
       if ($property->valuetype == 'propertylink')
       {
@@ -1517,7 +1653,7 @@ final class Item
         if (is_null($item))
         {
           throw new \Exception(
-            'The Value is an id than does not exist (property ' . $property->name . ' - ' .
+            'The Value property id does not exist (property ' . $property->name . ' - ' .
               strval($data->property_id) . ')',
             400
           );
@@ -1542,7 +1678,7 @@ final class Item
         if (strlen($data->value) > 255)
         {
           throw new \Exception(
-            'The Value is too long, max 255 chars (property ' . $property->name . ' - ' .
+            'The Value property has too many characters (property ' . $property->name . ' - ' .
               strval($data->property_id) . ')',
             400
           );

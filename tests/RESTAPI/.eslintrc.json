@@ -1,0 +1,31 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "standard",
+    "plugin:mocha/recommended"
+  ],
+  "globals": {
+    "$localize": "readonly",
+    "before": "readonly",
+    "cy": "readonly",
+    "Cypress": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "plugins": [
+    "mocha"
+  ],
+  "rules": {
+    "comma-dangle": ["error", "always-multiline"],
+    "no-useless-constructor": "off",
+    "semi": ["error", "always"],
+    "template-tag-spacing": ["error", "always"],
+    "mocha/no-skipped-tests": "warn",
+    "mocha/no-empty-description": "error"
+  },
+  "ignorePatterns": ["schemaValidation/**/*.js"]
+}
