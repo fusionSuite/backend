@@ -20,6 +20,7 @@
 declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
+use Phinx\Db\Adapter\MysqlAdapter;
 
 final class Audit extends AbstractMigration
 {
@@ -47,7 +48,7 @@ final class Audit extends AbstractMigration
           ->addColumn('action', 'string')
           ->addColumn('model', 'string', ['null' => true])
           ->addColumn('item_id', 'integer', ['null' => true])
-          ->addColumn('message', 'string')
+          ->addColumn('message', 'text', ['limit' => MysqlAdapter::TEXT_LONG])
           ->addColumn('created_at', 'datetime')
           ->create();
   }

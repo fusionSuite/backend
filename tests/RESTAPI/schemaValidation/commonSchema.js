@@ -38,7 +38,7 @@ function checkResponse(response, responses) {
       if (responseData.type !== 'array') {
         // it's not an array, so use normal check
       } else {
-        assert(is.array(response), 'response property '+property+' not an array');
+        assert(is.array(response), 'response property ' + property + ' not an array');
         for (let item of response) {
           checkResponse(item, responseData.items.properties);
           stop = true;
@@ -49,7 +49,7 @@ function checkResponse(response, responses) {
       return;
     }
   }
-  assert(is.propertyCount(response, Object.keys(responses).length), 'The response property count not right: ['+Object.keys(response).toString()+'] => ['+Object.keys(responses).toString()+']');
+  assert(is.propertyCount(response, Object.keys(responses).length), 'The response property count not right: [' + Object.keys(response).toString() + '] => [' + Object.keys(responses).toString() + ']');
   for (const [property, responseData] of Object.entries(responses)) {
     // manage null value
     type = responseData.type;
@@ -64,132 +64,121 @@ function checkResponse(response, responses) {
     }
 
     if (type == 'string') {
-      assert(is.string(response[property]), 'The response property `'+property+'` not a string: '+response[property]);
+      assert(is.string(response[property]), 'The response property `' + property + '` not a string: ' + response[property]);
     } else if (type == 'number') {
-      assert(is.number(response[property]), 'response property '+property+' not a number');
+      assert(is.number(response[property]), 'response property ' + property + ' not a number');
     } else if (type == 'boolean') {
-      assert(is.boolean(response[property]), 'response property '+property+' not a boolean');
+      assert(is.boolean(response[property]), 'response property ' + property + ' not a boolean');
     } else if (type == 'iso8601') {
-      assert(validator.isISO8601(response[property]), 'response property '+property+' not a date at format ISO8601');
+      assert(validator.isISO8601(response[property]), 'response property ' + property + ' not a date at format ISO8601');
     } else if (type == 'array') {
-      assert(is.array(response[property]), 'response property '+property+' not an array');
+      assert(is.array(response[property]), 'response property ' + property + ' not an array');
       for (let item of response[property]) {
         if (responseData.items.type === 'object') {
           checkResponse(item, responseData.items.properties);
         } else { // it's array
           if (responseData.items.type == 'string') {
-            assert(is.string(item), 'The response property `'+property+'` not a string: '+item);
+            assert(is.string(item), 'The response property `' + property + '` not a string: ' + item);
           } else if (responseData.items.type == 'number') {
-            assert(is.number(item), 'response property '+property+' not a number');
+            assert(is.number(item), 'response property ' + property + ' not a number');
           }
         }
       }
     } else if (type == 'object') {
-      assert(is.object(response[property]), 'response property '+property+' not an object');
+      assert(is.object(response[property]), 'response property ' + property + ' not an object');
       checkResponse(response[property], responseData.properties);
     } else if (type == 'any') {
       // can by any type, so not test it
     } else if (type == 'string[]') {
-      assert(is.array(response[property]), 'response property '+property+' not an array');
+      assert(is.array(response[property]), 'response property ' + property + ' not an array');
       for (let item of response[property]) {
-        assert(is.string(item), 'The response property '+property+' not a string');
+        assert(is.string(item), 'The response property ' + property + ' not a string');
       }
     } else {
-      assert(false, 'response property type '+type+' or property '+property+' not supported in the test');
+      assert(false, 'response property type ' + type + ' or property ' + property + ' not supported in the test');
     }
   }
 }
 
-const executeRequest = (method, responses) => {
-  it('check the endpoint and the response', function(done) {
-    if (method === 'get') {
-      req = methodGet(global.path, global.headers, global.data, responses);
-    } else if (method === 'post') {
-      req = methodPost(global.path, global.headers, global.data, responses);
-    } else if (method === 'patch') {
-      req = methodPatch(global.path, global.headers, global.data, responses);
-    } else if (method === 'delete') {
-      req = methodDelete(global.path, global.headers, global.data, responses);
-    }
-    req
+const executeRequest = (done, method, responses) => {
+  if (method === 'get') {
+    req = methodGet(global.path, global.headers, global.data, responses);
+  } else if (method === 'post') {
+    req = methodPost(global.path, global.headers, global.data, responses);
+  } else if (method === 'patch') {
+    req = methodPatch(global.path, global.headers, global.data, responses);
+  } else if (method === 'delete') {
+    req = methodDelete(global.path, global.headers, global.data, responses);
+  }
+  req
     .set(headers)
     .send(global.data)
     .expect(200)
     .expect('Content-Type', /json/)
-    .expect(function(response) {
+    .expect(function (response) {
       checkResponse(response.body, responses);
       if (method === 'post') {
         global.id = response.body.id;
       }
     })
-    .end(function(err, response) {
+    .end(function (err, response) {
       if (err) {
         return done(err + ' | Response: ' + response.text);
       }
       return done();
     });
-
-  });
 };
 
-const generateHeaders = (parameters) => {
-  it('generate the headers', function(done) {
-    global.headers = {
-      'Accept': 'application/json'
-    };
-    for(let params of parameters) {
-      if (params.in == 'header') {
-        value = '';
-        if (params.name === 'Authorization') {
-          value = 'Bearer '+global.token;
+const generateHeaders = (done, parameters) => {
+  global.headers = {
+    'Accept': 'application/json'
+  };
+  for(let params of parameters) {
+    if (params.in == 'header') {
+      value = '';
+      if (params.name === 'Authorization') {
+        value = 'Bearer ' + global.token;
+      }
+      global.headers[params.name] = value;
+    }
+  }
+  return done();
+};
+
+const generateData = (done, parameters, mapping) => {
+  global.data = {};
+  for(let params of parameters) {
+    if (params.required === false && mapping[params.name] === undefined) {
+      continue;
+    }
+    if (params.in === 'body') {
+      for (let [name, property] of Object.entries(params.schema.properties)) {
+        value = null;
+        if (mapping[name] !== undefined) {
+          value = mapping[name];
+        } else if (!params.schema.required.includes(name)) {
+          continue;
+        } else if (property.type === 'string') {
+          value = faker.random.word();
         }
-        global.headers[params.name] = value;
+        global.data[name] = value;
       }
     }
-    return done();
-  });
+  }
+  return done();
 };
 
-const generateData = (parameters, mapping) => {
-  it('generate the data', function(done) {
-    global.data = {};
-    for(let params of parameters) {
-      if (params.required === false && mapping[params.name] === undefined) {
-        continue;
-      }
-      if (params.in === 'body') {
-        for (let [name, property] of Object.entries(params.schema.properties)) {
-          value = null;
-          if (mapping[name] !== undefined) {
-            value = mapping[name];
-          } else if (!params.schema.required.includes(name)) {
-            continue;
-          } else if (property.type === 'string') {
-            value = faker.random.word();
-          }
-          global.data[name] = value;
-        }
-      }
-    }
-    return done();
-  });
+const generatePath = (done, path, mapping) => {
+  global.path = path;
+  for (const [key, value] of Object.entries(mapping)) {
+    global.path = global.path.replace('{' + key + '}', global[value]);
+  }
+  return done();
 };
 
-const generatePath = (path, mapping) => {
-  it('generate the path: '+path, function(done) {
-    global.path = path;
-    for (const [key, value] of Object.entries(mapping)) {
-      global.path = global.path.replace('{'+key+'}', global[value]);
-    }
-    return done();
-  });
-};
-
-const copyGlobalValue = (attributeSource, attributeDestination) => {
-  it('copy global '+attributeSource+' to '+attributeDestination, function(done) {
-    global[attributeDestination] = global[attributeSource];
-    return done();
-  });
+const copyGlobalValue = (done, attributeSource, attributeDestination) => {
+  global[attributeDestination] = global[attributeSource];
+  return done();
 };
 
 exports.executeRequest = executeRequest;

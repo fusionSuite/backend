@@ -211,7 +211,13 @@ class Property extends Model
     }
     if ($this->valuetype == 'itemlinks')
     {
-      $valuetype = 'itemlink';
+      $items = \App\v1\Models\Config\Propertyitemlink::where('property_id', $this->id)->get();
+      $itemlinks = [];
+      foreach ($items as $item)
+      {
+        $itemlinks[] = $item->item_id;
+      }
+      return $itemlinks;
     }
     elseif ($this->valuetype == 'typelinks')
     {
