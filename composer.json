@@ -11,15 +11,15 @@
         "slim/slim": "4.*",
         "slim/psr7": "^1.1",
         "robmorgan/phinx": "^0.12.3",
-        "illuminate/database": "^8.73",
+        "illuminate/database": "9.*",
         "tuupola/slim-jwt-auth": "^3.4",
         "tuupola/base62": "^2.0",
         "spatie/array-to-xml": "^2.12",
         "hoa/ruler": "^2.17.05.16",
-        "illuminate/events": "^8.73",
+        "illuminate/events": "9.*",
         "rakit/validation": "^1.4",
         "adhocore/cli": "^0.9.0",
-        "genealabs/laravel-pivot-events": "^8.0"
+        "genealabs/laravel-pivot-events": "9.*"
     },
     "autoload": {
         "psr-4": {
