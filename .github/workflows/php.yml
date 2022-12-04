@@ -100,7 +100,7 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['7.4', '8.0', '8.1']
+        php-versions: ['8.0', '8.1']
 
     steps:
     - uses: actions/checkout@v2
@@ -140,7 +140,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     strategy:
       matrix:
-        php-versions: ['8.1']
+        php-versions: ['8.0', '8.1']
         mysql-versions: ['5.7', '8']
     services:
       mysql:
@@ -187,7 +187,7 @@ jobs:
       env:
         version: ${{ matrix.php-versions }}
       run: |
-        sudo apt-get install php$version-fpm
+        sudo apt-get install php$version-fpm php$version-mysql php$version-curl
         sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
         sudo service php$version-fpm start
         sudo service php$version-fpm status
@@ -197,7 +197,7 @@ jobs:
 
     - name: copy nginx config file
       run: |
-        sed -i 's/php7.4-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
+        sed -i 's/php8.0-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
         sudo cp tests/RESTAPI/fusionsuite.conf /etc/nginx/sites-enabled/fusionsuite.conf
         sudo rm /etc/nginx/sites-enabled/default
 
@@ -295,7 +295,7 @@ jobs:
       env:
         version: ${{ matrix.php-versions }}
       run: |
-        sudo apt-get install php$version-fpm
+        sudo apt-get install php$version-fpm php$version-mysql php$version-curl
         sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
         sudo service php$version-fpm start
         sudo service php$version-fpm status
@@ -305,7 +305,7 @@ jobs:
 
     - name: copy nginx config file
       run: |
-        sed -i 's/php7.4-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
+        sed -i 's/php8.0-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
         sudo cp tests/RESTAPI/fusionsuite.conf /etc/nginx/sites-enabled/fusionsuite.conf
         sudo rm /etc/nginx/sites-enabled/default
 
@@ -366,7 +366,7 @@ jobs:
     strategy:
       matrix:
         php-versions: ['8.1']
-        pg-versions: ['11', '12', '13', '14']
+        pg-versions: ['11', '12', '13', '14', '15']
 
     steps:
     - uses: actions/checkout@v2
@@ -402,7 +402,7 @@ jobs:
       env:
         version: ${{ matrix.php-versions }}
       run: |
-        sudo apt-get install php$version-fpm
+        sudo apt-get install php$version-fpm php$version-mysql php$version-curl
         sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
         sudo service php$version-fpm start
         sudo service php$version-fpm status
@@ -412,7 +412,7 @@ jobs:
 
     - name: copy nginx config file
       run: |
-        sed -i 's/php7.4-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
+        sed -i 's/php8.0-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
         sudo cp tests/RESTAPI/fusionsuite.conf /etc/nginx/sites-enabled/fusionsuite.conf
         sudo rm /etc/nginx/sites-enabled/default
 
@@ -509,7 +509,7 @@ jobs:
   #     env:
   #       version: ${{ matrix.php-versions }}
   #     run: |
-  #       sudo apt-get install php$version-fpm
+  #       sudo apt-get install php$version-fpm php$version-mysql php$version-curl
   #       sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
   #       sudo service php$version-fpm start
   #       sudo service php$version-fpm status
@@ -519,7 +519,7 @@ jobs:
 
   #   - name: copy nginx config file
   #     run: |
-  #       sed -i 's/php7.4-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
+  #       sed -i 's/php8.0-fpm/php${{ matrix.php-versions }}-fpm/g' tests/RESTAPI/fusionsuite.conf
   #       sudo cp tests/RESTAPI/fusionsuite.conf /etc/nginx/sites-enabled/fusionsuite.conf
   #       sudo rm /etc/nginx/sites-enabled/default
 
