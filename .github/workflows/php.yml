@@ -211,6 +211,11 @@ jobs:
     - name: install the action scripts
       run: ./bin/cli install
 
+    - name: copy PHP files to /var/www
+      run: |
+        sudo rm -fr /var/www/*
+        sudo cp -fr ./ /var/www/
+
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
@@ -314,6 +319,11 @@ jobs:
     - name: install the action scripts
       run: ./bin/cli install
 
+    - name: copy PHP files to /var/www
+      run: |
+        sudo rm -fr /var/www/*
+        sudo cp -fr ./ /var/www/
+
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
@@ -415,6 +425,11 @@ jobs:
 
     - name: install the action scripts
       run: ./bin/cli install
+
+    - name: copy PHP files to /var/www
+      run: |
+        sudo rm -fr /var/www/*
+        sudo cp -fr ./ /var/www/
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
@@ -523,6 +538,11 @@ jobs:
 
   #   - name: install the action scripts
   #     run: ./bin/cli install
+
+  #  - name: copy PHP files to /var/www
+  #    run: |
+  #      sudo rm -fr /var/www/*
+  #      sudo cp -fr ./ /var/www/
 
   #   - name: Set up Node.js
   #     uses: actions/setup-node@v2
