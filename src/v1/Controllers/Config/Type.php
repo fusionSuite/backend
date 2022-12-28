@@ -322,9 +322,11 @@ final class Type
    * @apiUse AutorizationHeader
    *
    * @apiBody {String}       name                             The name of the type of items.
+   * @apiBody {null|String{2..255}}  [internalname]           The internal name of the type (only lowercase a to z
+   *    and .), if not defined, be generated with name.
    * @apiBody {Null|Number}  [organization_id]                The id of the organization. If null or not defined, use
    *    the user default organization_id.
-   * @apiBody {boolean}      [sub_organization]               Define of the item can be viewed in sub organizations.
+   * @apiBody {boolean}      [sub_organization=false]         Define of the item can be viewed in sub organizations.
    * @apiBody {Boolean}      [tree=false]                     Set if the items of this type are in a tree.
    * @apiBody {Boolean}      [allowtreemultipleroots=false]   Set if the items of this type are in a tree and can
    *    have multiple roots.
@@ -785,6 +787,7 @@ final class Type
     // Validate the data format
     $dataFormat = [
       'name'                   => 'required|type:string',
+      'internalname'           => 'type:string|regex:/^[a-z.]+$/|minchars:2|maxchars:255',
       'tree'                   => 'type:boolean|boolean',
       'allowtreemultipleroots' => 'type:boolean|boolean',
       'organization_id'        => 'type:integer|integer',
