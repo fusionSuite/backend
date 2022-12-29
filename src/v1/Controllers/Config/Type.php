@@ -190,7 +190,7 @@ final class Type
    *    in a tree.
    * @apiSuccess {Boolean}          allowtreemultipleroots        Set if the items of this type can
    *    have multiple roots.
-   * @apiSuccess {Boolean}          types.unique_name             Set if the name of items is unique.
+   * @apiSuccess {Boolean}          unique_name                   Set if the name of items is unique.
    * @apiSuccess {ISO8601}          created_at                    Date of the type creation.
    * @apiSuccess {null|ISO8601}     updated_at                    Date of the last type modification.
    * @apiSuccess {null|ISO8601}     deleted_at                    Date of the soft delete of the type.
@@ -330,6 +330,7 @@ final class Type
    * @apiBody {Boolean}      [tree=false]                     Set if the items of this type are in a tree.
    * @apiBody {Boolean}      [allowtreemultipleroots=false]   Set if the items of this type are in a tree and can
    *    have multiple roots.
+   * @apiBody {Boolean}      [unique_name=false]              Set if the name of items is unique.
    *
    * @apiParamExample {json} Request-Example:
    * {
