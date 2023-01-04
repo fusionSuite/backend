@@ -168,6 +168,24 @@ describe('itemProperties | typelinks type | working set | default value', functi
     });
   });
 
+  describe('property, update: type id4', function () {
+    it('update the property', function (done) {
+      common.updateProperty(done, [4], 200);
+    });
+    it('Get the property to check value is good', function (done) {
+      common.checkProperty(done, [4]);
+    });
+  });
+
+  describe('property, update: replace with type id2', function () {
+    it('update the property', function (done) {
+      common.updateProperty(done, [2], 200);
+    });
+    it('Get the property to check value is good', function (done) {
+      common.checkProperty(done, [2]);
+    });
+  });
+
   describe('clean', function () {
     it('Soft delete the item', function (done) {
       common.deleteItem(done);

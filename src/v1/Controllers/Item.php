@@ -1294,7 +1294,7 @@ final class Item
   public static function attachPropertyDefaultToItem($property, $item)
   {
     $fieldName = 'value_' . $property->valuetype;
-    if ($property->valuetype == 'itemlinks')
+    if ($property->valuetype == 'itemlinks' && !is_null($property->default))
     {
       foreach ($property->default as $itemlink)
       {
