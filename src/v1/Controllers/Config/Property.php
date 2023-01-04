@@ -487,6 +487,87 @@ final class Property
       $property->save();
     }
 
+    // Special case for list, because store default values in another model
+    if ($data->valuetype == 'list' && !is_null($data->default))
+    {
+      // get values, delete if not in list, and add is missing
+      $propertylists = \App\v1\Models\Config\Propertylist::where('property_id', $property->id)->get();
+      foreach ($propertylists as $proplist)
+      {
+        if (!in_array($proplist->value, $data->default))
+        {
+          $proplist->delete();
+        } else {
+          $key = array_search($proplist->value, $data->default);
+          if ($key !== false) {
+              unset($data->default[$key]);
+          }
+          unset($data->default[$proplist]);
+        }
+      }
+      foreach ($data->default as $typeId)
+      {
+        $propertylist = new \App\v1\Models\Config\Propertylist();
+        $propertylist->property_id = $property->id;
+        $propertylist->value = $typeId;
+        $propertylist->save();
+      }
+    }
+
+    // Special case for itemlinks, because store default values in another model
+    if ($data->valuetype == 'itemlinks' && !is_null($data->default))
+    {
+      // get values, delete if not in list, and add is missing
+      $propertyitemlinks = \App\v1\Models\Config\Propertyitemlink::where('property_id', $property->id)->get();
+      foreach ($propertyitemlinks as $propitemlink)
+      {
+        if (!in_array($propitemlink->item_id, $data->default))
+        {
+          $propitemlink->delete();
+        } else {
+          $key = array_search($propitemlink->item_id, $data->default);
+          if ($key !== false) {
+              unset($data->default[$key]);
+          }
+          unset($data->default[$propitemlink]);
+        }
+      }
+      foreach ($data->default as $typeId)
+      {
+        $propertyitemlink = new \App\v1\Models\Config\Propertyitemlink();
+        $propertyitemlink->property_id = $property->id;
+        $propertyitemlink->item_id = $typeId;
+        $propertyitemlink->save();
+      }
+    }
+
+    // Special case for typelinks, because store default values in another model
+    if ($data->valuetype == 'typelinks' && !is_null($data->default))
+    {
+      // get values, delete if not in list, and add is missing
+      $propertytypelinks = \App\v1\Models\Config\Propertytypelink::where('property_id', $property->id)->get();
+      foreach ($propertytypelinks as $proptypelink)
+      {
+        if (!in_array($proptypelink->type_id, $data->default))
+        {
+          $proptypelink->delete();
+        } else {
+          $key = array_search($proptypelink->type_id, $data->default);
+          if ($key !== false) {
+              unset($data->default[$key]);
+          }
+          unset($data->default[$proptypelink]);
+        }
+      }
+      foreach ($data->default as $typeId)
+      {
+        $propertytypelink = new \App\v1\Models\Config\Propertytypelink();
+        $propertytypelink->property_id = $property->id;
+        $propertytypelink->type_id = $typeId;
+        $propertytypelink->save();
+      }
+    }
+
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -618,7 +699,7 @@ final class Property
     }
     $property->save();
 
-    // add list valies in the right model
+    // add list values in the right model
     if (
         $data->valuetype == 'list'
         && \App\v1\Post::postHasProperties($data, ['listvalues']) === true
