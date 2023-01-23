@@ -14,7 +14,7 @@ describe('itemPropertyWhenAddPropertyToTypeByTemplate | add new property to type
           {
             name: 'testType',
             internalname: 'testtype',
-            propertygroups: [
+            panels: [
               {
                 name: 'Main',
                 properties: [

@@ -83,15 +83,6 @@ final class Type
    * @apiSuccess {null|String[]}    types.properties.listvalues         The list of values when
    *    valuetype="list", else null.
    * @apiSuccess {Any}              types.properties.default            The default value.
-   * @apiSuccess {Object[]}         types.propertygroups                The properties groups list.
-   * @apiSuccess {Number}           types.propertygroups.id             The id of the properties group.
-   * @apiSuccess {String}           types.propertygroups.name           The name of the properties group.
-   * @apiSuccess {Number}           types.propertygroups.position       The position of the properties
-   *    group, related to other groups of the type.
-   * @apiSuccess {Number[]}         types.propertygroups.properties     The id list of properties of the
-   *    properties group.
-   * @apiSuccess {ISO8601}          types.propertygroups.created_at     Date of the item creation.
-   * @apiSuccess {null|ISO8601}     types.propertygroups.updated_at     Date of the last item modification.
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
@@ -131,12 +122,7 @@ final class Type
    *         "listvalues": [],
    *         "default": "",
    *       }
-   *     ],
-   *     "propertygroups": [],
-   *     "organization": {
-   *       "id": 4,
-   *       "name": "suborg_2"
-   *     }
+   *     ]
    *   }
    * ]
    *
@@ -227,15 +213,6 @@ final class Type
    * @apiSuccess {null|String[]}    properties.listvalues         The list of values when
    *    valuetype="list", else null.
    * @apiSuccess {Any}              properties.default            The default value.
-   * @apiSuccess {Object[]}         propertygroups                The properties groups list.
-   * @apiSuccess {Number}           propertygroups.id             The id of the properties group.
-   * @apiSuccess {String}           propertygroups.name           The name of the properties group.
-   * @apiSuccess {Number}           propertygroups.position       The position of the properties
-   *    group, related to other groups of the type.
-   * @apiSuccess {Number[]}         propertygroups.properties     The id list of properties of the
-   *    properties group.
-   * @apiSuccess {ISO8601}          propertygroups.created_at     Date of the item creation.
-   * @apiSuccess {null|ISO8601}     propertygroups.updated_at     Date of the last item modification.
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
@@ -274,12 +251,7 @@ final class Type
    *       "listvalues": [],
    *       "default": "",
    *     }
-   *   ],
-   *   "propertygroups": [],
-   *   "organization": {
-   *     "id": 4,
-   *     "name": "suborg_2"
-   *   }
+   *   ]
    * }
    *
    */
@@ -479,8 +451,12 @@ final class Type
       $type->properties()->detach();
       $type->forceDelete();
 
-      // Post delete actions
+      // ====== Post delete actions ====== //
+      // delete in roles
       \App\v1\Controllers\Config\Permissionstructure::deleteEndpointIdToRoles('config/type', $args['id']);
+      // delete panels
+      \App\v1\Controllers\Display\Type\Typepanel::deleteAllPanels($type->id);
+      // ====== End ====================== //
     }
     else
     {
@@ -579,16 +555,7 @@ final class Type
 
     // Note : no need to check if relation exist. If exist, return error 'The element already exists'
 
-    $type->properties()->attach($args['propertyid']);
-    // use touch() to update updated_at in the type
-    $type->touch();
-
-    // add this property to all items yet created for this type
-    $items = \App\v1\Models\Item::where('type_id', $args['id'])->get();
-    foreach ($items as $item)
-    {
-      \App\v1\Controllers\Item::attachPropertyDefaultToItem($property, $item);
-    }
+    $this->associateProperty($type, $args['propertyid']);
 
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -658,6 +625,11 @@ final class Type
       $item->properties()->detach($args['propertyid']);
     }
 
+    // ====== Post detach property actions ====== //
+    // delete property in display/typepanelitem
+    \App\v1\Controllers\Display\Type\Typepanelitem::deletePanelItem($args['propertyid'], $type->id);
+    // ====== ENd =============================== //
+
     $response->getBody()->write(json_encode([]));
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -670,29 +642,25 @@ final class Type
    *
    * @apiUse AutorizationHeader
    *
-   * @apiBody {String[]}  [license]                                         The license of this template file (Array
-   *    of Strings).
-   * @apiBody {Object[]}  types                                             List of types (Array of Objects).
-   * @apiBody {String}    types.name                                        The name of the type.
-   * @apiBody {String}    types.internalname                                The unique internalname of the type.
-   * @apiBody {Object[]}  types.propertygroups                              The propertygroup (Array of Objects).
-   * @apiBody {String}    types.propertygroups.name                         The name of the propertygroup.
-   * @apiBody {Object[]}  types.propertygroups.properties                   The properties in the propertygroup
-   *    (Array of Objects).
-   * @apiBody {String}    types.propertygroups.properties.name              The name of the property.
-   * @apiBody {String}    types.propertygroups.properties.internalname      The internal name of the property.
+   * @apiBody {String[]}  [license]                                The license of this template file (Array of Strings).
+   * @apiBody {Object[]}  types                                    List of types (Array of Objects).
+   * @apiBody {String}    types.name                               The name of the type.
+   * @apiBody {String}    types.internalname                       The unique internalname of the type.
+   * @apiBody {Object[]}  types.panels                             The display panels (Array of Objects).
+   * @apiBody {String}    types.panels.name                        The name of the panel.
+   * @apiBody {Object[]}  types.panels.properties                  The properties in the panel (Array of Objects).
+   * @apiBody {String}    types.panels.properties.name             The name of the property.
+   * @apiBody {String}    types.panels.properties.internalname     The internal name of the property.
    * @codingStandardsIgnoreStart because break apidocsjs
-   * @apiBody {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  types.propertygroups.properties.valuetype  The type of value.
+   * @apiBody {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink","itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  types.panels.properties.valuetype  The type of value.
    * @codingStandardsIgnoreEnd
-   * @apiBody {null|String}   types.propertygroups.properties.regexformat   The regexformat to verify the value is
+   * @apiBody {null|String}   types.panels.properties.regexformat  The regexformat to verify the value is
    *    conform (works only with valuetype is string or list).
-   * @apiBody {null|String[]} types.propertygroups.properties.listvalues    The list of values when valuetype="list",
-   *    else null.
-   * @apiBody {null|String}   types.propertygroups.properties.unit          The unit used for the property (example:
+   * @apiBody {null|String[]} types.panels.properties.listvalues   The list of values when valuetype="list", else null.
+   * @apiBody {null|String}   types.panels.properties.unit         The unit used for the property (example:
    *    Ko, seconds...).
-   * @apiBody {null|String}   types.propertygroups.properties.default       The default value for the property.
-   * @apiBody {null|String}   types.propertygroups.properties.description   The description of the property, describe
-   *    the usage.
+   * @apiBody {null|String}   types.panels.properties.default      The default value for the property.
+   * @apiBody {null|String}   types.panels.properties.description  The description of the property, describe the usage.
    *
    * @apiParamExample {json} Request-Example:
    * {
@@ -717,7 +685,7 @@ final class Type
    *     {
    *       "name": "RuleAction Zabbix API configuration",
    *       "internalname": "ruleaction.zabbix.apiconfiguration",
-   *       "propertygroups": [
+   *       "panels": [
    *         {
    *           "name": "Configuration",
    *           "properties": [
@@ -737,7 +705,7 @@ final class Type
    *     {
    *       "name": "RuleAction Zabbix templates",
    *       "internalname": "ruleaction.zabbix.templates",
-   *       "propertygroups": [
+   *       "panels": [
    *         {
    *           "name": "Main",
    *           "properties": [
@@ -835,8 +803,15 @@ final class Type
     }
     $type->save();
 
+    // ====== Post create type actions ====== //
     // Add to permissions
     \App\v1\Controllers\Config\Permissionstructure::addEndpointIdToRoles('config/type', $type->id);
+    // add display/typepanel
+    $typepanel = new \App\v1\Models\Display\Type\Typepanel();
+    $typepanel->name = 'Default';
+    $typepanel->type_id = $type->id;
+    $typepanel->save();
+    // ====== End =========================== //
 
     return $type;
   }
@@ -862,20 +837,20 @@ final class Type
       ];
       \App\v1\Common::validateData($type, $dataFormat);
 
-      // Validate for each propertygroup
-      if (property_exists($type, 'propertygroups'))
+      // Validate for each panel
+      if (property_exists($type, 'panels'))
       {
-        foreach ($type->propertygroups as $propertygroup)
+        foreach ($type->panels as $panel)
         {
           $dataFormat = [
             'name' => 'required|type:string',
           ];
-          \App\v1\Common::validateData($propertygroup, $dataFormat);
+          \App\v1\Common::validateData($panel, $dataFormat);
 
           // Validate each properties
-          if (property_exists($propertygroup, 'properties'))
+          if (property_exists($panel, 'properties'))
           {
-            foreach ($propertygroup->properties as $property)
+            foreach ($panel->properties as $property)
             {
               $dataFormat = [
                 'name'         => 'required|type:string',
@@ -898,7 +873,6 @@ final class Type
     // End of data format validation
 
     $ctrlProperty = new \App\v1\Controllers\Config\Property();
-    $ctrlPropertygroup = new \App\v1\Controllers\Config\Propertygroup();
 
     // Create types
     foreach ($data->types as $type)
@@ -909,14 +883,27 @@ final class Type
       }
       $typeId = $typeItem->id;
 
-      // Create propertygroups
-      foreach ($type->propertygroups as $propertygroup)
+      // Create panel
+      foreach ($type->panels as $panel)
       {
         $newData = new \stdClass();
-        $newData->name = $propertygroup->name;
+        $newData->name = $panel->name;
         $propertyListId = [];
+        $typepanel = new \App\v1\Models\Display\Type\Typepanel();
+        $typepanel->name = $panel->name;
+        if (property_exists($panel, 'icon'))
+        {
+          $typepanel->icon = $panel->icon;
+        }
+        if (property_exists($panel, 'displaytype') && $panel->displaytype == 'timeline')
+        {
+          $typepanel->displaytype = 'timeline';
+        }
+        $typepanel->type_id = $typeId;
+        $typepanel->save();
+
         // create properties or get id if yet exists
-        foreach ($propertygroup->properties as $property)
+        foreach ($panel->properties as $property)
         {
           if (property_exists($property, 'internalname') === false)
           {
@@ -965,14 +952,54 @@ final class Type
             {
               \App\v1\Controllers\Item::attachPropertyDefaultToItem($property, $item);
             }
+
+            // add property in display (typepanelitem)
+            $typepanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeItem->id)
+              ->where('name', $panel->name)
+              ->first();
+            $typepanelitem = new \App\v1\Models\Display\Type\Typepanelitem();
+            $typepanelitem->property_id = $propId;
+            $typepanelitem->typepanel_id = $typepanel->id;
+            // TODO rework better this part of code
+            if (property_exists($panel, 'displaytype'))
+            {
+              $messageProp = \App\v1\Models\Config\Property
+                ::where('internalname', 'incidentmessagedescription')
+                ->first();
+              $typepanelitem->timeline_message = $messageProp->id;
+            }
+            $typepanelitem->save();
           }
         }
 
         $newData->properties = $propertyListId;
-        $ctrlPropertygroup->createPropertygroup($newData, $typeId);
       }
     }
     return true;
+  }
+
+  /**
+   * Associate a property to the type
+   */
+  public function associateProperty($type, $propertyId, $typepanelName = 'Default')
+  {
+    $property = \App\v1\Models\Config\Property::find($propertyId);
+
+    $type->properties()->attach($propertyId);
+    // use touch() to update updated_at in the type
+    $type->touch();
+
+    // ====== Post attach property to type actions ====== //
+    // add this property to all items yet created for this type
+    $items = \App\v1\Models\Item::where('type_id', $type->id)->get();
+    foreach ($items as $item)
+    {
+      \App\v1\Controllers\Item::attachPropertyDefaultToItem($property, $item);
+    }
+
+    // add property in display/typepanelitem
+    \App\v1\Controllers\Display\Type\Typepanelitem::createPanelitem($propertyId, $type->id, $typepanelName);
+    // ====== End ======================================= //
   }
 
   /**

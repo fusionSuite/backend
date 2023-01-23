@@ -33,9 +33,9 @@ class Item extends Model
   protected $appends = [
     'properties',
     // 'child_items',
-    'propertygroups',
     'organization',
-    'changes'
+    'changes',
+    'type_id',
   ];
   protected $visible = [
     'id',
@@ -206,11 +206,6 @@ class Item extends Model
     return [];
   }
 
-  public function getPropertygroupsAttribute()
-  {
-    return \App\v1\Models\Config\Type::find($this->attributes['type_id'])->propertygroups()->get();
-  }
-
   public function getOrganizationAttribute()
   {
     $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
@@ -244,6 +239,11 @@ class Item extends Model
   public function getChangesAttribute()
   {
     return $this->changes()->get();
+  }
+
+  public function getTypeIdAttribute()
+  {
+    return $this->attributes['type_id'];
   }
 
   public function properties()
@@ -297,11 +297,6 @@ class Item extends Model
     ->wherePivot('property_id', $propertyId)
     ->orderByPivot('id', 'asc')
     ->withTimestamps();
-  }
-
-  public function propertygroups()
-  {
-    // return $this->belongsToMany('App\v1\Models\Config\Propertygroup', 'id', 'type_id');
   }
 
   public function roles()

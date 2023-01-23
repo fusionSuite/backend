@@ -20,7 +20,7 @@
     {
       "name": "Contract",
       "internalname": "contract",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Main",
           "properties": [
@@ -91,7 +91,7 @@
     {
       "name": "Ticket",
       "internalname": "ticket",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Contracts",
           "properties": [

@@ -15,7 +15,7 @@ describe('type | Endpoint /v1/config/types', function () {
       .expect('Content-Type', /json/)
       .expect(function (response) {
         const laptopType = response.body[2]; // laptops
-        assert(is.propertyCount(laptopType, 17));
+        assert(is.propertyCount(laptopType, 16));
         assert(is.number(laptopType.id));
         assert(is.string(laptopType.name));
         assert(is.string(laptopType.internalname));
@@ -25,7 +25,6 @@ describe('type | Endpoint /v1/config/types', function () {
         assert(validator.isISO8601(laptopType.created_at));
         assert(validator.isISO8601(laptopType.updated_at));
         assert(is.array(laptopType.properties));
-        assert(is.array(laptopType.propertygroups));
 
         assert(validator.equals('' + laptopType.id, '3'));
         assert(validator.equals(laptopType.name, 'Laptop'));

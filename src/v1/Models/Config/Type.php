@@ -33,7 +33,6 @@ class Type extends Model
   protected $fillable = ['name', 'internalname'];
   protected $appends = [
     'properties',
-    'propertygroups',
     'organization',
     'changes'
   ];
@@ -45,7 +44,6 @@ class Type extends Model
     'sub_organization',
     'modeling',
     'properties',
-    'propertygroups',
     'tree',
     'allowtreemultipleroots',
     'unique_name',
@@ -129,6 +127,8 @@ class Type extends Model
       \App\v1\Controllers\Config\Property::deleteAllowedtypesByTypeId($model->id);
       // delete items of this type
       \App\v1\Controllers\Item::deleteItemsByTypeId($model->id);
+      // delete in menuitems
+      \App\v1\Controllers\Display\Menu\Menuitem::deleteItemByTypeId(($model->id));
     });
 
     static::pivotAttached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
@@ -172,11 +172,6 @@ class Type extends Model
     return [];
   }
 
-  public function getPropertygroupsAttribute()
-  {
-    return $this->propertygroups()->get();
-  }
-
   public function getChangesAttribute()
   {
     return $this->changes()->get();
@@ -186,11 +181,6 @@ class Type extends Model
   public function properties()
   {
     return $this->belongsToMany('App\v1\Models\Config\Property')->withTimestamps();
-  }
-
-  public function propertygroups()
-  {
-    return $this->hasMany('App\v1\Models\Config\Propertygroup');
   }
 
   public function structureroles()

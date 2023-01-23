@@ -276,10 +276,10 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['organization'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['address']);
-      $myType->properties()->attach($this->propertiesId['postalcode']);
-      $myType->properties()->attach($this->propertiesId['city']);
-      $myType->properties()->attach($this->propertiesId['country']);
+      $type->associateProperty($myType, $this->propertiesId['address']);
+      $type->associateProperty($myType, $this->propertiesId['postalcode']);
+      $type->associateProperty($myType, $this->propertiesId['city']);
+      $type->associateProperty($myType, $this->propertiesId['country']);
 
     // Create first level organization
     $data = (object)[
@@ -297,11 +297,11 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['users'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['propIdFirstname']);
-      $myType->properties()->attach($this->propertiesId['propIdLastname']);
-      $myType->properties()->attach($this->propertiesId['propIdUserrefreshtoken']);
-      $myType->properties()->attach($this->propertiesId['propIdJwtid']);
-      $myType->properties()->attach($this->propertiesId['propIdActivated']);
+      $type->associateProperty($myType, $this->propertiesId['propIdFirstname']);
+      $type->associateProperty($myType, $this->propertiesId['propIdLastname']);
+      $type->associateProperty($myType, $this->propertiesId['propIdUserrefreshtoken']);
+      $type->associateProperty($myType, $this->propertiesId['propIdJwtid']);
+      $type->associateProperty($myType, $this->propertiesId['propIdActivated']);
 
     // create first user
     $data = (object)[
@@ -333,11 +333,11 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['laptop'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['serialnumber']);
-      $myType->properties()->attach($this->propertiesId['model']);
-      $myType->properties()->attach($this->propertiesId['type']);
-      $myType->properties()->attach($this->propertiesId['manufacturer']);
-      $myType->properties()->attach($this->propertiesId['inventorynumber']);
+      $type->associateProperty($myType, $this->propertiesId['serialnumber']);
+      $type->associateProperty($myType, $this->propertiesId['model']);
+      $type->associateProperty($myType, $this->propertiesId['type']);
+      $type->associateProperty($myType, $this->propertiesId['manufacturer']);
+      $type->associateProperty($myType, $this->propertiesId['inventorynumber']);
 
     // Create BIOS
     $myType = $type->createType((object)[
@@ -348,8 +348,8 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['bios'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['version']);
-      $myType->properties()->attach($this->propertiesId['date']);
+      $type->associateProperty($myType, $this->propertiesId['version']);
+      $type->associateProperty($myType, $this->propertiesId['date']);
 
     // Create Antivirus
     $myType = $type->createType((object)[
@@ -360,12 +360,12 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['antivirus'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['serialnumber']);
-      $myType->properties()->attach($this->propertiesId['enabled']);
-      $myType->properties()->attach($this->propertiesId['uptodate']);
-      $myType->properties()->attach($this->propertiesId['baseversion']);
-      $myType->properties()->attach($this->propertiesId['version']);
-      $myType->properties()->attach($this->propertiesId['manufacturer']);
+      $type->associateProperty($myType, $this->propertiesId['serialnumber']);
+      $type->associateProperty($myType, $this->propertiesId['enabled']);
+      $type->associateProperty($myType, $this->propertiesId['uptodate']);
+      $type->associateProperty($myType, $this->propertiesId['baseversion']);
+      $type->associateProperty($myType, $this->propertiesId['version']);
+      $type->associateProperty($myType, $this->propertiesId['manufacturer']);
 
     // Create Battery
     $myType = $type->createType((object)[
@@ -376,12 +376,12 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['battery'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['chemistry']);
-      $myType->properties()->attach($this->propertiesId['manufacturingdate']);
-      $myType->properties()->attach($this->propertiesId['serialnumber']);
-      $myType->properties()->attach($this->propertiesId['manufacturer']);
-      $myType->properties()->attach($this->propertiesId['capacity']);
-      $myType->properties()->attach($this->propertiesId['voltage']);
+      $type->associateProperty($myType, $this->propertiesId['chemistry']);
+      $type->associateProperty($myType, $this->propertiesId['manufacturingdate']);
+      $type->associateProperty($myType, $this->propertiesId['serialnumber']);
+      $type->associateProperty($myType, $this->propertiesId['manufacturer']);
+      $type->associateProperty($myType, $this->propertiesId['capacity']);
+      $type->associateProperty($myType, $this->propertiesId['voltage']);
 
     // Create Processor
     $myType = $type->createType((object)[
@@ -392,13 +392,13 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['processor'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['serialnumber']);
-      $myType->properties()->attach($this->propertiesId['manufacturer']);
-      $myType->properties()->attach($this->propertiesId['model']);
-      $myType->properties()->attach($this->propertiesId['core']);
-      $myType->properties()->attach($this->propertiesId['thread']);
-      $myType->properties()->attach($this->propertiesId['speed']);
-      $myType->properties()->attach($this->propertiesId['architecture']);
+      $type->associateProperty($myType, $this->propertiesId['serialnumber']);
+      $type->associateProperty($myType, $this->propertiesId['manufacturer']);
+      $type->associateProperty($myType, $this->propertiesId['model']);
+      $type->associateProperty($myType, $this->propertiesId['core']);
+      $type->associateProperty($myType, $this->propertiesId['thread']);
+      $type->associateProperty($myType, $this->propertiesId['speed']);
+      $type->associateProperty($myType, $this->propertiesId['architecture']);
 
     // Create Software
     $myType = $type->createType((object)[
@@ -409,18 +409,18 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['software'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['version']);
-      $myType->properties()->attach($this->propertiesId['description']);
-      $myType->properties()->attach($this->propertiesId['folder']);
-      $myType->properties()->attach($this->propertiesId['informationsource']);
-      $myType->properties()->attach($this->propertiesId['URLhelp']);
-      $myType->properties()->attach($this->propertiesId['installationdate']);
-      $myType->properties()->attach($this->propertiesId['manufacturer']);
-      $myType->properties()->attach($this->propertiesId['uninstallcommand']);
-      $myType->properties()->attach($this->propertiesId['URL']);
-      $myType->properties()->attach($this->propertiesId['GUID']);
-      $myType->properties()->attach($this->propertiesId['architecture']);
-      $myType->properties()->attach($this->propertiesId['softwarecategory']);
+      $type->associateProperty($myType, $this->propertiesId['version']);
+      $type->associateProperty($myType, $this->propertiesId['description']);
+      $type->associateProperty($myType, $this->propertiesId['folder']);
+      $type->associateProperty($myType, $this->propertiesId['informationsource']);
+      $type->associateProperty($myType, $this->propertiesId['URLhelp']);
+      $type->associateProperty($myType, $this->propertiesId['installationdate']);
+      $type->associateProperty($myType, $this->propertiesId['manufacturer']);
+      $type->associateProperty($myType, $this->propertiesId['uninstallcommand']);
+      $type->associateProperty($myType, $this->propertiesId['URL']);
+      $type->associateProperty($myType, $this->propertiesId['GUID']);
+      $type->associateProperty($myType, $this->propertiesId['architecture']);
+      $type->associateProperty($myType, $this->propertiesId['softwarecategory']);
 
     // create Operating system
     $myType = $type->createType((object)[
@@ -431,14 +431,14 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['operatingsystem'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['kernelname']);
-      $myType->properties()->attach($this->propertiesId['kernelversion']);
-      $myType->properties()->attach($this->propertiesId['completename']);
-      $myType->properties()->attach($this->propertiesId['version']);
-      $myType->properties()->attach($this->propertiesId['servicepack']);
-      $myType->properties()->attach($this->propertiesId['installationdate']);
-      $myType->properties()->attach($this->propertiesId['architecture']);
-      $myType->properties()->attach($this->propertiesId['lastboot']);
+      $type->associateProperty($myType, $this->propertiesId['kernelname']);
+      $type->associateProperty($myType, $this->propertiesId['kernelversion']);
+      $type->associateProperty($myType, $this->propertiesId['completename']);
+      $type->associateProperty($myType, $this->propertiesId['version']);
+      $type->associateProperty($myType, $this->propertiesId['servicepack']);
+      $type->associateProperty($myType, $this->propertiesId['installationdate']);
+      $type->associateProperty($myType, $this->propertiesId['architecture']);
+      $type->associateProperty($myType, $this->propertiesId['lastboot']);
 
     // create Controller
     $myType = $type->createType((object)[
@@ -449,7 +449,7 @@ final class FusioninventoryDataModel extends AbstractMigration
     $this->itemsId['controller'] = $myType->id;
 
       // Attach properties
-      $myType->properties()->attach($this->propertiesId['manufacturer']);
+      $type->associateProperty($myType, $this->propertiesId['manufacturer']);
   }
 
 

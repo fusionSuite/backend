@@ -20,7 +20,7 @@
     {
       "name": "Incident message",
       "internalname": "incidentmessage",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Main",
           "properties": [
@@ -72,7 +72,7 @@
       "name": "Incident category",
       "internalname": "incidentcategory",
       "tree": true,
-      "propertygroups": [
+      "panels": [
         {
           "name": "Main",
           "properties": [
@@ -83,7 +83,7 @@
     {
       "name": "Incident",
       "internalname": "incident",
-      "propertygroups": [
+      "panels": [
         {
           "name": "State",
           "properties": [

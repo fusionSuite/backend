@@ -103,17 +103,18 @@ final class FillUserparams extends AbstractMigration
     $propIdPropertiesHidden = $ctrlProperty->createProperty($data, $token);
 
     // create the type
-    $type = new \App\v1\Models\Config\Type();
-    $type->name = 'itemlist userparam';
-    $type->internalname = 'userparam.itemlist';
-    $type->modeling = 'userparam';
-    $type->save();
+    $ctype = new \App\v1\Controllers\Config\Type();
+    $type = $ctype->createType((object)[
+      'name'         => 'itemlist userparam',
+      'internalname' => 'userparam.itemlist',
+      'modeling'     => 'userparam'
+    ], $token);
 
     // associate the properties
-    $type->properties()->attach($this->propIdTypeId);
-    $type->properties()->attach($propIdElementsPerPage);
-    $type->properties()->attach($propIdProperties);
-    $type->properties()->attach($propIdPropertiesHidden);
+    $ctype->associateProperty($type, $this->propIdTypeId);
+    $ctype->associateProperty($type, $propIdElementsPerPage);
+    $ctype->associateProperty($type, $propIdProperties);
+    $ctype->associateProperty($type, $propIdPropertiesHidden);
   }
 
   private function createItem()
@@ -146,17 +147,17 @@ final class FillUserparams extends AbstractMigration
     $propIdJoiningFields = $ctrlProperty->createProperty($data, $token);
 
     // create the type
-    $type = new \App\v1\Models\Config\Type();
-    $type->name = 'CSV cols mapping cols userparam';
-    $type->internalname = 'userparam.csvimport';
-    $type->modeling = 'userparam';
-    $type->save();
-    $typeId = $type->id;
+    $ctype = new \App\v1\Controllers\Config\Type();
+    $type = $ctype->createType((object)[
+      'name'         => 'CSV cols mapping cols userparam',
+      'internalname' => 'userparam.csvimport',
+      'modeling'     => 'userparam'
+    ], $token);
 
     // associate the properties
-    $type->properties()->attach($this->propIdTypeId);
-    $type->properties()->attach($propIdMappingcols);
-    $type->properties()->attach($propIdJoiningFields);
+    $ctype->associateProperty($type, $this->propIdTypeId);
+    $ctype->associateProperty($type, $propIdMappingcols);
+    $ctype->associateProperty($type, $propIdJoiningFields);
   }
 
   private function createGlobalmenu()

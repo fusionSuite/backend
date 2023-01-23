@@ -169,4 +169,42 @@ class Common
     $orgs = \App\v1\Models\Item::where('type_id', TYPE_ORGANIZATION_ID)->whereIn('id_bytype', $ids_bytype);
     return $orgs->pluck('id')->toArray();
   }
+
+  /**
+   * change the position of element in model (used by display menu, typepanels...)
+   */
+  public static function changePosition($oldPosition, $newPosition, $model)
+  {
+    if ($oldPosition > $newPosition)
+    {
+      // increment
+      $model
+        ->where('position', '<', $oldPosition)
+        ->where('position', '>=', $newPosition)
+        ->increment('position', 1);
+    } elseif ($oldPosition < $newPosition)
+    {
+      // decrement
+      $model
+        ->where('position', '>', $oldPosition)
+        ->where('position', '<=', $newPosition)
+        ->decrement('position', 1);
+    }
+  }
+
+  /**
+   * check icon and return the string or null if bad format
+   */
+  public static function setDisplayIcon($icon)
+  {
+    if (is_null($icon))
+    {
+      return null;
+    }
+    elseif (empty($icon) || $icon == '[]')
+    {
+      return null;
+    }
+    return $icon;
+  }
 }
