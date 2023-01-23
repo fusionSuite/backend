@@ -81,3 +81,48 @@ if (count($matches) == 2)
   $data['rows']  = $item->get()->toArray();
   echo json_encode($data);
 }
+
+preg_match('/\/menuitemcustom\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
+if (count($matches) == 2)
+{
+  header('Content-Type: application/json; charset=utf-8');
+  $data = [
+    'count' => 0,
+    'rows'  => []
+  ];
+
+$data['count'] = $capsule->table('menuitemcustoms')->where('user_id', $matches[1][0])->count();
+  echo json_encode($data);
+}
+
+preg_match('/\/typepanels\/typeid\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
+if (count($matches) == 2)
+{
+  header('Content-Type: application/json; charset=utf-8');
+  $data = [
+    'count' => 0,
+    'rows'  => []
+  ];
+
+  $data['count'] = $capsule->table('typepanels')->where('type_id', $matches[1][0])->count();
+  $data['rows'] = $capsule->table('typepanels')->where('type_id', $matches[1][0])->get()->toArray();
+  echo json_encode($data);
+}
+
+preg_match('/\/typepanelitems\/typeid\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
+if (count($matches) == 2)
+{
+  header('Content-Type: application/json; charset=utf-8');
+  $data = [
+    'count' => 0,
+    'rows'  => []
+  ];
+
+  $typepanels = $capsule->table('typepanels')->where('type_id', $matches[1][0])->get();
+  foreach ($typepanels as $typepanel)
+  {
+    $data['count'] += $capsule->table('typepanelitems')->where('typepanel_id', $typepanel->id)->count();
+    $data['rows'] = array_merge($data['rows'], $capsule->table('typepanelitems')->where('typepanel_id', $typepanel->id)->get()->toArray());
+  }
+  echo json_encode($data);
+}

@@ -20,7 +20,7 @@
     {
       "name": "Memory stick",
       "internalname": "memorystick",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Main",
           "properties": [
@@ -51,7 +51,7 @@
     {
       "name": "Memory slot",
       "internalname": "memoryslot",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Main",
           "properties": [
@@ -92,7 +92,7 @@
     {
       "name": "computer test3",
       "internalname": "computertestnewnew",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Main",
           "properties": [

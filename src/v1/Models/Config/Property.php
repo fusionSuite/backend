@@ -137,6 +137,15 @@ class Property extends Model
     {
       return $this->listvalues()->get();
     }
+    elseif ($this->valuetype == 'itemlink' || $this->valuetype == 'itemlinks')
+    {
+    }
+    elseif ($this->valuetype == 'typelink' || $this->valuetype == 'typelinks')
+    {
+    }
+    elseif ($this->valuetype == 'propertylink')
+    {
+    }
     return [];
   }
 

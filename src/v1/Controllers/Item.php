@@ -84,13 +84,6 @@ final class Item
    * @apiSuccess {Any}             -.properties.value              The value of the property defined for this item.
    * @apiSuccess {Any}             -.properties.default            The default value of the property.
    * @apiSuccess {Boolean}         -.properties.byfusioninventory  Is updated by FusionInventory.
-   * @apiSuccess {Object[]}        -.propertygroups                List of property groups of the item.
-   * @apiSuccess {Number}          -.propertygroups.id             The id of the propertygroup.
-   * @apiSuccess {String}          -.propertygroups.name           The name of the propertygroup.
-   * @apiSuccess {Number}          -.propertygroups.position       The position number of the propertygroup.
-   * @apiSuccess {Number[]}        -.propertygroups.properties     The list of properties id.
-   * @apiSuccess {ISO8601}         -.propertygroups.created_at     Date of the propertygroups creation.
-   * @apiSuccess {null|ISO8601}    -.propertygroups.updated_at     Date of the last propertygroups modification.
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
@@ -147,16 +140,6 @@ final class Item
    *         "listvalues": [],
    *         "value": "Dell",
    *         "byfusioninventory": true
-   *       }
-   *     ],
-   *     "propertygroups": [
-   *       {
-   *         "id": 2,
-   *         "name": "Main",
-   *         "position": 0,
-   *         "properties": [3,4,5],
-   *         "created_at": "2022-06-02T04:35:44.000000Z",
-   *         "updated_at": "2022-06-02T04:35:44.000000Z"
    *       }
    *     ]
    *   }
@@ -259,6 +242,7 @@ final class Item
    * @apiSuccess {String}          name                          The name of the item.
    * @apiSuccess {Number}          id_bytype                     The id of the item by type (this id will
    *    generate consecutive id for the same type_id).
+   * @apiSuccess {Number}          type_id                       The id of the type of the item
    * @apiSuccess {null|Number}     parent_id                     The id of the parent item.
    * @apiSuccess {String}          treepath                      The complete path of tree of the item.
    * @apiSuccess {ISO8601}         created_at                    Date of the item creation.
@@ -297,13 +281,6 @@ final class Item
    * @apiSuccess {Any}             properties.value              The value of the property defined for this item.
    * @apiSuccess {Any}             properties.default            The default value of the property.
    * @apiSuccess {Boolean}         properties.byfusioninventory  Is updated by FusionInventory.
-   * @apiSuccess {Object[]}        propertygroups                List of property groups of the item.
-   * @apiSuccess {Number}          propertygroups.id             The id of the propertygroup.
-   * @apiSuccess {String}          propertygroups.name           The name of the propertygroup.
-   * @apiSuccess {Number}          propertygroups.position       The position number of the propertygroup.
-   * @apiSuccess {Number[]}        propertygroups.properties     The list of properties id.
-   * @apiSuccess {ISO8601}         propertygroups.created_at     Date of the propertygroups creation.
-   * @apiSuccess {null|ISO8601}    propertygroups.updated_at     Date of the last propertygroups modification.
    *
    * @apiSuccessExample {json} Success-Response:
    * HTTP/1.1 200 OK
@@ -311,6 +288,7 @@ final class Item
    *   "id": 45,
    *   "name": "LP-000345",
    *   "id_bytype": 23,
+   *   "type_id": 4,
    *   "created_at": "2020-07-20 14:30:45",
    *   "updated_at": "2022-08-11T22:34:41.000000Z",
    *   "deleted_at": null,
@@ -360,16 +338,6 @@ final class Item
    *       "value": "Dell",
    *       "byfusioninventory": true
    *     }
-   *   ],
-   *   "propertygroups": [
-   *     {
-   *       "id": 2,
-   *       "name": "Main",
-   *       "position": 0,
-   *       "properties": [3,4,5],
-   *       "created_at": "2022-06-02T04:35:44.000000Z",
-   *       "updated_at": "2022-06-02T04:35:44.000000Z"
-   *     }
    *   ]
    * }
    *
@@ -393,7 +361,7 @@ final class Item
     // check permissions
     \App\v1\Permission::checkPermissionToData('view', $item->type_id);
 
-    $item->makeVisible(['propertygroups', 'changes']);
+    $item->makeVisible(['changes', 'type_id']);
     if (
         !in_array($item->organization_id, $organizations)
         && (!(in_array($item->organization_id, $parentsOrganizations) && $item->sub_organization))
@@ -425,11 +393,21 @@ final class Item
       {
         if ($property['valuetype'] == 'itemlinks')
         {
-          $property['value'] = [$property['value']];
+          if (is_null($property['value']))
+          {
+            $property['value'] = [];
+          } else {
+            $property['value'] = [$property['value']];
+          }
         }
         if ($property['valuetype'] == 'typelinks')
         {
-          $property['value'] = [$property['value']];
+          if (is_null($property['value']))
+          {
+            $property['value'] = [];
+          } else {
+            $property['value'] = [$property['value']];
+          }
         }
         $itemProperties[$property['id']] = $property;
       }
@@ -635,6 +613,12 @@ final class Item
 
       \App\v1\Controllers\Log\Audit::addEntry($request, 'DELETE', '', 'Item', $item->id);
       $item->forceDelete();
+
+      // if type user, all a function for delete some things
+      if ($item->type_id == 2)
+      {
+        $this->deleteItemsLinkedToUser($args['id'], $request);
+      }
     }
     else
     {
@@ -1763,6 +1747,23 @@ final class Item
           'value_' . $type . 'link' => $linkId
         ]);
       }
+    }
+  }
+
+  private function deleteItemsLinkedToUser($userId, Request $request)
+  {
+    // delete menuitemcustom
+    $customs = \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)->get();
+    foreach ($customs as $custom)
+    {
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'DELETE',
+        '',
+        'Display\Menu\Menuitemcustom',
+        $custom->id
+      );
+      $custom->forceDelete();
     }
   }
 }

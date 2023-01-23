@@ -20,7 +20,7 @@
     {
       "name": "Action script notification Discord configuration",
       "internalname": "actionscript.discord.configuration",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Configuration",
           "properties": [
@@ -51,7 +51,7 @@
     {
       "name": "Action script notification Discord",
       "internalname": "actionscript.discord.sendmessage",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Configuration",
           "properties": [

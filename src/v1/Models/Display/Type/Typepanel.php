@@ -18,31 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace App\v1\Models\Config;
+namespace App\v1\Models\Display\Type;
 
 use Illuminate\Database\Eloquent\Model as Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Capsule\Manager as DB;
 
-class Propertygroup extends Model
+class Typepanel extends Model
 {
-  protected $fillable = [
-    'name',
-    'type_id',
-    'position',
-    'properties'
+  protected $appends = [
   ];
-  protected $appends = [];
   protected $visible = [
     'id',
     'name',
+    'icon',
     'position',
-    'properties',
-    'created_at',
-    'updated_at'
+    'displaytype',
+    'type_id',
+    'items'
   ];
-  protected $hidden = [];
 
-  public function getPropertiesAttribute()
+  /**
+   * The attributes that should be cast.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'name'      => 'string',
+    'icon'      => 'string',
+    'position'  => 'integer'
+  ];
+
+  public function getItemsAttribute()
   {
-    return json_decode($this->attributes['properties']);
+    return [];
+  }
+
+  public function items()
+  {
+    return $this->hasMany('\App\v1\Models\Display\Type\Typepanelitem')->orderBy('position');
   }
 }

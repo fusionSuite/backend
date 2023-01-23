@@ -126,15 +126,6 @@ final class Route
                 \App\v1\Controllers\Config\Type::class . ':deleteProperty'
               );
             });
-            $typeid->group("/propertygroups", function (RouteCollectorProxy $propertygroup)
-            {
-              $propertygroup->map(['POST'], '', \App\v1\Controllers\Config\Propertygroup::class . ':postItem');
-              // $propertygroup->map(
-              //   ['PATCH'],
-              //   '/propertygroupid:[0-9]+',
-              //   \App\v1\Controllers\Config\Propertygroup::class . ':patchItem'
-              // );
-            });
           });
           $type->map(['POST'], '/templates', \App\v1\Controllers\Config\Type::class . ':postTemplate');
         });
@@ -223,6 +214,72 @@ final class Route
           {
             $ruleAction->map(['PATCH'], '', \App\v1\Controllers\Rule::class . ':updateAction');
             $ruleAction->map(['DELETE'], '', \App\v1\Controllers\Rule::class . ':deleteAction');
+          });
+        });
+      });
+
+      // Manage display
+      $v1->group("/display", function (RouteCollectorProxy $display)
+      {
+        $display->group("/menu", function (RouteCollectorProxy $menu)
+        {
+          $menu->map(['GET'], '', \App\v1\Controllers\Display\Menu\Menu::class . ':routeGetAll');
+          $menu->map(['POST'], '', \App\v1\Controllers\Display\Menu\Menu::class . ':routePost');
+          $menu->group("/{id:[0-9]+}", function (RouteCollectorProxy $menuId)
+          {
+            $menuId->map(['GET'], '', \App\v1\Controllers\Display\Menu\Menu::class . ':routeGetOne');
+            $menuId->map(['PATCH'], '', \App\v1\Controllers\Display\Menu\Menu::class . ':routePatch');
+            $menuId->map(['DELETE'], '', \App\v1\Controllers\Display\Menu\Menu::class . ':routeDelete');
+          });
+          $menu->group("/item", function (RouteCollectorProxy $item)
+          {
+            $item->map(['GET'], '', \App\v1\Controllers\Display\Menu\Menuitem::class . ':routeGetAll');
+            $item->map(['POST'], '', \App\v1\Controllers\Display\Menu\Menuitem::class . ':routePost');
+            $item->group("/{id:[0-9]+}", function (RouteCollectorProxy $itemId)
+            {
+              $itemId->map(['GET'], '', \App\v1\Controllers\Display\Menu\Menuitem::class . ':routeGetOne');
+              $itemId->map(['PATCH'], '', \App\v1\Controllers\Display\Menu\Menuitem::class . ':routePatch');
+              $itemId->map(['DELETE'], '', \App\v1\Controllers\Display\Menu\Menuitem::class . ':routeDelete');
+            });
+          });
+          $menu->group("/custom", function (RouteCollectorProxy $custom)
+          {
+            $custom->map(['GET'], '', \App\v1\Controllers\Display\Menu\Menuitemcustom::class . ':routeGetAll');
+            $custom->map(['POST'], '', \App\v1\Controllers\Display\Menu\Menuitemcustom::class . ':routePost');
+            $custom->group("/{id:[0-9]+}", function (RouteCollectorProxy $customId)
+            {
+              $customId->map(['GET'], '', \App\v1\Controllers\Display\Menu\Menuitemcustom::class . ':routeGetOne');
+              $customId->map(['PATCH'], '', \App\v1\Controllers\Display\Menu\Menuitemcustom::class . ':routePatch');
+              $customId->map(['DELETE'], '', \App\v1\Controllers\Display\Menu\Menuitemcustom::class . ':routeDelete');
+            });
+          });
+        });
+        $display->group("/type", function (RouteCollectorProxy $type)
+        {
+          $type->map(
+            ['GET'],
+            '/{typeId:[0-9]+}/panels',
+            \App\v1\Controllers\Display\Type\Typepanel::class . ':routeGetAllOfType'
+          );
+          $type->group("/panels", function (RouteCollectorProxy $panels)
+          {
+            $panels->map(['POST'], '', \App\v1\Controllers\Display\Type\Typepanel::class . ':routePost');
+            $panels->group("/{panelId:[0-9]+}", function (RouteCollectorProxy $panel)
+            {
+              $panel->map(['GET'], '', \App\v1\Controllers\Display\Type\Typepanel::class . ':routeGetOne');
+              $panel->map(['PATCH'], '', \App\v1\Controllers\Display\Type\Typepanel::class . ':routePatch');
+              $panel->map(['DELETE'], '', \App\v1\Controllers\Display\Type\Typepanel::class . ':routeDelete');
+              $panel->map(
+                ['GET'],
+                '/panelitems',
+                \App\v1\Controllers\Display\Type\Typepanel::class . ':routeGetAllOfPanel'
+              );
+            });
+          });
+          $type->group('/panelitems/{panelitemId:[0-9]+}', function (RouteCollectorProxy $panelitem)
+          {
+            $panelitem->map(['GET'], '', \App\v1\Controllers\Display\Type\Typepanelitem::class . ':routeGetOne');
+            $panelitem->map(['PATCH'], '', \App\v1\Controllers\Display\Type\Typepanelitem::class . ':routePatch');
           });
         });
       });

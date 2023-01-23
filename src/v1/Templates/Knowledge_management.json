@@ -2,7 +2,7 @@
   {
     "itemName": "Knowledge base",
     "internalname": "knowledgebase",
-    "propertygroups": [
+    "panels": [
       {
         "name": "Classification",
         "properties": [

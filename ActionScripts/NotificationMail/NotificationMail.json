@@ -20,7 +20,7 @@
     {
       "name": "RuleAction Mail notification SMTP configuration",
       "internalname": "ruleaction.mailnotification.smtpconfiguration",
-      "propertygroups": [
+      "panels": [
         {
           "name": "SMTP config",
           "properties": [
@@ -101,7 +101,7 @@
     {
       "name": "RuleAction Mail notification information",
       "internalname": "ruleaction.mailnotification.config",
-      "propertygroups": [
+      "panels": [
         {
           "name": "Config",
           "properties": [
