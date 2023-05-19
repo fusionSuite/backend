@@ -346,7 +346,7 @@ pre code.sample-request-response-json {
 .sidenav > li > a {
   display: block;
   margin: 0;
-  padding: 6px 28px;
+  padding: 6px 10px;
   border: 0;
   border-left: transparent 4px solid;
   border-right: transparent 4px solid;
@@ -356,7 +356,7 @@ pre code.sample-request-response-json {
 }
 
 .sidenav > li.nav-header > a {
-  padding: 5px 15px 5px 20px;
+  padding: 5px 15px 5px 10px;
   font-family: "Roboto", monospace, sans-serif;
   font-weight: 700;
   font-size: 15px;
