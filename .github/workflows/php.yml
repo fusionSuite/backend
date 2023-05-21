@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['8.1']
+        php-versions: ['8.0', '8.1', '8.2']
 
     steps:
     - uses: actions/checkout@v2
@@ -100,7 +100,7 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['8.0', '8.1']
+        php-versions: ['8.0', '8.1', '8.2']
 
     steps:
     - uses: actions/checkout@v2
@@ -140,7 +140,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     strategy:
       matrix:
-        php-versions: ['8.0', '8.1']
+        php-versions: ['8.0', '8.1', '8.2']
         mysql-versions: ['5.7', '8']
     services:
       mysql:
@@ -248,7 +248,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     strategy:
       matrix:
-        php-versions: ['8.1']
+        php-versions: ['8.1', '8.2']
         mariadb-versions: ['10.4', '10.5', '10.6', '10.7']
     services:
       mariadb:
@@ -365,7 +365,7 @@ jobs:
           POSTGRES_DB: fusionsuite
     strategy:
       matrix:
-        php-versions: ['8.1']
+        php-versions: ['8.1', '8.2']
         pg-versions: ['11', '12', '13', '14', '15']
 
     steps:
