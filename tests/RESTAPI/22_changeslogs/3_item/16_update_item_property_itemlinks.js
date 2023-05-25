@@ -11,7 +11,7 @@ describe('changes | items | update itemlinks type property', function () {
       .post('/v1/items/' + global.itemId + '/property/' + global.properties.itemlinks + '/itemlinks')
       .send(
         {
-          value: 1,
+          value: global.user1,
         })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
@@ -42,8 +42,8 @@ describe('changes | items | update itemlinks type property', function () {
         const lastChanges = response.body.changes[(global.changesEntries - 1)];
         assert(is.equal('admin', lastChanges.username), 'must have username = admin');
         assert(is.null(lastChanges.old_value), 'old value is wrong');
-        assert(is.equal('{"id":1,"name":"My organization"}', lastChanges.new_value), 'new value is wrong');
-        assert(is.equal('admin added "My organization" (Organization) to "property with type itemlinks"', lastChanges.message), 'wrong message');
+        assert(is.equal('{"id":' + global.user1.toString() + ',"name":"user1"}', lastChanges.new_value), 'new value is wrong');
+        assert(is.equal('admin added "user1" (Users) to "property with type itemlinks"', lastChanges.message), 'wrong message');
       })
       .end(function (err, response) {
         if (err) {
@@ -72,7 +72,7 @@ describe('changes | items | update itemlinks type property', function () {
 
   it('delete an itemlink property of the item', function (done) {
     request
-      .delete('/v1/items/' + global.itemId + '/property/' + global.properties.itemlinks + '/itemlinks/1')
+      .delete('/v1/items/' + global.itemId + '/property/' + global.properties.itemlinks + '/itemlinks/' + global.user1.toString())
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)
@@ -101,9 +101,9 @@ describe('changes | items | update itemlinks type property', function () {
 
         const lastChanges = response.body.changes[(global.changesEntries - 1)];
         assert(is.equal('admin', lastChanges.username), 'must have username = admin');
-        assert(is.equal('{"id":1,"name":"My organization"}', lastChanges.old_value), 'old value is wrong');
+        assert(is.equal('{"id":' + global.user1.toString() + ',"name":"user1"}', lastChanges.old_value), 'old value is wrong');
         assert(is.null(lastChanges.new_value), 'new value is wrong');
-        assert(is.equal('admin deleted property "property with type itemlinks" named "My organization"', lastChanges.message), 'wrong message');
+        assert(is.equal('admin deleted property "property with type itemlinks" named "user1"', lastChanges.message), 'wrong message');
       })
       .end(function (err, response) {
         if (err) {
@@ -135,7 +135,7 @@ describe('changes | items | update itemlinks type property', function () {
       .patch('/v1/items/' + global.itemId + '/property/' + global.properties.itemlinks)
       .send(
         {
-          value: [1, 2],
+          value: [global.user1, 2],
         })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
@@ -166,8 +166,8 @@ describe('changes | items | update itemlinks type property', function () {
         const lastChanges = response.body.changes[(global.changesEntries - 1)];
         assert(is.equal('admin', lastChanges.username), 'must have username = admin');
         assert(is.null(lastChanges.old_value), 'old value is wrong');
-        assert(is.equal('{"id":1,"name":"My organization"}', lastChanges.new_value), 'new value is wrong');
-        assert(is.equal('admin added "My organization" (Organization) to "property with type itemlinks"', lastChanges.message), 'wrong message');
+        assert(is.equal('{"id":' + global.user1.toString() + ',"name":"user1"}', lastChanges.new_value), 'new value is wrong');
+        assert(is.equal('admin added "user1" (Users) to "property with type itemlinks"', lastChanges.message), 'wrong message');
       })
       .end(function (err, response) {
         if (err) {
@@ -194,7 +194,7 @@ describe('changes | items | update itemlinks type property', function () {
       });
   });
 
-  it('Update itemlinks property of the item to [2] (will delete the id 1', function (done) {
+  it('Update itemlinks property of the item to [2] (will delete the id 1)', function (done) {
     request
       .patch('/v1/items/' + global.itemId + '/property/' + global.properties.itemlinks)
       .send(
@@ -229,9 +229,9 @@ describe('changes | items | update itemlinks type property', function () {
 
         const lastChanges = response.body.changes[(global.changesEntries - 1)];
         assert(is.equal('admin', lastChanges.username), 'must have username = admin');
-        assert(is.equal('{"id":1,"name":"My organization"}', lastChanges.old_value), 'old value is wrong');
+        assert(is.equal('{"id":' + global.user1.toString() + ',"name":"user1"}', lastChanges.old_value), 'old value is wrong');
         assert(is.null(lastChanges.new_value), 'new value is wrong');
-        assert(is.equal('admin deleted property "property with type itemlinks" named "My organization"', lastChanges.message), 'wrong message');
+        assert(is.equal('admin deleted property "property with type itemlinks" named "user1"', lastChanges.message), 'wrong message');
       })
       .end(function (err, response) {
         if (err) {

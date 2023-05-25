@@ -122,10 +122,11 @@
               "internalname": "action.zabbix.apiconfiguration",
               "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": ["ruleaction.zabbix.apiconfiguration"],
+              "listvalues": [],
               "unit": "",
               "default": null,
-              "description": ""
+              "description": "",
+              "allowedtypes": ["ruleaction.zabbix.apiconfiguration"]
             },
             {
               "name": "RuleAction class name",
@@ -197,20 +198,22 @@
               "internalname": "action.zabbix.templates",
               "valuetype": "itemlinks",
               "regexformat": "",
-              "listvalues": ["ruleaction.zabbix.templates"],
+              "listvalues": [],
               "unit": "",
               "default": null,
-              "description": ""
+              "description": "",
+              "allowedtypes": ["ruleaction.zabbix.templates"]
             },
             {
               "name": "RuleAction Zabbix macros",
               "internalname": "action.zabbix.macros",
               "valuetype": "itemlinks",
               "regexformat": "",
-              "listvalues": ["ruleaction.zabbix.macros"],
+              "listvalues": [],
               "unit": "",
               "default": null,
-              "description": ""
+              "description": "",
+              "allowedtypes": ["ruleaction.zabbix.macros"]
             }
           ]
         }

@@ -11,11 +11,11 @@ describe('itemProperties | itemlink type | bad value | create items', function (
     });
 
     it('create a property', function (done) {
-      common.createProperty(done, global.itemId1);
+      common.createProperty(done, global.itemId1, true, [3]);
     });
 
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, global.itemId1);
+      common.checkProperty(done, global.itemId1, [3]);
     });
 
     it('Attach a property to the type itemlink', function (done) {

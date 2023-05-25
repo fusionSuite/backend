@@ -848,6 +848,8 @@ final class Item
   {
     $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
+    $args['id'] = intval($args['id']);
+    $args['propertyid'] = intval($args['propertyid']);
 
     $item = \App\v1\Models\Item::find($args['id']);
     if (is_null($item))
@@ -875,6 +877,12 @@ final class Item
     {
       throw new \Exception('The Value is an id than does not exist', 400);
     }
+
+    // Check if the type of the item is allowed
+    $property = new stdClass();
+    $property->property_id = $args['propertyid'];
+    $property->value = [$data->value];
+    $this->validationPropertyValue($property, false);
 
     $item->properties()->attach($args['propertyid'], [
       'value_itemlink' => $data->value
@@ -942,8 +950,8 @@ final class Item
     {
       $this->defineLinksOldProperties($item, $args['itemlinkid'], $args['propertyid']);
       $item->properties()
-      ->wherePivot('value_itemlink', $args['itemlinkid'])
-      ->detach($args['propertyid']);
+        ->wherePivot('value_itemlink', $args['itemlinkid'])
+        ->detach($args['propertyid']);
     }
     \App\v1\Controllers\Log\Audit::addEntry(
       $request,
@@ -1326,6 +1334,30 @@ final class Item
     }
   }
 
+  /**
+   * used to delete items when admin delete a type
+   */
+  public static function deleteItemsByTypeId($typeId)
+  {
+    $types = \App\v1\Models\Item::where('type_id', $typeId)->get();
+    foreach ($types as $type)
+    {
+      $type->forcedelete();
+    }
+  }
+
+  /**
+   * used to delete items in properties
+   */
+  public static function deleteItemlinkInProperties($itemId)
+  {
+    $itemProperties = \App\v1\Models\ItemProperty::where('value_itemlink', $itemId)->get();
+    foreach ($itemProperties as $itemProperty)
+    {
+      $itemProperty->delete();
+    }
+  }
+
   private function checkProperty($id, $valuetype = null)
   {
     $property = \App\v1\Models\Config\Property::find($id);
@@ -1343,7 +1375,7 @@ final class Item
     }
   }
 
-  private function validationPropertyValue($data)
+  private function validationPropertyValue($data, $extendedError = true)
   {
     $dataFormat = [
       'property_id' => 'required|type:integer|integer|min:1',
@@ -1425,6 +1457,7 @@ final class Item
       // check if the item id exists
       if ($property->valuetype == 'itemlink')
       {
+        $allowedtypesIds = array_column($property->allowedtypes, 'id');
         $item = \App\v1\Models\Item::find($data->value);
         if (is_null($item))
         {
@@ -1434,10 +1467,24 @@ final class Item
             400
           );
         }
+        if (!in_array($item->type_id, $allowedtypesIds))
+        {
+          throw new \Exception(
+            'The Value is an id on type not allowed (property ' . $property->name . ' - ' .
+              strval($property->id) . ')',
+            400
+          );
+        }
       }
 
       if ($property->valuetype == 'itemlinks')
       {
+        $allowedtypesIds = array_column($property->allowedtypes, 'id');
+        $extend = '';
+        if ($extendedError)
+        {
+          $extend = ' (property ' . $property->name . ' - ' . strval($property->id) . ')';
+        }
         foreach ($data->value as $itemId)
         {
           // validatation of the item type
@@ -1455,8 +1502,14 @@ final class Item
           if (is_null($item))
           {
             throw new \Exception(
-              'The Value is an id than does not exist (property ' . $property->name . ' - ' .
-                strval($property->id) . ')',
+              'The Value is an id than does not exist' . $extend,
+              400
+            );
+          }
+          if (!in_array($item->type_id, $allowedtypesIds))
+          {
+            throw new \Exception(
+              'The Value is an id on type not allowed' . $extend,
               400
             );
           }

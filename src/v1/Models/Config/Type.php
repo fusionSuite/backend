@@ -125,6 +125,10 @@ class Type extends Model
     static::forceDeleted(function ($model)
     {
       \App\v1\Models\Common::changesOnDeleted($model, $model->original);
+      // delete in allowedtypes
+      \App\v1\Controllers\Config\Property::deleteAllowedtypesByTypeId($model->id);
+      // delete items of this type
+      \App\v1\Controllers\Item::deleteItemsByTypeId($model->id);
     });
 
     static::pivotAttached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)

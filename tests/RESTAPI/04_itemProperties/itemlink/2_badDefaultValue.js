@@ -56,11 +56,11 @@ describe('itemProperties | itemlink type | bad default value', function () {
 
   describe('property, update: bad default value => error', function () {
     it('create the property', function (done) {
-      common.createProperty(done, null);
+      common.createProperty(done, null, true, [3]);
     });
 
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, null);
+      common.checkProperty(done, null, [3]);
     });
 
     // eslint-disable-next-line mocha/no-setup-in-describe

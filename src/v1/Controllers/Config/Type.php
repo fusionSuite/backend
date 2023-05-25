@@ -878,15 +878,16 @@ final class Type
             foreach ($propertygroup->properties as $property)
             {
               $dataFormat = [
-                'name'        => 'required|type:string',
+                'name'         => 'required|type:string',
                 'internalname' => 'type:string|regex:/^[a-z.]+$/',
-                'valuetype'   => 'required|in:boolean,date,datetime,decimal,integer,itemlink,itemlinks,list,number,' .
-                                 'propertylink,string,text,time,typelink,typelinks|type:string',
-                'regexformat' => 'present|type:string',
-                'listvalues'  => 'present|type:array',
-                'unit'        => 'type:string',
-                'default'     => 'present',
-                'description' => 'type:string'
+                'valuetype'    => 'required|in:boolean,date,datetime,decimal,integer,itemlink,itemlinks,list,number,' .
+                                  'propertylink,string,text,time,typelink,typelinks|type:string',
+                'regexformat'  => 'present|type:string',
+                'listvalues'   => 'present|type:array',
+                'unit'         => 'type:string',
+                'default'      => 'present',
+                'description'  => 'type:string',
+                'allowedtypes' => 'type:array',
               ];
               \App\v1\Common::validateData($property, $dataFormat);
             }
@@ -924,6 +925,21 @@ final class Type
           $prop = \App\v1\Models\Config\Property::firstWhere('internalname', $property->internalname);
           if (is_null($prop))
           {
+            // Manage allowedtypes for valuetype is itemlink or itemlinks
+            // get the type_id for the internalname, needed for create properties
+            if (in_array($property->valuetype, ['itemlink', 'itemlinks']) && property_exists($property, 'allowedtypes'))
+            {
+              $allowedtypes = [];
+              foreach ($property->allowedtypes as $internalnameTypes)
+              {
+                $typeOfItemlink = \App\v1\Models\Config\Type::firstWhere('internalname', $internalnameTypes);
+                if (!is_null($typeOfItemlink))
+                {
+                  $allowedtypes[] = $typeOfItemlink->id;
+                }
+              }
+              $property->allowedtypes = $allowedtypes;
+            }
             $propertyListId[] = $ctrlProperty->createProperty($property, $token);
           }
           else

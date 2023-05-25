@@ -238,6 +238,7 @@ describe('changes | items | prepare type and properties', function () {
         valuetype: 'itemlink',
         listvalues: ['users'],
         default: 2,
+        allowedtypes: [2],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
@@ -267,6 +268,7 @@ describe('changes | items | prepare type and properties', function () {
         valuetype: 'itemlinks',
         listvalues: ['users'],
         default: [2],
+        allowedtypes: [2],
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
@@ -575,4 +577,31 @@ describe('changes | items | prepare type and properties', function () {
         });
     });
   }
+
+  it('create a user', function (done) {
+    request
+      .post('/v1/items')
+      .send({
+        name: 'user1',
+        type_id: 2,
+        organization_id: 1,
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .expect(function (response) {
+        assert(is.propertyCount(response.body, 2));
+        assert(is.integer(response.body.id));
+        assert(is.integer(response.body.id_bytype));
+        assert(validator.matches('' + response.body.id, /^\d+$/));
+        global.user1 = response.body.id;
+      })
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
 });

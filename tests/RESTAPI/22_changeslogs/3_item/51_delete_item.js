@@ -82,4 +82,34 @@ describe('changes | items | delete the item', function () {
         return done();
       });
   });
+
+  it('Soft delete the user1', function (done) {
+    request
+      .delete('/v1/items/' + global.user1.toString())
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
+
+  it('Hard delete the user1', function (done) {
+    request
+      .delete('/v1/items/' + global.user1.toString())
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
 });

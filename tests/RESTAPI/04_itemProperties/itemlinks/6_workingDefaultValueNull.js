@@ -12,11 +12,11 @@ describe('itemProperties | itemlinks type | working set | default value null', f
     });
 
     it('create the property', function (done) {
-      common.createProperty(done, null);
+      common.createProperty(done, null, true, [3]);
     });
 
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, null);
+      common.checkProperty(done, null, [3]);
     });
 
     it('Attach a property to the type itemlinks', function (done) {
@@ -86,7 +86,7 @@ describe('itemProperties | itemlinks type | working set | default value null', f
     });
 
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, null);
+      common.checkProperty(done, null, [3]);
     });
   });
 
@@ -95,7 +95,7 @@ describe('itemProperties | itemlinks type | working set | default value null', f
       common.updateProperty(done, [global.itemId4], 200);
     });
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, [global.itemId4]);
+      common.checkProperty(done, [global.itemId4], [3]);
     });
   });
 
@@ -104,7 +104,7 @@ describe('itemProperties | itemlinks type | working set | default value null', f
       common.updateProperty(done, [global.itemId2], 200);
     });
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, [global.itemId2]);
+      common.checkProperty(done, [global.itemId2], [3]);
     });
   });
 
@@ -113,7 +113,7 @@ describe('itemProperties | itemlinks type | working set | default value null', f
       common.updateProperty(done, null, 200);
     });
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, null);
+      common.checkProperty(done, null, [3]);
     });
   });
 
