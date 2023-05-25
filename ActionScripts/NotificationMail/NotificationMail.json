@@ -110,10 +110,11 @@
               "internalname": "action.notification.smtpconfig",
               "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": ["ruleaction.mailnotification.smtpconfiguration"],
+              "listvalues": [],
               "unit": "",
               "default": null,
-              "description": ""
+              "description": "",
+              "allowedtypes": ["ruleaction.mailnotification.smtpconfiguration"]
             },
             {
               "name": "RuleAction class name",

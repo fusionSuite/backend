@@ -33,7 +33,7 @@ const createType = (done, itemPropertyName) => {
     });
 };
 
-const createProperty = (done, value, canbenull = true) => {
+const createProperty = (done, value, canbenull = true, allowedtypes = null) => {
   const data = {
     name: 'Test for ' + global.itemPropertyName,
     internalname: 'testfor' + global.itemPropertyName,
@@ -46,6 +46,9 @@ const createProperty = (done, value, canbenull = true) => {
   };
   if (!canbenull) {
     data.canbenull = false;
+  }
+  if (allowedtypes !== null) {
+    data.allowedtypes = allowedtypes;
   }
   request
     .post('/v1/config/properties')
@@ -68,7 +71,7 @@ const createProperty = (done, value, canbenull = true) => {
     });
 };
 
-const checkProperty = (done, value) => {
+const checkProperty = (done, value, allowedtypes = []) => {
   request
     .get('/v1/config/properties/' + global.propertyvaluesid.toString())
     .set('Accept', 'application/json')
@@ -84,6 +87,16 @@ const checkProperty = (done, value) => {
         assert(is.equal(response.body.default.length, value.length), 'Property default not have the same length');
       } else {
         assert(is.equal(response.body.default, value), 'Property value is not good');
+      }
+      assert(is.array(response.body.allowedtypes), 'The allowedtypes field must be an array');
+      assert(is.equal(allowedtypes.length, response.body.allowedtypes.length), 'Property allowedtypes must have same number of elements');
+      if (allowedtypes.length > 0) {
+        const allowedtypesIds = [];
+        response.body.allowedtypes.forEach(type => {
+          assert.deepEqual(Object.keys(type), ['id', 'name', 'internalname'], 'Allowedtypes must have same right fields');
+          allowedtypesIds.push(type.id);
+        });
+        assert.deepEqual(allowedtypesIds, allowedtypes, 'The type of allowedtypes isn\'t in expected allowedlist, ' + allowedtypesIds + ' / ' + allowedtypes);
       }
     })
     .end(function (err, response) {
@@ -315,12 +328,16 @@ const getListIds = (done) => {
     });
 };
 
-const updateProperty = (done, value, httpCode, errorMessage = null) => {
+const updateProperty = (done, value, httpCode, errorMessage = null, allowedtypes = null) => {
+  const payload = {
+    default: value,
+  };
+  if (allowedtypes !== null) {
+    payload.allowedtypes = allowedtypes;
+  }
   request
     .patch('/v1/config/properties/' + global.propertyvaluesid.toString())
-    .send({
-      default: value,
-    })
+    .send(payload)
     .set('Accept', 'application/json')
     .set('Authorization', 'Bearer ' + global.token)
     .expect(httpCode)

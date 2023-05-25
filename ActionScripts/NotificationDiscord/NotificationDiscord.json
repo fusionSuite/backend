@@ -60,10 +60,11 @@
               "internalname": "actionscript.discord.configuration",
               "valuetype": "itemlink",
               "regexformat": "",
-              "listvalues": ["actionscript.discord.configuration"],
+              "listvalues": [],
               "unit": "",
               "default": null,
-              "description": ""
+              "description": "",
+              "allowedtypes": ["actionscript.discord.configuration"]
             },
             {
               "name": "username",

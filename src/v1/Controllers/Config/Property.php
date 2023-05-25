@@ -22,6 +22,7 @@ namespace App\v1\Controllers\Config;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use stdClass;
 
 final class Property
 {
@@ -74,6 +75,10 @@ final class Property
    * @apiSuccess {String}         properties.listvalues.value   The value.
    * @apiSuccess {Any}            properties.default            The default value, the type of value depends on
    *    the valuetype.
+   * @apiSuccess {Object[]}       properties.allowedtypes       Types allowed in case valuetype is itemlinks or itemlink
+   * @apiSuccess {Number}         properties.allowedtypes.id    The id of the type
+   * @apiSuccess {String}         properties.allowedtypes.name  The name of the type
+   * @apiSuccess {String}         properties.allowedtypes.internalname  The internal name of the type
    * @apiSuccess {Object}         properties.organization       Information about the organization to which
    *    the property belongs.
    * @apiSuccess {Number}         properties.organization.id    The id of the organization.
@@ -113,6 +118,7 @@ final class Property
    *     "setcurrentdate": null,
    *     "listvalues": [],
    *     "default": "",
+   *     "allowedtypes": [],
    *     "organization": {
    *       "id": 4,
    *       "name": "suborg_2"
@@ -164,6 +170,7 @@ final class Property
    *       },
    *     ],
    *     "default": "",
+   *     "allowedtypes": [],
    *     "organization": {
    *       "id": 4,
    *       "name": "suborg_2"
@@ -251,6 +258,10 @@ final class Property
    * @apiSuccess {Number}         listvalues.id      The id of the value.
    * @apiSuccess {String}         listvalues.value   The value.
    * @apiSuccess {Any}            default            The default value, the type of value depends on the valuetype.
+   * @apiSuccess {Object[]}       allowedtypes       Types allowed in case valuetype is itemlinks or itemlink
+   * @apiSuccess {Number}         allowedtypes.id    The id of the type
+   * @apiSuccess {String}         allowedtypes.name  The name of the type
+   * @apiSuccess {String}         allowedtypes.internalname  The internal name of the type
    * @apiSuccess {Object}         organization       Information about the organization to which
    *    the property belongs.
    * @apiSuccess {Number}         organization.id    The id of the organization.
@@ -288,6 +299,7 @@ final class Property
    *   "setcurrentdate": null,
    *   "listvalues": [],
    *   "default": "",
+   *   "allowedtypes": [],
    *   "organization": {
    *     "id": 4,
    *     "name": "suborg_2"
@@ -342,13 +354,15 @@ final class Property
    * @apiBody {String="string","integer","decimal","text","boolean","datetime","date","time","number","itemlink",
    *    "itemlinks","typelink","typelinks","propertylink","list","password","passwordhash"}  valuetype
    *    The type of value.
-   * @apiBody {null|String{..255}}   [regexformat]     The regexformat to verify the value is conform (works only with
+   * @apiBody {null|String{..255}}   [regexformat]   The regexformat to verify the value is conform (works only with
    *    valuetype is string or list).
    * @apiBody {null|String[}         listvalues      The list of values in case of valuetype is 'list'.
    * @apiBody {null|Any}             default         The default value.
+   * @apiBody {Number[]}             [allowedtypes]  The array of id of types allowed for valuetype = itemlink
+   *    and itemlinks
    * @apiBody {Boolean=false}        [setcurrentdate]  Define (for date, time and datetime valuetype only) the property
    *    in item will use current.
-   * @apiBody {Boolean=true}         [canbenull]       Define if the value in the item can be null or not.
+   * @apiBody {Boolean=true}         [canbenull]     Define if the value in the item can be null or not.
    * @apiBody {null|String{..255}}   [unit]          The unit.
    * @apiBody {null|String}          [description]   The description of the property.
    * @apiBody {Null|Number}          [organization_id]  The id of the organization. If null or not defined, use the
@@ -386,6 +400,7 @@ final class Property
       'regexformat'      => $this->validateRegexformatAttribute(),
       'listvalues'       => $this->validateListvaluesAttribute(['present']),
       'default'          => $this->validateDefaultAttribute(['present']),
+      'allowedtypes'     => 'type:array|array',
       'setcurrentdate'   => $this->validateSetcurrentdateAttribute([]),
       'canbenull'        => $this->validateCanbenullAttribute([]),
       'unit'             => $this->validateUnitAttribute(),
@@ -393,6 +408,37 @@ final class Property
       'sub_organization' => $this->validateSubOrganizationAttribute(),
     ];
     \App\v1\Common::validateData($data, $dataFormat);
+
+    // check allowedtypes values
+    if (
+        in_array($data->valuetype, ['itemlink', 'itemlinks'])
+        && property_exists($data, 'allowedtypes')
+    )
+    {
+      // check the type of data
+      $dataFormat = [
+        'allowedtype_id' => 'required|type:integer|regex:/^[0-9]+$/'
+      ];
+      $dataTypes = new stdClass();
+      foreach ($data->allowedtypes as $type_id)
+      {
+        $dataTypes->allowedtype_id = $type_id;
+        \App\v1\Common::validateData($dataTypes, $dataFormat);
+      }
+      // check if the type id exists
+      foreach ($data->allowedtypes as $type_id)
+      {
+        $type = \App\v1\Models\Config\Type::find($type_id);
+        if (is_null($type))
+        {
+          throw new \Exception("The type id in allowedtypes has not be found", 404);
+        }
+      }
+    }
+    elseif (property_exists($data, 'allowedtypes'))
+    {
+      unset($data->{'allowedtypes'});
+    }
 
     $propId = $this->createProperty($data, $token);
 
@@ -413,14 +459,16 @@ final class Property
    * @apiParam {Number}         id              Unique ID of the type.
    *
    * @apiBody {String{2..255}}      [name]          Name of the type.
-   * @apiBody {null|String{..255}}  [regexformat]    The regexformat to verify the value is conform (works only with
+   * @apiBody {null|String{..255}}  [regexformat]   The regexformat to verify the value is conform (works only with
    *    valuetype is string or list).
-   * @apiBody {null|Any}            [default]        The default value.
+   * @apiBody {null|Any}            [default]       The default value.
+   * @apiBody {Number[]}            [allowedtypes]  The array of id of types allowed for valuetype = itemlink
+   *    and itemlinks
    * @apiBody {Boolean}             [setcurrentdate] Define (for date, time and datetime valuetype only) the property
    *    in item will use current.
-   * @apiBody {Boolean}             [canbenull]      Define if the value in the item can be null or not.
-   * @apiBody {null|String{..255}}  [unit]           The unit.
-   * @apiBody {null|String}         [description]    The description of the property.
+   * @apiBody {Boolean}             [canbenull]     Define if the value in the item can be null or not.
+   * @apiBody {null|String{..255}}  [unit]          The unit.
+   * @apiBody {null|String}         [description]   The description of the property.
    *
    */
   public function patchItem(Request $request, Response $response, $args): Response
@@ -442,6 +490,7 @@ final class Property
     $dataFormat = [
       'name'           => $this->validateNameAttribute(),
       'regexformat'    => $this->validateRegexformatAttribute(),
+      'allowedtypes'   => 'type:array|array',
       'setcurrentdate' => $this->validateSetcurrentdateAttribute(),
       'canbenull'      => $this->validateCanbenullAttribute(),
       'unit'           => $this->validateUnitAttribute(),
@@ -450,7 +499,12 @@ final class Property
     \App\v1\Common::validateData($data, $dataFormat);
     foreach ($data as $key => $value)
     {
-      if (!in_array($key, ['name', 'regexformat', 'default', 'setcurrentdate', 'canbenull', 'unit', 'description']))
+      if (
+          !in_array(
+            $key,
+            ['name', 'regexformat', 'default', 'allowedtypes', 'setcurrentdate', 'canbenull', 'unit', 'description']
+          )
+      )
       {
         throw new \Exception("The property $key is not allowed", 400);
       }
@@ -459,6 +513,33 @@ final class Property
     {
       $data->valuetype = $property->valuetype;
       $this->validateDefaultForSaveMethods($data);
+    }
+
+    // check allowedtypes values
+    if (
+        in_array($property->valuetype, ['itemlink', 'itemlinks'])
+        && property_exists($data, 'allowedtypes')
+    )
+    {
+      // check the type of data
+      $dataFormat = [
+        'allowedtype_id' => 'required|type:integer|regex:/^[0-9]+$/'
+      ];
+      $dataTypes = new stdClass();
+      foreach ($data->allowedtypes as $type_id)
+      {
+        $dataTypes->allowedtype_id = $type_id;
+        \App\v1\Common::validateData($dataTypes, $dataFormat);
+      }
+      // check if the type id exists
+      foreach ($data->allowedtypes as $type_id)
+      {
+        $type = \App\v1\Models\Config\Type::find($type_id);
+        if (is_null($type))
+        {
+          throw new \Exception("The type id in allowedtypes has not be found", 404);
+        }
+      }
     }
 
     $properties = $this->fillArrayForSaveMethods($data, false);
@@ -488,7 +569,7 @@ final class Property
     }
 
     // Special case for list, because store default values in another model
-    if ($data->valuetype == 'list' && !is_null($data->default))
+    if ($property->valuetype == 'list' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
       $propertylists = \App\v1\Models\Config\Propertylist::where('property_id', $property->id)->get();
@@ -500,7 +581,7 @@ final class Property
         } else {
           $key = array_search($proplist->value, $data->default);
           if ($key !== false) {
-              unset($data->default[$key]);
+            unset($data->default[$key]);
           }
           unset($data->default[$proplist]);
         }
@@ -515,7 +596,7 @@ final class Property
     }
 
     // Special case for itemlinks, because store default values in another model
-    if ($data->valuetype == 'itemlinks' && !is_null($data->default))
+    if ($property->valuetype == 'itemlinks' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
       $propertyitemlinks = \App\v1\Models\Config\Propertyitemlink::where('property_id', $property->id)->get();
@@ -542,7 +623,7 @@ final class Property
     }
 
     // Special case for typelinks, because store default values in another model
-    if ($data->valuetype == 'typelinks' && !is_null($data->default))
+    if ($property->valuetype == 'typelinks' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
       $propertytypelinks = \App\v1\Models\Config\Propertytypelink::where('property_id', $property->id)->get();
@@ -565,6 +646,35 @@ final class Property
         $propertytypelink->property_id = $property->id;
         $propertytypelink->type_id = $typeId;
         $propertytypelink->save();
+      }
+    }
+
+    // special case to update allowedtypes
+    if (
+        in_array($property->valuetype, ['itemlink', 'itemlinks'])
+        && property_exists($data, 'allowedtypes')
+    )
+    {
+      // get values, delete if not in list, and add is missing
+      $propertyallowedtypes = \App\v1\Models\Config\Propertyallowedtype::where('property_id', $property->id)->get();
+      foreach ($propertyallowedtypes as $propallowedtype)
+      {
+        if (!in_array($propallowedtype->type_id, $data->allowedtypes))
+        {
+          $propallowedtype->delete();
+        } else {
+          $key = array_search($propallowedtype->type_id, $data->allowedtypes);
+          if ($key !== false) {
+            unset($data->allowedtypes[$key]);
+          }
+        }
+      }
+      foreach ($data->allowedtypes as $type_id)
+      {
+        $propertyallowedtype = new \App\v1\Models\Config\Propertyallowedtype();
+        $propertyallowedtype->property_id = $property->id;
+        $propertyallowedtype->type_id = $type_id;
+        $propertyallowedtype->save();
       }
     }
 
@@ -671,10 +781,6 @@ final class Property
     ];
   }
 
-  /********************
-   * Private functions
-   ********************/
-
   public function createProperty($data, $token)
   {
     // check permissions
@@ -720,6 +826,20 @@ final class Property
         }
       }
     }
+    if (
+        in_array($data->valuetype, ['itemlink', 'itemlinks'])
+        && property_exists($data, 'allowedtypes')
+    )
+    {
+      foreach ($data->allowedtypes as $type_id)
+      {
+        $propertyallowedtype = new \App\v1\Models\Config\Propertyallowedtype();
+        $propertyallowedtype->property_id = $property->id;
+        $propertyallowedtype->type_id = $type_id;
+        $propertyallowedtype->save();
+      }
+    }
+
     if ($data->valuetype == 'itemlinks' && !is_null($data->default))
     {
       foreach ($data->default as $typeId)
@@ -730,6 +850,7 @@ final class Property
         $propertyitemlink->save();
       }
     }
+
     if ($data->valuetype == 'typelinks' && !is_null($data->default))
     {
       foreach ($data->default as $typeId)
@@ -748,6 +869,19 @@ final class Property
 
     return $propertyId;
   }
+
+  public static function deleteAllowedtypesByTypeId($typeId)
+  {
+    $lines = \App\v1\Models\Config\Propertyallowedtype::where('type_id', $typeId)->get();
+    foreach ($lines as $line)
+    {
+      $line->delete();
+    }
+  }
+
+  /********************
+   * Private functions
+   ********************/
 
   /**
    * Validate the incoming data format for save methods

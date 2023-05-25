@@ -72,11 +72,11 @@ describe('itemProperties | propertylink type | bad default value', function () {
   });
 
   describe('clean', function () {
-    it('Soft delete the type: test itemlinks', function (done) {
+    it('Soft delete the type: test propertylink', function (done) {
       common.deleteType(done);
     });
 
-    it('Hard delete the type: test itemlinks', function (done) {
+    it('Hard delete the type: test propertylink', function (done) {
       common.deleteType(done);
     });
 

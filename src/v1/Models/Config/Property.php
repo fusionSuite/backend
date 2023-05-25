@@ -32,6 +32,7 @@ class Property extends Model
     'listvalues',
     'value',
     'default',
+    'allowedtypes',
     'byfusioninventory',
     'organization',
     'changes'
@@ -44,6 +45,7 @@ class Property extends Model
     'listvalues',
     'unit',
     'default',
+    'allowedtypes',
     'description',
     'canbenull',
     'setcurrentdate',
@@ -280,6 +282,30 @@ class Property extends Model
   public function getChangesAttribute()
   {
     return $this->changes()->get();
+  }
+
+  public function getAllowedtypesAttribute()
+  {
+    $allowedTypes = [];
+    if ($this->valuetype == 'itemlink' or $this->valuetype == 'itemlinks')
+    {
+      $types = \App\v1\Models\Config\Propertyallowedtype::where('property_id', $this->id)->orderBy('id')->get();
+      $modelType = new \App\v1\Models\Config\Type();
+      foreach ($types as $type)
+      {
+        $mytype = \App\v1\Models\Config\Type::find($type->type_id);
+        if (!is_null($mytype))
+        {
+          $mytype->makeHidden(
+            \App\v1\Common::getFieldsToHide($modelType->getVisible(), ['id', 'name', 'internalname'])
+          );
+          $allowedTypes[] = $mytype;
+        } else {
+          // TODO it's a type _id deleted, must never go here
+        }
+      }
+    }
+    return $allowedTypes;
   }
 
   public function listvalues()

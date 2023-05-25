@@ -181,6 +181,8 @@ class Item extends Model
     static::forceDeleted(function ($model)
     {
       \App\v1\Models\Common::changesOnDeleted($model, $model->original);
+      // delete item in properties (valuetype id itemnlink or itemlinks)
+      \App\v1\Controllers\Item::deleteItemlinkInProperties($model->id);
     });
 
     static::pivotUpdated(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)

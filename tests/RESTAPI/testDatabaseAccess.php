@@ -52,3 +52,32 @@ if (count($matches) == 2)
   $data['count'] = $capsule->table($matches[1][0])->count();
   echo json_encode($data);
 }
+
+preg_match('/\/allowedtypes\/property_id\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
+if (count($matches) == 2)
+{
+  header('Content-Type: application/json; charset=utf-8');
+  $data = [
+    'count' => 0,
+    'rows'  => []
+  ];
+  $item = $capsule->table('propertyallowedtypes')->where('property_id', $matches[1][0]);
+  $data['count'] = $item->count();
+  $data['rows']  = $item->get()->toArray();
+  echo json_encode($data);
+}
+
+
+preg_match('/\/itemcheck\/id\/(\d+)/', $_SERVER['REQUEST_URI'], $matches, PREG_OFFSET_CAPTURE);
+if (count($matches) == 2)
+{
+  header('Content-Type: application/json; charset=utf-8');
+  $data = [
+    'count' => 0,
+    'rows'  => []
+  ];
+  $item = $capsule->table('items')->where('type_id', $matches[1][0]);
+  $data['count'] = $item->count();
+  $data['rows']  = $item->get()->toArray();
+  echo json_encode($data);
+}

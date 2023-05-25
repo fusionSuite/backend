@@ -12,11 +12,11 @@ describe('itemProperties: itemlinks type - working set | default value', functio
     });
 
     it('create a new property - type itemlinks', function (done) {
-      common.createProperty(done, [global.itemId1, global.itemId2]);
+      common.createProperty(done, [global.itemId1, global.itemId2], true, [3]);
     });
 
     it('Get the property to check value is good', function (done) {
-      common.checkProperty(done, [global.itemId1, global.itemId2]);
+      common.checkProperty(done, [global.itemId1, global.itemId2], [3]);
     });
 
     it('Attach a property to the type itemlinks', function (done) {

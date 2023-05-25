@@ -18,7 +18,7 @@ describe('itemProperties | itemlink type | null not allowed | create & update it
     });
 
     it('create a property', function (done) {
-      common.createProperty(done, global.itemId1, false);
+      common.createProperty(done, global.itemId1, false, [3]);
     });
 
     it('Attach a property to the type itemlink', function (done) {
