@@ -332,7 +332,7 @@ final class Menu
   {
     $token = (object)$request->getAttribute('token');
 
-    $menu = \App\v1\Models\Display\Menu\Menu::find($args['id']);
+    $menu = \App\v1\Models\Display\Menu\Menu::query()->find($args['id']);
     if (is_null($menu))
     {
       throw new \Exception("This menu has not be found", 404);
@@ -456,7 +456,7 @@ final class Menu
     $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $menu = \App\v1\Models\Display\Menu\Menu::find($args['id']);
+    $menu = \App\v1\Models\Display\Menu\Menu::query()->find($args['id']);
     if (is_null($menu))
     {
       throw new \Exception("The menu has not be found", 404);
@@ -524,7 +524,7 @@ final class Menu
   {
     $token = (object)$request->getAttribute('token');
 
-    $menu = \App\v1\Models\Display\Menu\Menu::find($args['id']);
+    $menu = \App\v1\Models\Display\Menu\Menu::query()->find($args['id']);
 
     if (is_null($menu))
     {

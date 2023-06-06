@@ -148,7 +148,7 @@ class Common
     }
     foreach ($pivotIds as $propertyId)
     {
-      $property = \App\v1\Models\Config\Property::find($propertyId);
+      $property = \App\v1\Models\Config\Property::query()->find($propertyId);
       // Special case for refreshtoken to not put in changes
       if ($property->internalname == 'userrefreshtoken') {
         continue;
@@ -188,8 +188,8 @@ class Common
         case 'itemlink':
           if (!is_null($newValue))
           {
-            $itemlink = \App\v1\Models\Item::find($newValue);
-            $type = \App\v1\Models\Config\Type::find($itemlink->type_id);
+            $itemlink = \App\v1\Models\Item::query()->find($newValue);
+            $type = \App\v1\Models\Config\Type::query()->find($itemlink->type_id);
             $newValue = (object)[
               'item' => (object)[
                 'id'   => $itemlink->id,
@@ -204,7 +204,7 @@ class Common
 
           if (!is_null($oldValue))
           {
-            $type = \App\v1\Models\Config\Type::find($oldValue->type_id);
+            $type = \App\v1\Models\Config\Type::query()->find($oldValue->type_id);
             $oldValue = (object)[
               'item' => (object)[
                 'id'   => $oldValue->id,
@@ -222,7 +222,7 @@ class Common
         case 'propertylink':
           if (!is_null($newValue))
           {
-            $propertylink = \App\v1\Models\Config\Property::find($newValue);
+            $propertylink = \App\v1\Models\Config\Property::query()->find($newValue);
             $newValue = (object)[
               'item' => (object)[
                 'id'   => $propertylink->id,
@@ -247,7 +247,7 @@ class Common
         case 'typelink':
           if (!is_null($newValue))
           {
-            $typelink = \App\v1\Models\Config\Type::find($newValue);
+            $typelink = \App\v1\Models\Config\Type::query()->find($newValue);
             $newValue = (object)[
               'item' => (object)[
                 'id'   => $typelink->id,
@@ -296,7 +296,7 @@ class Common
     }
     foreach ($pivotIds as $propertyId)
     {
-      $property = \App\v1\Models\Config\Property::find($propertyId);
+      $property = \App\v1\Models\Config\Property::query()->find($propertyId);
       // Special case for refreshtoken to not put in changes
       if ($property->internalname == 'userrefreshtoken') {
         continue;
@@ -328,8 +328,8 @@ class Common
             break;
 
         case 'itemlink':
-          $itemlink = \App\v1\Models\Item::find($newValue);
-          $type = \App\v1\Models\Config\Type::find($itemlink->type_id);
+          $itemlink = \App\v1\Models\Item::query()->find($newValue);
+          $type = \App\v1\Models\Config\Type::query()->find($itemlink->type_id);
           $newValue = (object)[
             'item' => (object)[
               'id'   => $itemlink->id,
@@ -349,8 +349,8 @@ class Common
             $newValue = null;
             $message = '{username} added null to "{property.name}"';
           } else {
-            $itemlink = \App\v1\Models\Item::find($newValue);
-            $type = \App\v1\Models\Config\Type::find($itemlink->type_id);
+            $itemlink = \App\v1\Models\Item::query()->find($newValue);
+            $type = \App\v1\Models\Config\Type::query()->find($itemlink->type_id);
             $newValue = (object)[
               'item' => (object)[
                 'id'   => $itemlink->id,
@@ -371,7 +371,7 @@ class Common
             $newValue = null;
             $message = '{username} added null to "{property.name}"';
           } else {
-            $typelink = \App\v1\Models\Config\Type::find($newValue);
+            $typelink = \App\v1\Models\Config\Type::query()->find($newValue);
             $newValue = (object)[
               'item' => (object)[
                 'id'   => $typelink->id,
@@ -405,7 +405,7 @@ class Common
     }
     foreach ($pivotIds as $propertyId)
     {
-      $property = \App\v1\Models\Config\Property::find($propertyId);
+      $property = \App\v1\Models\Config\Property::query()->find($propertyId);
       // Special case for refreshtoken to not put in changes
       if ($property->internalname == 'userrefreshtoken') {
         continue;
@@ -437,8 +437,8 @@ class Common
             break;
 
         case 'itemlink':
-          $itemlink = \App\v1\Models\Item::find($newValue);
-          $type = \App\v1\Models\Config\Type::find($itemlink->type_id);
+          $itemlink = \App\v1\Models\Item::query()->find($newValue);
+          $type = \App\v1\Models\Config\Type::query()->find($itemlink->type_id);
           $newValue = (object)[
             'item' => [
               'id'   => $itemlink->id,
@@ -453,12 +453,12 @@ class Common
             break;
 
         case 'itemlinks':
-          $newValue = \App\v1\Models\Item::find($newValue);
+          $newValue = \App\v1\Models\Item::query()->find($newValue);
           $message = '{username} deleted property "{property.name}" named "{old_value.item.name}"';
             break;
 
         case 'typelinks':
-          $newValue = \App\v1\Models\Config\Type::find($newValue);
+          $newValue = \App\v1\Models\Config\Type::query()->find($newValue);
           $message = '{username} deleted property "{property.name}" named "{old_value.type.name}"';
             break;
       }

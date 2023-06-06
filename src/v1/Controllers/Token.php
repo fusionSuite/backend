@@ -216,7 +216,7 @@ final class Token
     $payload = JWT::jsonDecode(JWT::urlsafeB64Decode($tks[1]));
 
     // Verify the token
-    $user = \App\v1\Models\Item::find($payload->user_id);
+    $user = \App\v1\Models\Item::query()->find($payload->user_id);
     if (is_null($user))
     {
       throw new \Exception('Error when authentication, account not found', 401);

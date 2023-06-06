@@ -479,7 +479,7 @@ final class Item
     $item = $this->createItem($data, $token);
 
     // Get item to have the internal id
-    $item = \App\v1\Models\Item::find($item->id);
+    $item = \App\v1\Models\Item::query()->find($item->id);
     $returnData = [
       "id" => intval($item->id),
       "id_bytype" => intval($item->id_bytype)
@@ -679,7 +679,7 @@ final class Item
     $token = (object)$request->getAttribute('token');
     $args['propertyid'] = intval($args['propertyid']);
     $data = json_decode($request->getBody());
-    $item = \App\v1\Models\Item::find($args['id']);
+    $item = \App\v1\Models\Item::query()->find($args['id']);
 
     if (is_null($item))
     {
@@ -696,7 +696,7 @@ final class Item
 
     \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
 
-    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::query()->find($args['propertyid']);
     if (property_exists($data, 'reset_to_default') && $data->reset_to_default)
     {
       if ($property->valuetype == 'date' && $property->default == '' && !is_null($property->default))
@@ -835,7 +835,7 @@ final class Item
     $args['id'] = intval($args['id']);
     $args['propertyid'] = intval($args['propertyid']);
 
-    $item = \App\v1\Models\Item::find($args['id']);
+    $item = \App\v1\Models\Item::query()->find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("The item has not be found", 404);
@@ -856,7 +856,7 @@ final class Item
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $itemlink = \App\v1\Models\Item::find($data->value);
+    $itemlink = \App\v1\Models\Item::query()->find($data->value);
     if (is_null($itemlink))
     {
       throw new \Exception('The Value is an id than does not exist', 400);
@@ -907,7 +907,7 @@ final class Item
   {
     $token = (object)$request->getAttribute('token');
 
-    $item = \App\v1\Models\Item::find($args['id']);
+    $item = \App\v1\Models\Item::query()->find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("The item has not be found", 404);
@@ -917,9 +917,9 @@ final class Item
 
     \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
 
-    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::query()->find($args['propertyid']);
 
-    $itemlink = \App\v1\Models\Item::find($args['itemlinkid']);
+    $itemlink = \App\v1\Models\Item::query()->find($args['itemlinkid']);
     if (is_null($itemlink))
     {
       throw new \Exception('The itemlink is an id than does not exist', 400);
@@ -978,7 +978,7 @@ final class Item
     $token = (object)$request->getAttribute('token');
     $data = json_decode($request->getBody());
 
-    $item = \App\v1\Models\Item::find($args['id']);
+    $item = \App\v1\Models\Item::query()->find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("The item has not be found", 404);
@@ -993,7 +993,7 @@ final class Item
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $typelink = \App\v1\Models\Config\Type::find($data->value);
+    $typelink = \App\v1\Models\Config\Type::query()->find($data->value);
     if (is_null($typelink))
     {
       throw new \Exception('The Value is an id than does not exist', 400);
@@ -1038,7 +1038,7 @@ final class Item
   {
     $token = (object)$request->getAttribute('token');
 
-    $item = \App\v1\Models\Item::find($args['id']);
+    $item = \App\v1\Models\Item::query()->find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("The item has not be found", 404);
@@ -1048,9 +1048,9 @@ final class Item
 
     \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
 
-    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::query()->find($args['propertyid']);
 
-    $typelink = \App\v1\Models\Config\Type::find($args['typelinkid']);
+    $typelink = \App\v1\Models\Config\Type::query()->find($args['typelinkid']);
     if (is_null($typelink))
     {
       throw new \Exception('The typelink is an id than does not exist', 400);
@@ -1093,7 +1093,7 @@ final class Item
     \App\v1\Common::validateData($data, $dataFormat);
     $data->name = trim($data->name);
     // Checks about tree type
-    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    $type = \App\v1\Models\Config\Type::query()->find($data->type_id);
     if (is_null($type))
     {
       throw new \Exception("The type has not be found", 404);
@@ -1103,7 +1103,7 @@ final class Item
       // in case of type is a tree, check if parent_id exists
       if (property_exists($data, 'parent_id'))
       {
-        $parentItem = \App\v1\Models\Item::find($data->parent_id);
+        $parentItem = \App\v1\Models\Item::query()->find($data->parent_id);
         if (is_null($parentItem))
         {
           throw new \Exception("The parent item has not be found", 400);
@@ -1138,7 +1138,7 @@ final class Item
     // check organization_id if defined
     if (property_exists($data, 'organization_id'))
     {
-      $organization = \App\v1\Models\Item::find($data->organization_id);
+      $organization = \App\v1\Models\Item::query()->find($data->organization_id);
       if (is_null($organization) || $organization->type_id != 1)
       {
         throw new \Exception("The organization has not be found", 400);
@@ -1228,7 +1228,7 @@ final class Item
       {
         $propertiesId[] = $property->property_id;
         $ruleData[$property->property_id] = $property->value;
-        $propertyItem = \App\v1\Models\Config\Property::find($property->property_id);
+        $propertyItem = \App\v1\Models\Config\Property::query()->find($property->property_id);
         $fieldName = 'value_' . $propertyItem->valuetype;
         if ($propertyItem->valuetype == 'itemlinks' && !is_null($property->value))
         {
@@ -1264,7 +1264,7 @@ final class Item
     }
 
     // Define the properties not in post with the default value
-    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    $type = \App\v1\Models\Config\Type::query()->find($data->type_id);
     foreach ($type->properties()->get() as $prop)
     {
       if (in_array($prop->id, $propertiesId))
@@ -1344,7 +1344,7 @@ final class Item
 
   private function checkProperty($id, $valuetype = null)
   {
-    $property = \App\v1\Models\Config\Property::find($id);
+    $property = \App\v1\Models\Config\Property::query()->find($id);
 
     if (is_null($property))
     {
@@ -1367,7 +1367,7 @@ final class Item
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $property = \App\v1\Models\Config\Property::find($data->property_id);
+    $property = \App\v1\Models\Config\Property::query()->find($data->property_id);
     $dataFormat = [
       'property_id' => 'present',
       'value'       => 'required'
@@ -1442,7 +1442,7 @@ final class Item
       if ($property->valuetype == 'itemlink')
       {
         $allowedtypesIds = array_column($property->allowedtypes, 'id');
-        $item = \App\v1\Models\Item::find($data->value);
+        $item = \App\v1\Models\Item::query()->find($data->value);
         if (is_null($item))
         {
           throw new \Exception(
@@ -1482,7 +1482,7 @@ final class Item
           ];
           \App\v1\Common::validateData($propToValidate, $dataFormat);
 
-          $item = \App\v1\Models\Item::find($itemId);
+          $item = \App\v1\Models\Item::query()->find($itemId);
           if (is_null($item))
           {
             throw new \Exception(
@@ -1503,7 +1503,7 @@ final class Item
       // check if the type id exists
       if ($property->valuetype == 'typelink')
       {
-        $item = \App\v1\Models\Config\Type::find($data->value);
+        $item = \App\v1\Models\Config\Type::query()->find($data->value);
         if (is_null($item))
         {
           throw new \Exception(
@@ -1529,7 +1529,7 @@ final class Item
           ];
           \App\v1\Common::validateData($propToValidate, $dataFormat);
 
-          $item = \App\v1\Models\Config\Type::find($typeId);
+          $item = \App\v1\Models\Config\Type::query()->find($typeId);
           if (is_null($item))
           {
             throw new \Exception(
@@ -1544,7 +1544,7 @@ final class Item
       // check if the property id exists
       if ($property->valuetype == 'propertylink')
       {
-        $item = \App\v1\Models\Config\Property::find($data->value);
+        $item = \App\v1\Models\Config\Property::query()->find($data->value);
         if (is_null($item))
         {
           throw new \Exception(
@@ -1558,7 +1558,7 @@ final class Item
       // check if the list id exists
       if ($property->valuetype == 'list')
       {
-        $item = \App\v1\Models\Config\Propertylist::find($data->value);
+        $item = \App\v1\Models\Config\Propertylist::query()->find($data->value);
         if (is_null($item))
         {
           throw new \Exception(
@@ -1591,7 +1591,7 @@ final class Item
     $context['name'] = $data->name;
     foreach ($data->properties as $property)
     {
-      $prop = \App\v1\Models\Config\Property::find($property->property_id)->get();
+      $prop = \App\v1\Models\Config\Property::query()->find($property->property_id)->get();
       $context[$prop->name] = $property->value;
     }
 
@@ -1622,7 +1622,7 @@ final class Item
    */
   private function denyDeleteItem($item)
   {
-    $type = \App\v1\Models\Config\Type::find($item->type_id);
+    $type = \App\v1\Models\Config\Type::query()->find($item->type_id);
 
     if ($type->internalname == 'organization' && $item->treepath == '0001')
     {
@@ -1636,7 +1636,7 @@ final class Item
    */
   private function checkUniqueName($name, $typeId, $excludeId = null)
   {
-    $type = \App\v1\Models\Config\Type::find($typeId);
+    $type = \App\v1\Models\Config\Type::query()->find($typeId);
     if (!$type->unique_name)
     {
       return;
@@ -1662,12 +1662,12 @@ final class Item
     }
     if ($modelType == 'item')
     {
-      $link = \App\v1\Models\Item::find($linkId);
-      $type = \App\v1\Models\Config\Type::find($link->type_id);
+      $link = \App\v1\Models\Item::query()->find($linkId);
+      $type = \App\v1\Models\Config\Type::query()->find($link->type_id);
     }
     elseif ($modelType == 'type')
     {
-      $link = \App\v1\Models\Config\Type::find($linkId);
+      $link = \App\v1\Models\Config\Type::query()->find($linkId);
       $type = $link;
     } else {
       return;

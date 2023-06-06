@@ -60,7 +60,7 @@ final class Typepanelitem
   {
     $token = (object)$request->getAttribute('token');
 
-    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::find($args['panelitemId']);
+    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->find($args['panelitemId']);
     if (is_null($typepanelitem))
     {
       throw new \Exception("This panel item has not be found", 404);
@@ -102,7 +102,7 @@ final class Typepanelitem
     $args['panelitemId'] = intval($args['panelitemId']);
 
     $data = json_decode($request->getBody());
-    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::find($args['panelitemId']);
+    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->find($args['panelitemId']);
     if (is_null($typepanelitem))
     {
       throw new \Exception("The panel item has not be found", 404);
@@ -120,7 +120,7 @@ final class Typepanelitem
 
     if (property_exists($data, 'typepanel_id'))
     {
-      $typepanel = \App\v1\Models\Display\Type\Typepanel::find($data->typepanel_id);
+      $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->find($data->typepanel_id);
       if (is_null($typepanel))
       {
         throw new \Exception("The typepanel not exists", 404);
@@ -190,7 +190,7 @@ final class Typepanelitem
 
   public static function transferPanelitemToDefaultPanel($typepanelitemId, $typeId)
   {
-    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::find($typepanelitemId);
+    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->find($typepanelitemId);
     $typepanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeId)
       ->where('name', 'Default')
       ->first();

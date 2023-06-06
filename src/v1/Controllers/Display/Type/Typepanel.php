@@ -139,7 +139,7 @@ final class Typepanel
   {
     $token = (object)$request->getAttribute('token');
 
-    $typepanel = \App\v1\Models\Display\Type\Typepanel::find($args['panelId']);
+    $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->find($args['panelId']);
     if (is_null($typepanel))
     {
       throw new \Exception("This panel has not be found", 404);
@@ -199,7 +199,7 @@ final class Typepanel
     \App\v1\Common::validateData($data, $dataFormat);
 
     // Checks the type exists
-    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    $type = \App\v1\Models\Config\Type::query()->find($data->type_id);
     if (is_null($type))
     {
       throw new \Exception("The type has not be found", 404);
@@ -273,7 +273,7 @@ final class Typepanel
     $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $typepanel = \App\v1\Models\Display\Type\Typepanel::find($args['panelId']);
+    $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->find($args['panelId']);
     if (is_null($typepanel))
     {
       throw new \Exception("The panel has not be found", 404);
@@ -342,7 +342,7 @@ final class Typepanel
   {
     $token = (object)$request->getAttribute('token');
 
-    $typepanel = \App\v1\Models\Display\Type\Typepanel::find($args['panelId']);
+    $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->find($args['panelId']);
 
     if (is_null($typepanel))
     {

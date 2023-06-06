@@ -513,7 +513,7 @@ final class Type
     $organizations = \App\v1\Common::getOrganizationsIds($token);
     $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
 
-    $type = \App\v1\Models\Config\Type::find($args['id']);
+    $type = \App\v1\Models\Config\Type::query()->find($args['id']);
     if (is_null($type))
     {
       throw new \Exception("The type has not be found", 404);
@@ -529,7 +529,7 @@ final class Type
       }
     }
 
-    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::query()->find($args['propertyid']);
     if (is_null($property))
     {
       throw new \Exception("The property has not be found", 404);
@@ -596,13 +596,13 @@ final class Type
   {
     $token = (object)$request->getAttribute('token');
 
-    $type = \App\v1\Models\Config\Type::find($args['id']);
+    $type = \App\v1\Models\Config\Type::query()->find($args['id']);
     if (is_null($type))
     {
       throw new \Exception("The type has not be found", 404);
     }
 
-    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::query()->find($args['propertyid']);
     if (is_null($property))
     {
       throw new \Exception("The property has not be found", 404);
@@ -934,7 +934,7 @@ final class Type
             $propertyListId[] = $prop->id;
           }
         }
-        $typeItem = \App\v1\Models\Config\Type::find($typeId);
+        $typeItem = \App\v1\Models\Config\Type::query()->find($typeId);
         $propertiesId = [];
         foreach ($typeItem->properties()->get() as $prop)
         {
@@ -947,7 +947,7 @@ final class Type
             $typeItem->properties()->attach($propId);
             // add this property to all items yet created for this type
             $items = \App\v1\Models\Item::where('type_id', $typeId)->get();
-            $property = \App\v1\Models\Config\Property::find($propId);
+            $property = \App\v1\Models\Config\Property::query()->find($propId);
             foreach ($items as $item)
             {
               \App\v1\Controllers\Item::attachPropertyDefaultToItem($property, $item);
@@ -983,7 +983,7 @@ final class Type
    */
   public function associateProperty($type, $propertyId, $typepanelName = 'Default')
   {
-    $property = \App\v1\Models\Config\Property::find($propertyId);
+    $property = \App\v1\Models\Config\Property::query()->find($propertyId);
 
     $type->properties()->attach($propertyId);
     // use touch() to update updated_at in the type

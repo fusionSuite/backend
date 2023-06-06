@@ -86,7 +86,7 @@ class Item extends Model
       // manage sub_organization field
       if (!property_exists($model, 'sub_organization'))
       {
-        $type = \App\v1\Models\Config\Type::find($model->type_id);
+        $type = \App\v1\Models\Config\Type::query()->find($model->type_id);
         if ($type->sub_organization)
         {
           $model->sub_organization = true;
@@ -130,7 +130,7 @@ class Item extends Model
     static::created(function ($model)
     {
       // check if type is a tree
-      $type = \App\v1\Models\Config\Type::find($model->type_id);
+      $type = \App\v1\Models\Config\Type::query()->find($model->type_id);
       if ($type->tree)
       {
         // It's a tree, manage it here after created the item
@@ -145,7 +145,7 @@ class Item extends Model
         $currItem->treepath = sprintf("%04d", $currItem->id_bytype);
         if (isset($model->parent_id) && !is_null($model->parent_id))
         {
-          $parentItem = self::find($model->parent_id);
+          $parentItem = self::query()->find($model->parent_id);
           $currItem->treepath = $parentItem->treepath . $currItem->treepath;
         }
         $currItem->save();
@@ -169,13 +169,13 @@ class Item extends Model
     {
       if (!$model->isForceDeleting())
       {
-        \App\v1\Models\Common::changesOnSoftDeleted($model, $model->original);
+        \App\v1\Models\Common::changesOnSoftDeleted($model);
       }
     });
 
     static::restored(function ($model)
     {
-      \App\v1\Models\Common::changesOnRestored($model, $model->original);
+      \App\v1\Models\Common::changesOnRestored($model);
     });
 
     static::forceDeleted(function ($model)
@@ -208,7 +208,7 @@ class Item extends Model
 
   public function getOrganizationAttribute()
   {
-    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
+    $org = \App\v1\Models\Item::query()->find($this->attributes['organization_id']);
     return [
       'id'   => $org->id,
       'name' => $org->name

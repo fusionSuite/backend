@@ -116,13 +116,13 @@ class Property extends Model
     {
       if (!$model->isForceDeleting())
       {
-        \App\v1\Models\Common::changesOnSoftDeleted($model, $model->original);
+        \App\v1\Models\Common::changesOnSoftDeleted($model);
       }
     });
 
     static::restored(function ($model)
     {
-      \App\v1\Models\Common::changesOnRestored($model, $model->original);
+      \App\v1\Models\Common::changesOnRestored($model);
     });
 
     static::forceDeleted(function ($model)
@@ -151,7 +151,7 @@ class Property extends Model
 
   public function getOrganizationAttribute()
   {
-    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
+    $org = \App\v1\Models\Item::query()->find($this->attributes['organization_id']);
     return [
       'id'   => $org->id,
       'name' => $org->name
@@ -190,7 +190,7 @@ class Property extends Model
         && isset($this->pivot->value_typelink)
     )
     {
-      $item = \App\v1\Models\Config\Type::find(intval($this->pivot->value_typelink));
+      $item = \App\v1\Models\Config\Type::query()->find(intval($this->pivot->value_typelink));
       return $item;
     }
     elseif (
@@ -198,7 +198,7 @@ class Property extends Model
         && isset($this->pivot->value_propertylink)
     )
     {
-      $item = \App\v1\Models\Config\Property::find(intval($this->pivot->value_propertylink));
+      $item = \App\v1\Models\Config\Property::query()->find(intval($this->pivot->value_propertylink));
       return $item;
     }
     elseif (
@@ -206,7 +206,7 @@ class Property extends Model
         && isset($this->pivot->value_list)
     )
     {
-      $item = \App\v1\Models\Config\Propertylist::find(intval($this->pivot->value_list));
+      $item = \App\v1\Models\Config\Propertylist::query()->find(intval($this->pivot->value_list));
       return $item;
     }
 
@@ -302,7 +302,7 @@ class Property extends Model
       $modelType = new \App\v1\Models\Config\Type();
       foreach ($types as $type)
       {
-        $mytype = \App\v1\Models\Config\Type::find($type->type_id);
+        $mytype = \App\v1\Models\Config\Type::query()->find($type->type_id);
         if (!is_null($mytype))
         {
           $mytype->makeHidden(

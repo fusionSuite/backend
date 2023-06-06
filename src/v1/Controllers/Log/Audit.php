@@ -110,7 +110,7 @@ final class Audit
     if (!is_null($GLOBALS['user_id']))
     {
       $audit->userid = $GLOBALS['user_id'];
-      $user = \App\v1\Models\Item::find($GLOBALS['user_id']);
+      $user = \App\v1\Models\Item::query()->find($GLOBALS['user_id']);
       // Store the name in case the user account deleted later
       $audit->username = $user->name;
     }

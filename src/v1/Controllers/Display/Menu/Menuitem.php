@@ -270,7 +270,7 @@ final class Menuitem
   {
     $token = (object)$request->getAttribute('token');
 
-    $menuitem = \App\v1\Models\Display\Menu\Menuitem::find($args['id']);
+    $menuitem = \App\v1\Models\Display\Menu\Menuitem::query()->find($args['id']);
     if (is_null($menuitem))
     {
       throw new \Exception("This menuitem has not be found", 404);
@@ -339,12 +339,12 @@ final class Menuitem
       }
     };
 
-    $type = \App\v1\Models\Config\Type::find($data->type_id);
+    $type = \App\v1\Models\Config\Type::query()->find($data->type_id);
     if (is_null($type))
     {
       throw new \Exception("The type_id is an id than does not exist", 400);
     }
-    $menu = \App\v1\Models\Display\Menu\Menu::find($data->menu_id);
+    $menu = \App\v1\Models\Display\Menu\Menu::query()->find($data->menu_id);
     if (is_null($menu))
     {
       throw new \Exception("The menu_id is an id than does not exist", 400);
@@ -425,7 +425,7 @@ final class Menuitem
     $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $menuitem = \App\v1\Models\Display\Menu\Menuitem::find($args['id']);
+    $menuitem = \App\v1\Models\Display\Menu\Menuitem::query()->find($args['id']);
     if (is_null($menuitem))
     {
       throw new \Exception("The item has not be found", 404);
@@ -450,7 +450,7 @@ final class Menuitem
 
     if (property_exists($data, 'menu_id'))
     {
-      $menu = \App\v1\Models\Display\Menu\Menu::find($data->menu_id);
+      $menu = \App\v1\Models\Display\Menu\Menu::query()->find($data->menu_id);
       if (is_null($menu))
       {
         throw new \Exception("The menu_id is an id than does not exist", 400);
@@ -503,7 +503,7 @@ final class Menuitem
   {
     $token = (object)$request->getAttribute('token');
 
-    $menuitem = \App\v1\Models\Display\Menu\Menuitem::find($args['id']);
+    $menuitem = \App\v1\Models\Display\Menu\Menuitem::query()->find($args['id']);
 
     if (is_null($menuitem))
     {

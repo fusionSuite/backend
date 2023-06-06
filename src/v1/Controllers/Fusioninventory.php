@@ -244,7 +244,7 @@ final class Fusioninventory
         $item = new \App\v1\Models\Item();
         if ($item_id != 'import')
         {
-          $item = \App\v1\Models\Item::find($item_id);
+          $item = \App\v1\Models\Item::query()->find($item_id);
         }
         $item->name = $this->getValueWithMarkupName($markups, $path);
         $item->type_id = $fusionItem->type_id;
@@ -339,7 +339,7 @@ final class Fusioninventory
 
         foreach ($toDelete as $data)
         {
-          $itemToDel = \App\v1\Models\Item::find($data['id']);
+          $itemToDel = \App\v1\Models\Item::query()->find($data['id']);
           $itemToDel->delete();
         }
 

@@ -46,7 +46,7 @@ final class ActionScript
       {
         foreach ($rule->actions as $action)
         {
-          $actionItem = \App\v1\Models\Item::find($action->values);
+          $actionItem = \App\v1\Models\Item::query()->find($action->values);
           $args = new stdClass();
           $args->itemid = $input['id'];
           $args->itemname = $input['name'];
@@ -110,7 +110,7 @@ final class ActionScript
             // Example: store the value in a property of the item
             if (isset($ret['value']) && !is_null($action->res_in_property_id))
             {
-              $item = \App\v1\Models\Item::find($input['id']);
+              $item = \App\v1\Models\Item::query()->find($input['id']);
               $item->properties()->attach($action->res_in_property_id, ['value' => $ret['value']]);
             }
           }
@@ -132,7 +132,7 @@ final class ActionScript
 
   private function getItemProperties($itemId)
   {
-    $item = \App\v1\Models\Item::find($itemId);
+    $item = \App\v1\Models\Item::query()->find($itemId);
     $properties = new stdClass();
     foreach ($item->properties()->get() as $property)
     {

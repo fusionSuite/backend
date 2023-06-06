@@ -311,7 +311,7 @@ final class Menuitemcustom
     $token = (object)$request->getAttribute('token');
     $userId = $GLOBALS['user_id'];
 
-    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::find($args['id']);
+    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::query()->find($args['id']);
     if (is_null($menuitemcustoms))
     {
       throw new \Exception("This custom item has not be found", 404);
@@ -369,7 +369,7 @@ final class Menuitemcustom
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $menuitem = \App\v1\Models\Display\Menu\Menuitem::find($data->menuitem_id);
+    $menuitem = \App\v1\Models\Display\Menu\Menuitem::query()->find($data->menuitem_id);
     if (is_null($menuitem))
     {
       throw new \Exception("The menu item is an id than does not exist", 400);
@@ -443,7 +443,7 @@ final class Menuitemcustom
     $userId = $GLOBALS['user_id'];
 
     $data = json_decode($request->getBody());
-    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::find($args['id']);
+    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::query()->find($args['id']);
     if (is_null($custom))
     {
       throw new \Exception("The custom item has not be found", 404);
@@ -513,7 +513,7 @@ final class Menuitemcustom
     $token = (object)$request->getAttribute('token');
     $userId = $GLOBALS['user_id'];
 
-    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::find($args['id']);
+    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::query()->find($args['id']);
 
     if (is_null($custom))
     {

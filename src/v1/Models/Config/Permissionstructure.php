@@ -56,7 +56,7 @@ class Permissionstructure extends Model
 
   public function getRoleAttribute()
   {
-    $role = \App\v1\Models\Config\Role::find($this->attributes['role_id']);
+    $role = \App\v1\Models\Config\Role::query()->find($this->attributes['role_id']);
     return [
       'id'   => $role->id,
       'name' => $role->name
@@ -65,7 +65,7 @@ class Permissionstructure extends Model
 
   public function getTypeAttribute()
   {
-    $type = \App\v1\Models\Config\Type::find($this->attributes['type_id']);
+    $type = \App\v1\Models\Config\Type::query()->find($this->attributes['type_id']);
     return [
       'id'           => $type->id,
       'name'         => $type->name,

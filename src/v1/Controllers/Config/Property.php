@@ -428,7 +428,7 @@ final class Property
       // check if the type id exists
       foreach ($data->allowedtypes as $type_id)
       {
-        $type = \App\v1\Models\Config\Type::find($type_id);
+        $type = \App\v1\Models\Config\Type::query()->find($type_id);
         if (is_null($type))
         {
           throw new \Exception("The type id in allowedtypes has not be found", 404);
@@ -534,7 +534,7 @@ final class Property
       // check if the type id exists
       foreach ($data->allowedtypes as $type_id)
       {
-        $type = \App\v1\Models\Config\Type::find($type_id);
+        $type = \App\v1\Models\Config\Type::query()->find($type_id);
         if (is_null($type))
         {
           throw new \Exception("The type id in allowedtypes has not be found", 404);
@@ -1006,7 +1006,7 @@ final class Property
       // check if the item id exists
       if ($data->valuetype == 'itemlink')
       {
-        $item = \App\v1\Models\Item::find($data->default);
+        $item = \App\v1\Models\Item::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default item does not exist", 400);
@@ -1022,7 +1022,7 @@ final class Property
           ];
           \App\v1\Common::validateData((object)['default' => $itemId], $dataFormat);
 
-          $item = \App\v1\Models\Item::find($itemId);
+          $item = \App\v1\Models\Item::query()->find($itemId);
           if (is_null($item))
           {
             throw new \Exception("The Default item does not exist", 400);
@@ -1036,13 +1036,13 @@ final class Property
         $dataFormat['default'] = 'regex:/^[0-9]+$/';
         \App\v1\Common::validateData($data, $dataFormat);
 
-        $item = \App\v1\Models\Config\Type::find($data->default);
+        $item = \App\v1\Models\Config\Type::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default type does not exist", 400);
         }
 
-        $item = \App\v1\Models\Config\Type::find($data->default);
+        $item = \App\v1\Models\Config\Type::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default type does not exist", 400);
@@ -1058,7 +1058,7 @@ final class Property
           ];
           \App\v1\Common::validateData((object)['default' => $typeId], $dataFormat);
 
-          $item = \App\v1\Models\Config\Type::find($typeId);
+          $item = \App\v1\Models\Config\Type::query()->find($typeId);
           if (is_null($item))
           {
             throw new \Exception("The Default type does not exist", 400);
@@ -1074,7 +1074,7 @@ final class Property
         ];
         \App\v1\Common::validateData($data, $dataFormat);
 
-        $item = \App\v1\Models\Config\Property::find($data->default);
+        $item = \App\v1\Models\Config\Property::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default property id does not exist", 400);

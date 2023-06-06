@@ -49,7 +49,7 @@ final class Change
   {
     $change = new \App\v1\Models\Log\Change();
     $change->userid = $GLOBALS['user_id'];
-    $user = \App\v1\Models\Item::find($GLOBALS['user_id']);
+    $user = \App\v1\Models\Item::query()->find($GLOBALS['user_id']);
     // Store the name in case the user account deleted later
     if (!is_null($user))
     {

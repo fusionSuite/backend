@@ -69,7 +69,7 @@ final class Permissionstructurecustom
     {
       throw new \Exception("The role is soft deleted, can't modify permissions in this state", 400);
     }
-    $permissionstructurecustom = \App\v1\Models\Config\Permissionstructurecustom::find($args['customid']);
+    $permissionstructurecustom = \App\v1\Models\Config\Permissionstructurecustom::query()->find($args['customid']);
     if (is_null($permissionstructurecustom))
     {
       throw new \Exception("The permissionstructurecustom of this type has not be found", 404);

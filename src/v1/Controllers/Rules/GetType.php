@@ -74,12 +74,12 @@ final class GetType
 
   public function serializeRule($ruleId)
   {
-    $item = \App\v1\Models\Rule::find($ruleId);
+    $item = \App\v1\Models\Rule::query()->find($ruleId);
     if (is_null($item))
     {
       return null;
     }
-    $criteria = \App\v1\Models\Rule::find($ruleId)->criteria()->get();
+    $criteria = \App\v1\Models\Rule::query()->find($ruleId)->criteria()->get();
 
     // criteria
     $crits = [];

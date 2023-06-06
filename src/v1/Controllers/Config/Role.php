@@ -657,13 +657,13 @@ final class Role
   {
     $token = (object)$request->getAttribute('token');
 
-    $role = \App\v1\Models\Config\Role::find($args['id']);
+    $role = \App\v1\Models\Config\Role::query()->find($args['id']);
     if (is_null($role))
     {
       throw new \Exception("The role has not be found", 404);
     }
 
-    $item = \App\v1\Models\Item::find($args['userid']);
+    $item = \App\v1\Models\Item::query()->find($args['userid']);
     if (is_null($item))
     {
       throw new \Exception("The user has not be found", 404);
@@ -718,13 +718,13 @@ final class Role
   {
     $token = (object)$request->getAttribute('token');
 
-    $role = \App\v1\Models\Config\Role::find($args['id']);
+    $role = \App\v1\Models\Config\Role::query()->find($args['id']);
     if (is_null($role))
     {
       throw new \Exception("The role has not be found", 404);
     }
 
-    $item = \App\v1\Models\Item::find($args['userid']);
+    $item = \App\v1\Models\Item::query()->find($args['userid']);
     if (is_null($item))
     {
       throw new \Exception("The user has not be found", 404);
@@ -784,7 +784,7 @@ final class Role
   {
     $permission = [];
 
-    $role = \App\v1\Models\Config\Role::find($role_id);
+    $role = \App\v1\Models\Config\Role::query()->find($role_id);
     if (is_null($role))
     {
       return (object)[];

@@ -61,7 +61,7 @@ class Permissiondataproperty extends Model
 
   public function getPropertyAttribute()
   {
-    $property = \App\v1\Models\Config\Property::find($this->attributes['property_id']);
+    $property = \App\v1\Models\Config\Property::query()->find($this->attributes['property_id']);
     return [
       'id'           => $property->id,
       'name'         => $property->name,

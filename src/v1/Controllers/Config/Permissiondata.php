@@ -77,7 +77,7 @@ final class Permissiondata
     {
       throw new \Exception("The role is soft deleted, can't modify permissions in this state", 400);
     }
-    $permissiondata = \App\v1\Models\Config\Permissiondata::find($args['typeid']);
+    $permissiondata = \App\v1\Models\Config\Permissiondata::query()->find($args['typeid']);
     if (is_null($permissiondata))
     {
       throw new \Exception("The permissiondata of this type has not be found", 404);

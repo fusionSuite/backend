@@ -103,7 +103,7 @@ final class Rule
     // $context['name'] = $item->name;
     // foreach ($item->properties as $property)
     // {
-    //   $prop = \App\v1\Models\Config\Property::find($property->property_id)->get();
+    //   $prop = \App\v1\Models\Config\Property::query()->find($property->property_id)->get();
     //   $context[$prop->name] = $property->value;
     // }
 
@@ -270,7 +270,7 @@ final class Rule
    */
   public function getOne(Request $request, Response $response, $args): Response
   {
-    $item = \App\v1\Models\Rule::find($args['id'])->criteria()->actions();
+    $item = \App\v1\Models\Rule::query()->find($args['id'])->criteria()->actions();
     if (is_null($item) || $item->type !== $args['type'])
     {
       throw new \Exception("This ticket has not be found", 404);
@@ -414,12 +414,12 @@ final class Rule
 
   public function serializeRule($ruleId)
   {
-    $item = \App\v1\Models\Rule::find($ruleId);
+    $item = \App\v1\Models\Rule::query()->find($ruleId);
     if (is_null($item))
     {
       return null;
     }
-    $criteria = \App\v1\Models\Rule::find($ruleId)->criteria()->get();
+    $criteria = \App\v1\Models\Rule::query()->find($ruleId)->criteria()->get();
 
     // criteria
     $crits = [];
