@@ -231,7 +231,8 @@ final class Typepanelitem
         } else {
           $typepanelitem->position = $data->position;
           // Change position of other panelitems in new typepanel
-          $model = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanelitem->typepanel_id);
+          $model = \App\v1\Models\Display\Type\Typepanelitem::query()
+            ->where('typepanel_id', $typepanelitem->typepanel_id);
           \App\v1\Common::changePosition($maxItem->position, $typepanelitem->position, $model);
         }
       } else {
@@ -269,7 +270,8 @@ final class Typepanelitem
         } else {
           $typepanelitem->position = $data->position;
           // Change position of other panelitemns
-          $model = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanelitem->typepanel_id);
+          $model = \App\v1\Models\Display\Type\Typepanelitem::query()
+            ->where('typepanel_id', $typepanelitem->typepanel_id);
           \App\v1\Common::changePosition($oldPosition, $typepanelitem->position, $model);
         }
       } else {

@@ -656,7 +656,9 @@ final class Property
     )
     {
       // get values, delete if not in list, and add is missing
-      $propertyallowedtypes = \App\v1\Models\Config\Propertyallowedtype::query()->where('property_id', $property->id)->get();
+      $propertyallowedtypes = \App\v1\Models\Config\Propertyallowedtype::query()
+        ->where('property_id', $property->id)
+        ->get();
       foreach ($propertyallowedtypes as $propallowedtype)
       {
         if (!in_array($propallowedtype->type_id, $data->allowedtypes))

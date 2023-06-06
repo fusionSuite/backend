@@ -357,7 +357,9 @@ final class Typepanel
     // \App\v1\Permission::checkPermissionToStructure('delete', 'config/property', $property->id);
 
     // Transfert all panelitems to default
-    $typepanelitems = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $args['panelId'])->get();
+    $typepanelitems = \App\v1\Models\Display\Type\Typepanelitem::query()
+      ->where('typepanel_id', $args['panelId'])
+      ->get();
     foreach ($typepanelitems as $typepanelitem)
     {
       \App\v1\Controllers\Display\Type\Typepanelitem::
