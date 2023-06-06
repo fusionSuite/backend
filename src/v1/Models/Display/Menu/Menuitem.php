@@ -53,7 +53,7 @@ class Menuitem extends Model
 
   public function getTypeAttribute()
   {
-    $type = \App\v1\Models\Config\Type::find($this->attributes['type_id']);
+    $type = \App\v1\Models\Config\Type::query()->find($this->attributes['type_id']);
     return $type;
   }
 }

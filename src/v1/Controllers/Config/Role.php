@@ -227,7 +227,7 @@ final class Role
 
     $params = $this->manageParams($request);
 
-    $role = \App\v1\Models\Config\Role::ofSort($params);
+    $role = \App\v1\Models\Config\Role::query()->ofSort($params);
 
     // manage permissions
     \App\v1\Permission::checkPermissionToStructure('view', 'config/role');
@@ -657,13 +657,13 @@ final class Role
   {
     $token = (object)$request->getAttribute('token');
 
-    $role = \App\v1\Models\Config\Role::find($args['id']);
+    $role = \App\v1\Models\Config\Role::query()->find($args['id']);
     if (is_null($role))
     {
       throw new \Exception("The role has not be found", 404);
     }
 
-    $item = \App\v1\Models\Item::find($args['userid']);
+    $item = \App\v1\Models\Item::query()->find($args['userid']);
     if (is_null($item))
     {
       throw new \Exception("The user has not be found", 404);
@@ -718,13 +718,13 @@ final class Role
   {
     $token = (object)$request->getAttribute('token');
 
-    $role = \App\v1\Models\Config\Role::find($args['id']);
+    $role = \App\v1\Models\Config\Role::query()->find($args['id']);
     if (is_null($role))
     {
       throw new \Exception("The role has not be found", 404);
     }
 
-    $item = \App\v1\Models\Item::find($args['userid']);
+    $item = \App\v1\Models\Item::query()->find($args['userid']);
     if (is_null($item))
     {
       throw new \Exception("The user has not be found", 404);
@@ -784,7 +784,7 @@ final class Role
   {
     $permission = [];
 
-    $role = \App\v1\Models\Config\Role::find($role_id);
+    $role = \App\v1\Models\Config\Role::query()->find($role_id);
     if (is_null($role))
     {
       return (object)[];
@@ -801,7 +801,7 @@ final class Role
     ];
 
     // get permission data for this type_id
-    // $permissionDatas = \App\v1\Models\Config\Permissiondata::where('role_id', $role_id)->get();
+    // $permissionDatas = \App\v1\Models\Config\Permissiondata::query()->where('role_id', $role_id)->get();
     foreach ($role->permissiondatas as $data)
     {
       $permission['custom']['data'][$data->type_id] = [

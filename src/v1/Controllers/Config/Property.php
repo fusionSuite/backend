@@ -187,7 +187,7 @@ final class Property
 
     $params = $this->manageParams($request);
 
-    $property = \App\v1\Models\Config\Property::ofSort($params)
+    $property = \App\v1\Models\Config\Property::query()->ofSort($params)
     ->where(function ($query) use ($organizations, $parentsOrganizations)
     {
       $query->whereIn('organization_id', $organizations)
@@ -428,7 +428,7 @@ final class Property
       // check if the type id exists
       foreach ($data->allowedtypes as $type_id)
       {
-        $type = \App\v1\Models\Config\Type::find($type_id);
+        $type = \App\v1\Models\Config\Type::query()->find($type_id);
         if (is_null($type))
         {
           throw new \Exception("The type id in allowedtypes has not be found", 404);
@@ -534,7 +534,7 @@ final class Property
       // check if the type id exists
       foreach ($data->allowedtypes as $type_id)
       {
-        $type = \App\v1\Models\Config\Type::find($type_id);
+        $type = \App\v1\Models\Config\Type::query()->find($type_id);
         if (is_null($type))
         {
           throw new \Exception("The type id in allowedtypes has not be found", 404);
@@ -572,7 +572,7 @@ final class Property
     if ($property->valuetype == 'list' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
-      $propertylists = \App\v1\Models\Config\Propertylist::where('property_id', $property->id)->get();
+      $propertylists = \App\v1\Models\Config\Propertylist::query()->where('property_id', $property->id)->get();
       foreach ($propertylists as $proplist)
       {
         if (!in_array($proplist->value, $data->default))
@@ -599,7 +599,7 @@ final class Property
     if ($property->valuetype == 'itemlinks' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
-      $propertyitemlinks = \App\v1\Models\Config\Propertyitemlink::where('property_id', $property->id)->get();
+      $propertyitemlinks = \App\v1\Models\Config\Propertyitemlink::query()->where('property_id', $property->id)->get();
       foreach ($propertyitemlinks as $propitemlink)
       {
         if (!in_array($propitemlink->item_id, $data->default))
@@ -626,7 +626,7 @@ final class Property
     if ($property->valuetype == 'typelinks' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
-      $propertytypelinks = \App\v1\Models\Config\Propertytypelink::where('property_id', $property->id)->get();
+      $propertytypelinks = \App\v1\Models\Config\Propertytypelink::query()->where('property_id', $property->id)->get();
       foreach ($propertytypelinks as $proptypelink)
       {
         if (!in_array($proptypelink->type_id, $data->default))
@@ -656,7 +656,9 @@ final class Property
     )
     {
       // get values, delete if not in list, and add is missing
-      $propertyallowedtypes = \App\v1\Models\Config\Propertyallowedtype::where('property_id', $property->id)->get();
+      $propertyallowedtypes = \App\v1\Models\Config\Propertyallowedtype::query()
+        ->where('property_id', $property->id)
+        ->get();
       foreach ($propertyallowedtypes as $propallowedtype)
       {
         if (!in_array($propallowedtype->type_id, $data->allowedtypes))
@@ -713,7 +715,7 @@ final class Property
     $this->denyDeleteProperty($property->internalname);
     $propertyId = $args['id'];
     // Check this property is not used, else put an error and list of types id use it
-    $types = \App\v1\Models\Config\Type::whereHas('properties', function ($q) use ($propertyId)
+    $types = \App\v1\Models\Config\Type::query()->whereHas('properties', function ($q) use ($propertyId)
     {
       $q->where('property_id', $propertyId);
     })->get();
@@ -872,7 +874,7 @@ final class Property
 
   public static function deleteAllowedtypesByTypeId($typeId)
   {
-    $lines = \App\v1\Models\Config\Propertyallowedtype::where('type_id', $typeId)->get();
+    $lines = \App\v1\Models\Config\Propertyallowedtype::query()->where('type_id', $typeId)->get();
     foreach ($lines as $line)
     {
       $line->delete();
@@ -1006,7 +1008,7 @@ final class Property
       // check if the item id exists
       if ($data->valuetype == 'itemlink')
       {
-        $item = \App\v1\Models\Item::find($data->default);
+        $item = \App\v1\Models\Item::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default item does not exist", 400);
@@ -1022,7 +1024,7 @@ final class Property
           ];
           \App\v1\Common::validateData((object)['default' => $itemId], $dataFormat);
 
-          $item = \App\v1\Models\Item::find($itemId);
+          $item = \App\v1\Models\Item::query()->find($itemId);
           if (is_null($item))
           {
             throw new \Exception("The Default item does not exist", 400);
@@ -1036,13 +1038,13 @@ final class Property
         $dataFormat['default'] = 'regex:/^[0-9]+$/';
         \App\v1\Common::validateData($data, $dataFormat);
 
-        $item = \App\v1\Models\Config\Type::find($data->default);
+        $item = \App\v1\Models\Config\Type::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default type does not exist", 400);
         }
 
-        $item = \App\v1\Models\Config\Type::find($data->default);
+        $item = \App\v1\Models\Config\Type::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default type does not exist", 400);
@@ -1058,7 +1060,7 @@ final class Property
           ];
           \App\v1\Common::validateData((object)['default' => $typeId], $dataFormat);
 
-          $item = \App\v1\Models\Config\Type::find($typeId);
+          $item = \App\v1\Models\Config\Type::query()->find($typeId);
           if (is_null($item))
           {
             throw new \Exception("The Default type does not exist", 400);
@@ -1074,7 +1076,7 @@ final class Property
         ];
         \App\v1\Common::validateData($data, $dataFormat);
 
-        $item = \App\v1\Models\Config\Property::find($data->default);
+        $item = \App\v1\Models\Config\Property::query()->find($data->default);
         if (is_null($item))
         {
           throw new \Exception("The Default property id does not exist", 400);

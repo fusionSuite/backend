@@ -1,8 +1,16 @@
 parameters:
-    level: 0
+    level: 1
     bootstrapFiles:
         - vendor/autoload.php
         - ActionScripts/autoload.php
     excludePaths:
         analyseAndScan:
             - ActionScripts/*/vendor/*
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        -
+            message: '#Call to an undefined static method Illuminate\\Database\\Capsule\\Manager::(transaction|raw)\(\)#'
+            paths:
+                - src/v1/Controllers/Item.php
+                - src/v1/Models/Item.php
+

@@ -332,7 +332,7 @@ final class Menu
   {
     $token = (object)$request->getAttribute('token');
 
-    $menu = \App\v1\Models\Display\Menu\Menu::find($args['id']);
+    $menu = \App\v1\Models\Display\Menu\Menu::query()->find($args['id']);
     if (is_null($menu))
     {
       throw new \Exception("This menu has not be found", 404);
@@ -402,7 +402,7 @@ final class Menu
       $menu->icon = \App\v1\Common::setDisplayIcon($data->icon);
     }
     // get the max position
-    $maxMenu = \App\v1\Models\Display\Menu\Menu::orderBy('position', 'desc')->first();
+    $maxMenu = \App\v1\Models\Display\Menu\Menu::query()->orderBy('position', 'desc')->first();
     if ($maxMenu !== null)
     {
       if (property_exists($data, 'position'))
@@ -411,7 +411,7 @@ final class Menu
         {
           $menu->position = $maxMenu->position + 1;
         } else {
-          \App\v1\Models\Display\Menu\Menu::where('position', '>=', $data->position)
+          \App\v1\Models\Display\Menu\Menu::query()->where('position', '>=', $data->position)
             ->increment('position', 1);
             $menu->position = $data->position;
         }
@@ -456,7 +456,7 @@ final class Menu
     $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $menu = \App\v1\Models\Display\Menu\Menu::find($args['id']);
+    $menu = \App\v1\Models\Display\Menu\Menu::query()->find($args['id']);
     if (is_null($menu))
     {
       throw new \Exception("The menu has not be found", 404);
@@ -524,7 +524,7 @@ final class Menu
   {
     $token = (object)$request->getAttribute('token');
 
-    $menu = \App\v1\Models\Display\Menu\Menu::find($args['id']);
+    $menu = \App\v1\Models\Display\Menu\Menu::query()->find($args['id']);
 
     if (is_null($menu))
     {
@@ -545,11 +545,11 @@ final class Menu
 
     // ====== Post delete actions ====== //
     // decrease position of others with position more than this deleted menu
-    \App\v1\Models\Display\Menu\Menu::where('position', '>=', $menu->position)
+    \App\v1\Models\Display\Menu\Menu::query()->where('position', '>=', $menu->position)
       ->decrement('position', 1);
 
     // delete menu items
-    $menuitems = \App\v1\Models\Display\Menu\Menuitem::where('menu_id', $menu->id)->get();
+    $menuitems = \App\v1\Models\Display\Menu\Menuitem::query()->where('menu_id', $menu->id)->get();
     $menuitemClass = new \App\v1\Controllers\Display\Menu\Menuitem();
     foreach ($menuitems as $menuitem)
     {

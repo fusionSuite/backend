@@ -111,13 +111,13 @@ class Type extends Model
     {
       if (!$model->isForceDeleting())
       {
-        \App\v1\Models\Common::changesOnSoftDeleted($model, $model->original);
+        \App\v1\Models\Common::changesOnSoftDeleted($model);
       }
     });
 
     static::restored(function ($model)
     {
-      \App\v1\Models\Common::changesOnRestored($model, $model->original);
+      \App\v1\Models\Common::changesOnRestored($model);
     });
 
     static::forceDeleted(function ($model)
@@ -145,7 +145,7 @@ class Type extends Model
 
   public function getOrganizationAttribute()
   {
-    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
+    $org = \App\v1\Models\Item::query()->find($this->attributes['organization_id']);
     return [
       'id'   => $org->id,
       'name' => $org->name
@@ -216,7 +216,7 @@ class Type extends Model
     $message = '{username} added the property "{new_value.item.name}"';
     foreach ($pivotIds as $propertyId)
     {
-      $property = \App\v1\Models\Config\Property::find($propertyId);
+      $property = \App\v1\Models\Config\Property::query()->find($propertyId);
       $newValue = (object)[
         'item' => (object)[
           'id'   => $propertyId,
@@ -242,7 +242,7 @@ class Type extends Model
     $message = '{username} deleted the property "{old_value.item.name}"';
     foreach ($pivotIds as $propertyId)
     {
-      $property = \App\v1\Models\Config\Property::find($propertyId);
+      $property = \App\v1\Models\Config\Property::query()->find($propertyId);
       $oldValue = (object)[
         'item' => (object)[
           'id'   => $propertyId,

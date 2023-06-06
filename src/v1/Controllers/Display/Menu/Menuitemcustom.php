@@ -171,7 +171,10 @@ final class Menuitemcustom
     $token = (object)$request->getAttribute('token');
     $userId = $GLOBALS['user_id'];
 
-    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)->orderBy('id')->get();
+    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::query()
+      ->where('user_id', $userId)
+      ->orderBy('id')
+      ->get();
 
     $response->getBody()->write($menuitemcustoms->toJson());
     return $response->withHeader('Content-Type', 'application/json');
@@ -311,7 +314,7 @@ final class Menuitemcustom
     $token = (object)$request->getAttribute('token');
     $userId = $GLOBALS['user_id'];
 
-    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::find($args['id']);
+    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::query()->find($args['id']);
     if (is_null($menuitemcustoms))
     {
       throw new \Exception("This custom item has not be found", 404);
@@ -369,7 +372,7 @@ final class Menuitemcustom
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $menuitem = \App\v1\Models\Display\Menu\Menuitem::find($data->menuitem_id);
+    $menuitem = \App\v1\Models\Display\Menu\Menuitem::query()->find($data->menuitem_id);
     if (is_null($menuitem))
     {
       throw new \Exception("The menu item is an id than does not exist", 400);
@@ -379,7 +382,7 @@ final class Menuitemcustom
     $custom->menuitem_id = $data->menuitem_id;
 
     // get the max position
-    $maxItem = \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)
+    $maxItem = \App\v1\Models\Display\Menu\Menuitemcustom::query()->where('user_id', $userId)
       ->orderBy('position', 'desc')
       ->first();
     if ($maxItem !== null)
@@ -390,7 +393,7 @@ final class Menuitemcustom
         {
           $custom->position = $maxItem->position + 1;
         } else {
-          \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)
+          \App\v1\Models\Display\Menu\Menuitemcustom::query()->where('user_id', $userId)
             ->where('position', '>=', $data->position)
             ->increment('position', 1);
           $custom->position = $data->position;
@@ -443,7 +446,7 @@ final class Menuitemcustom
     $userId = $GLOBALS['user_id'];
 
     $data = json_decode($request->getBody());
-    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::find($args['id']);
+    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::query()->find($args['id']);
     if (is_null($custom))
     {
       throw new \Exception("The custom item has not be found", 404);
@@ -513,7 +516,7 @@ final class Menuitemcustom
     $token = (object)$request->getAttribute('token');
     $userId = $GLOBALS['user_id'];
 
-    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::find($args['id']);
+    $custom = \App\v1\Models\Display\Menu\Menuitemcustom::query()->find($args['id']);
 
     if (is_null($custom))
     {

@@ -81,7 +81,7 @@ final class Permissionstructure
     {
       throw new \Exception("The role is soft deleted, can't modify permissions in this state", 400);
     }
-    $permissionstructure = \App\v1\Models\Config\Permissionstructure::find($args['structureid']);
+    $permissionstructure = \App\v1\Models\Config\Permissionstructure::query()->find($args['structureid']);
     if (is_null($permissionstructure))
     {
       throw new \Exception("The permissionstructure of this type has not be found", 404);
@@ -179,7 +179,7 @@ final class Permissionstructure
       'config/property',
       'config/role'
     ];
-    $items = \App\v1\Models\Config\Permissionstructure::where('role_id', $roleId)->get();
+    $items = \App\v1\Models\Config\Permissionstructure::query()->where('role_id', $roleId)->get();
     foreach ($items as $item)
     {
       if (in_array($item->endpoint, $endpoints))
@@ -205,7 +205,7 @@ final class Permissionstructure
    */
   public static function deleteStructures($roleId, $endpoint = null)
   {
-    $permissionstructure = \App\v1\Models\Config\Permissionstructure::where('role_id', $roleId);
+    $permissionstructure = \App\v1\Models\Config\Permissionstructure::query()->where('role_id', $roleId);
     if (!is_null($endpoint))
     {
       $permissionstructure->where('endpoint', $endpoint);
@@ -224,7 +224,7 @@ final class Permissionstructure
    */
   public static function addEndpointIdToRoles($endpoint, $endpointId)
   {
-    $roles = \App\v1\Models\Config\Role::get();
+    $roles = \App\v1\Models\Config\Role::query()->get();
 
     foreach ($roles as $role)
     {
@@ -253,7 +253,7 @@ final class Permissionstructure
    */
   public static function deleteEndpointIdToRoles($endpoint, $endpointId)
   {
-    $roles = \App\v1\Models\Config\Role::get();
+    $roles = \App\v1\Models\Config\Role::query()->get();
 
     foreach ($roles as $role)
     {

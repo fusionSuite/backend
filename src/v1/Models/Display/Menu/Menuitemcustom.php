@@ -53,7 +53,7 @@ class Menuitemcustom extends Model
 
   public function getMenuitemAttribute()
   {
-    $type = \App\v1\Models\Display\Menu\Menuitem::find($this->attributes['menuitem_id']);
+    $type = \App\v1\Models\Display\Menu\Menuitem::query()->find($this->attributes['menuitem_id']);
     return $type;
   }
 }

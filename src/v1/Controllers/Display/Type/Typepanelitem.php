@@ -60,7 +60,7 @@ final class Typepanelitem
   {
     $token = (object)$request->getAttribute('token');
 
-    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::find($args['panelitemId']);
+    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->find($args['panelitemId']);
     if (is_null($typepanelitem))
     {
       throw new \Exception("This panel item has not be found", 404);
@@ -102,7 +102,7 @@ final class Typepanelitem
     $args['panelitemId'] = intval($args['panelitemId']);
 
     $data = json_decode($request->getBody());
-    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::find($args['panelitemId']);
+    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->find($args['panelitemId']);
     if (is_null($typepanelitem))
     {
       throw new \Exception("The panel item has not be found", 404);
@@ -120,7 +120,7 @@ final class Typepanelitem
 
     if (property_exists($data, 'typepanel_id'))
     {
-      $typepanel = \App\v1\Models\Display\Type\Typepanel::find($data->typepanel_id);
+      $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->find($data->typepanel_id);
       if (is_null($typepanel))
       {
         throw new \Exception("The typepanel not exists", 404);
@@ -152,14 +152,14 @@ final class Typepanelitem
 
   public static function createPanelitem($propertyId, $typeId, $typepanelName)
   {
-    $typepanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeId)
+    $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $typeId)
       ->where('name', $typepanelName)
       ->first();
     $typepanelitem = new \App\v1\Models\Display\Type\Typepanelitem();
     $typepanelitem->property_id = $propertyId;
     $typepanelitem->typepanel_id = $typepanel->id;
     // get the max position
-    $maxPanelitem = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanel->id)
+    $maxPanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanel->id)
       ->orderBy('position', 'desc')
       ->first();
     if ($maxPanelitem !== null)
@@ -171,17 +171,17 @@ final class Typepanelitem
 
   public static function deletePanelItem($propertyId, $typeId)
   {
-    $typepanels = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeId)
+    $typepanels = \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $typeId)
       ->get();
     foreach ($typepanels as $typepanel)
     {
-      $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanel->id)
+      $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanel->id)
         ->where('property_id', $propertyId)
         ->first();
       if (!is_null($typepanelitem))
       {
         $typepanelitem->delete();
-        \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanel->id)
+        \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanel->id)
           ->where('position', '>=', $typepanelitem->position)
           ->decrement('position', 1);
       }
@@ -190,14 +190,14 @@ final class Typepanelitem
 
   public static function transferPanelitemToDefaultPanel($typepanelitemId, $typeId)
   {
-    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::find($typepanelitemId);
-    $typepanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeId)
+    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->find($typepanelitemId);
+    $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $typeId)
       ->where('name', 'Default')
       ->first();
     if (!is_null($typepanel))
     {
       $typepanelitem->typepanel_id = $typepanel->id;
-      $maxItem = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanel->id)
+      $maxItem = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanel->id)
         ->orderBy('position', 'desc')
         ->first();
       if ($maxItem !== null)
@@ -218,7 +218,7 @@ final class Typepanelitem
 
     $typepanelitem->typepanel_id = $data->typepanel_id;
     // get the max position in new panel
-    $maxItem = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanelitem->typepanel_id)
+    $maxItem = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanelitem->typepanel_id)
       ->orderBy('position', 'desc')
       ->first();
     if ($maxItem !== null)
@@ -231,7 +231,8 @@ final class Typepanelitem
         } else {
           $typepanelitem->position = $data->position;
           // Change position of other panelitems in new typepanel
-          $model = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanelitem->typepanel_id);
+          $model = \App\v1\Models\Display\Type\Typepanelitem::query()
+            ->where('typepanel_id', $typepanelitem->typepanel_id);
           \App\v1\Common::changePosition($maxItem->position, $typepanelitem->position, $model);
         }
       } else {
@@ -239,10 +240,10 @@ final class Typepanelitem
       }
     }
     // Change position too in old typepanel
-    $maxItem = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $oldTypepanelId)
+    $maxItem = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $oldTypepanelId)
       ->orderBy('position', 'desc')
       ->first();
-    $model = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $oldTypepanelId);
+    $model = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $oldTypepanelId);
     \App\v1\Common::changePosition($oldPosition, $maxItem->position, $model);
   }
 
@@ -256,7 +257,7 @@ final class Typepanelitem
       $typepanelitem->position = $data->position;
     }
     // get the max position
-    $maxItem = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanelitem->typepanel_id)
+    $maxItem = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $typepanelitem->typepanel_id)
       ->orderBy('position', 'desc')
       ->first();
     if ($maxItem !== null)
@@ -269,7 +270,8 @@ final class Typepanelitem
         } else {
           $typepanelitem->position = $data->position;
           // Change position of other panelitemns
-          $model = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $typepanelitem->typepanel_id);
+          $model = \App\v1\Models\Display\Type\Typepanelitem::query()
+            ->where('typepanel_id', $typepanelitem->typepanel_id);
           \App\v1\Common::changePosition($oldPosition, $typepanelitem->position, $model);
         }
       } else {

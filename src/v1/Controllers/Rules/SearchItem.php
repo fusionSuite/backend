@@ -49,13 +49,13 @@ final class SearchItem
     });
 
     // get all rules
-    $rules = \App\v1\Models\Rule::where('type', 'searchitem')->with('criteria', 'actions')->get();
+    $rules = \App\v1\Models\Rule::query()->where('type', 'searchitem')->with('criteria', 'actions')->get();
     foreach ($rules as $rule)
     {
       $criteria = [];
       $doSearchInDB = false;
       $criteria[] = '1 = 1';
-      $items = \App\v1\Models\Item::where('type_id', $type_id);
+      $items = \App\v1\Models\Item::query()->where('type_id', $type_id);
       foreach ($rule->criteria as $criterium)
       {
         // TODO if values == \d.\d => create a query run after standard rules

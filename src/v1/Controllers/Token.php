@@ -87,7 +87,7 @@ final class Token
     )
     {
       // Verify the account
-      $user = \App\v1\Models\Item::where('name', $data->login)->where('type_id', TYPE_USER_ID)->first();
+      $user = \App\v1\Models\Item::query()->where('name', $data->login)->where('type_id', TYPE_USER_ID)->first();
       if (is_null($user))
       {
         throw new \Exception('Error when authentication, login or password not right', 401);
@@ -102,7 +102,7 @@ final class Token
       }
       // TODO check password in property (need manage properties with password)
 
-      // $user = \App\v1\Models\User::where([['login', $data->login]])->get()->makeHidden(
+      // $user = \App\v1\Models\User::query()->where([['login', $data->login]])->get()->makeHidden(
       //   \App\v1\Common::getFieldsToHide($model->getVisible(), ['id', 'login', 'password',
       //   'jwtid', 'refreshtoken', 'firstname', 'lastname', 'displayname']))
       //   ->makeVisible(["password", "jwtid"])->toArray();
@@ -216,7 +216,7 @@ final class Token
     $payload = JWT::jsonDecode(JWT::urlsafeB64Decode($tks[1]));
 
     // Verify the token
-    $user = \App\v1\Models\Item::find($payload->user_id);
+    $user = \App\v1\Models\Item::query()->find($payload->user_id);
     if (is_null($user))
     {
       throw new \Exception('Error when authentication, account not found', 401);

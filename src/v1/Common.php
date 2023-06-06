@@ -131,7 +131,7 @@ class Common
       if (count($data) == 2 && isset($data['property_id']))
       {
         $errorValue = implode(', ', $errors->all());
-        $property = \App\v1\Models\Config\Property::find($data['property_id']);
+        $property = \App\v1\Models\Config\Property::query()->find($data['property_id']);
         if (!is_null($property))
         {
           $errorValue .= ' (property ' . $property->name . ' - ' . $data['property_id'] . ')';
@@ -151,8 +151,8 @@ class Common
     $listIds = [$token->organization_id];
     if ($token->sub_organization)
     {
-      $organization = \App\v1\Models\Item::find($token->organization_id);
-      $orgs = \App\v1\Models\Item::where('type_id', TYPE_ORGANIZATION_ID)
+      $organization = \App\v1\Models\Item::query()->find($token->organization_id);
+      $orgs = \App\v1\Models\Item::query()->where('type_id', TYPE_ORGANIZATION_ID)
         ->where('treepath', 'like', $organization->treepath . '%');
       $listIds = $orgs->pluck('id')->toArray();
     }
@@ -164,9 +164,9 @@ class Common
    */
   public static function getParentsOrganizationsIds($token)
   {
-    $organization = \App\v1\Models\Item::find($token->organization_id);
+    $organization = \App\v1\Models\Item::query()->find($token->organization_id);
     $ids_bytype = array_map('intval', str_split($organization->treepath, 4));
-    $orgs = \App\v1\Models\Item::where('type_id', TYPE_ORGANIZATION_ID)->whereIn('id_bytype', $ids_bytype);
+    $orgs = \App\v1\Models\Item::query()->where('type_id', TYPE_ORGANIZATION_ID)->whereIn('id_bytype', $ids_bytype);
     return $orgs->pluck('id')->toArray();
   }
 

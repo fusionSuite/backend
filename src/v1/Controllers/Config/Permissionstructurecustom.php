@@ -69,7 +69,7 @@ final class Permissionstructurecustom
     {
       throw new \Exception("The role is soft deleted, can't modify permissions in this state", 400);
     }
-    $permissionstructurecustom = \App\v1\Models\Config\Permissionstructurecustom::find($args['customid']);
+    $permissionstructurecustom = \App\v1\Models\Config\Permissionstructurecustom::query()->find($args['customid']);
     if (is_null($permissionstructurecustom))
     {
       throw new \Exception("The permissionstructurecustom of this type has not be found", 404);
@@ -102,8 +102,8 @@ final class Permissionstructurecustom
   {
     // get all types / properties defined on this permissionstructure and for this role
     $permissionCustoms = [];
-    $permissionstructurecustoms = \App\v1\Models\Config\Permissionstructurecustom::
-      where('permissionstructure_id', $permissionstructureId)
+    $permissionstructurecustoms = \App\v1\Models\Config\Permissionstructurecustom::query()
+      ->where('permissionstructure_id', $permissionstructureId)
       ->get();
     foreach ($permissionstructurecustoms as $permission)
     {
@@ -124,6 +124,10 @@ final class Permissionstructurecustom
         $model = new \App\v1\Models\Config\Role();
           break;
     }
+    if (!isset($model))
+    {
+      return;
+    }
 
     foreach ($model->get() as $item)
     {
@@ -143,8 +147,8 @@ final class Permissionstructurecustom
    */
   public static function deleteCustoms($permissionstructureId, $endpoint, $endpointId = null)
   {
-    $permissionstructurecustom = \App\v1\Models\Config\Permissionstructurecustom::
-      where('permissionstructure_id', $permissionstructureId);
+    $permissionstructurecustom = \App\v1\Models\Config\Permissionstructurecustom::query()
+      ->where('permissionstructure_id', $permissionstructureId);
     if (!is_null($endpointId))
     {
       $permissionstructurecustom->where('endpoint_id', $endpointId);

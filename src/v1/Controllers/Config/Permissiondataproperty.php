@@ -66,7 +66,7 @@ final class Permissiondataproperty
     {
       throw new \Exception("The role is soft deleted, can't modify permissions in this state", 400);
     }
-    $permissiondataproperty = \App\v1\Models\Config\Permissiondataproperty::find($args['propertyid']);
+    $permissiondataproperty = \App\v1\Models\Config\Permissiondataproperty::query()->find($args['propertyid']);
     if (is_null($permissiondataproperty))
     {
       throw new \Exception("The permissiondataproperty of this type has not be found", 404);
@@ -97,8 +97,8 @@ final class Permissiondataproperty
   {
     // get all types defined on this permissiondata and for this role
     $permissionProperties = [];
-    $permissiondataproperties = \App\v1\Models\Config\Permissiondataproperty::
-      where('permissiondata_id', $permissiondataId)
+    $permissiondataproperties = \App\v1\Models\Config\Permissiondataproperty::query()
+      ->where('permissiondata_id', $permissiondataId)
       ->get();
     foreach ($permissiondataproperties as $permission)
     {
@@ -106,7 +106,7 @@ final class Permissiondataproperty
     }
 
     // get all types in DB
-    $type = \App\v1\Models\Config\Type::find($typeId);
+    $type = \App\v1\Models\Config\Type::query()->find($typeId);
     foreach ($type->properties()->get() as $property)
     {
       if (!isset($permissionProperties[$property->id]))
@@ -126,8 +126,8 @@ final class Permissiondataproperty
    */
   public static function deleteProperties($datapermissionId, $propertyId = null)
   {
-    $permissiondataproperty = \App\v1\Models\Config\Permissiondataproperty::
-      where('permissiondata_id', $datapermissionId);
+    $permissiondataproperty = \App\v1\Models\Config\Permissiondataproperty::query()
+      ->where('permissiondata_id', $datapermissionId);
     if (!is_null($propertyId))
     {
       $permissiondataproperty->where('property_id', $propertyId);

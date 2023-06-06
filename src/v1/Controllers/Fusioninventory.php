@@ -189,7 +189,7 @@ final class Fusioninventory
     {
       $where[] = ['type_id', '=', $type_id];
     }
-    $fusionItems = \App\v1\Models\Fusioninventoryitem::where($where)->with('properties')->get();
+    $fusionItems = \App\v1\Models\Fusioninventoryitem::query()->where($where)->with('properties')->get();
 
     // TODO manage items yet in DB, use rules to define criteria and manage updates
 
@@ -244,7 +244,7 @@ final class Fusioninventory
         $item = new \App\v1\Models\Item();
         if ($item_id != 'import')
         {
-          $item = \App\v1\Models\Item::find($item_id);
+          $item = \App\v1\Models\Item::query()->find($item_id);
         }
         $item->name = $this->getValueWithMarkupName($markups, $path);
         $item->type_id = $fusionItem->type_id;
@@ -339,7 +339,7 @@ final class Fusioninventory
 
         foreach ($toDelete as $data)
         {
-          $itemToDel = \App\v1\Models\Item::find($data['id']);
+          $itemToDel = \App\v1\Models\Item::query()->find($data['id']);
           $itemToDel->delete();
         }
 
