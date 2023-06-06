@@ -80,7 +80,7 @@ $app->add(new Tuupola\Middleware\JwtAuthentication([
   // "callback" => function ($request, $response, $arguments) use ($container) { ???
   "before" => function ($request, $arguments)
   {
-    $myUser = \App\v1\Models\Item::find($arguments['decoded']['user_id']);
+    $myUser = \App\v1\Models\Item::query()->find($arguments['decoded']['user_id']);
     $jwtid = $myUser->getPropertyAttribute('userjwtid');
     if (is_null($jwtid) || $jwtid != $arguments['decoded']['jti'])
     {

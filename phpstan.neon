@@ -6,3 +6,5 @@ parameters:
     excludePaths:
         analyseAndScan:
             - ActionScripts/*/vendor/*
+    ignoreErrors:
+        - '#Call to an undefined static method Illuminate\\Database\\Capsule\\Manager::(transaction|raw)\(\).#'

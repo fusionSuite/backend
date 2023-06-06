@@ -554,9 +554,7 @@ final class Item
     {
       $data->name = trim($data->name);
       $item->name = $data->name;
-      $capsule = new \Illuminate\Database\Capsule\Manager();
-      $connection = $capsule->getConnection();
-      $connection->transaction(function () use ($item, $data)
+      DB::transaction(function () use ($item, $data)
       {
         // Check if the name exists in case type has option unique_name enabled
         $this->checkUniqueName($data->name, $item->type_id, $item->id);
@@ -1197,9 +1195,7 @@ final class Item
     while ($loop)
     {
       try {
-        $capsule = new \Illuminate\Database\Capsule\Manager();
-        $connection = $capsule->getConnection();
-        $connection->transaction(function () use ($item, $data)
+        DB::transaction(function () use ($item, $data)
         {
           // Check if the name exists in case type has option unique_name enabled
           $this->checkUniqueName($data->name, $data->type_id);
