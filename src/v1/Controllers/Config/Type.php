@@ -135,7 +135,7 @@ final class Type
 
     $params = $this->manageParams($request);
 
-    $type = \App\v1\Models\Config\Type::ofSort($params)
+    $type = \App\v1\Models\Config\Type::query()->ofSort($params)
     ->where(function ($query) use ($organizations, $parentsOrganizations)
     {
       $query->whereIn('organization_id', $organizations)
@@ -619,7 +619,7 @@ final class Type
     $type->touch();
 
     // delete the property to all items have this property
-    $items = \App\v1\Models\Item::where('type_id', $args['id'])->get();
+    $items = \App\v1\Models\Item::query()->where('type_id', $args['id'])->get();
     foreach ($items as $item)
     {
       $item->properties()->detach($args['propertyid']);
@@ -877,7 +877,7 @@ final class Type
     // Create types
     foreach ($data->types as $type)
     {
-      $typeItem = \App\v1\Models\Config\Type::where('internalname', $type->internalname)->first();
+      $typeItem = \App\v1\Models\Config\Type::query()->where('internalname', $type->internalname)->first();
       if (is_null($typeItem)) {
         $typeItem = $this->createType($type, $token);
       }
@@ -909,7 +909,7 @@ final class Type
           {
             $property->internalname = preg_replace("/[^a-z.]+/", "", strtolower($property->name));
           }
-          $prop = \App\v1\Models\Config\Property::firstWhere('internalname', $property->internalname);
+          $prop = \App\v1\Models\Config\Property::query()->firstWhere('internalname', $property->internalname);
           if (is_null($prop))
           {
             // Manage allowedtypes for valuetype is itemlink or itemlinks
@@ -919,7 +919,7 @@ final class Type
               $allowedtypes = [];
               foreach ($property->allowedtypes as $internalnameTypes)
               {
-                $typeOfItemlink = \App\v1\Models\Config\Type::firstWhere('internalname', $internalnameTypes);
+                $typeOfItemlink = \App\v1\Models\Config\Type::query()->firstWhere('internalname', $internalnameTypes);
                 if (!is_null($typeOfItemlink))
                 {
                   $allowedtypes[] = $typeOfItemlink->id;
@@ -946,7 +946,7 @@ final class Type
           {
             $typeItem->properties()->attach($propId);
             // add this property to all items yet created for this type
-            $items = \App\v1\Models\Item::where('type_id', $typeId)->get();
+            $items = \App\v1\Models\Item::query()->where('type_id', $typeId)->get();
             $property = \App\v1\Models\Config\Property::query()->find($propId);
             foreach ($items as $item)
             {
@@ -954,7 +954,7 @@ final class Type
             }
 
             // add property in display (typepanelitem)
-            $typepanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeItem->id)
+            $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $typeItem->id)
               ->where('name', $panel->name)
               ->first();
             $typepanelitem = new \App\v1\Models\Display\Type\Typepanelitem();
@@ -964,7 +964,7 @@ final class Type
             if (property_exists($panel, 'displaytype'))
             {
               $messageProp = \App\v1\Models\Config\Property
-                ::where('internalname', 'incidentmessagedescription')
+                ::query()->where('internalname', 'incidentmessagedescription')
                 ->first();
               $typepanelitem->timeline_message = $messageProp->id;
             }
@@ -991,7 +991,7 @@ final class Type
 
     // ====== Post attach property to type actions ====== //
     // add this property to all items yet created for this type
-    $items = \App\v1\Models\Item::where('type_id', $type->id)->get();
+    $items = \App\v1\Models\Item::query()->where('type_id', $type->id)->get();
     foreach ($items as $item)
     {
       \App\v1\Controllers\Item::attachPropertyDefaultToItem($property, $item);

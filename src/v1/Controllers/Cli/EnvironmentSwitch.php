@@ -44,7 +44,7 @@ class EnvironmentSwitch extends Command
     $cliCommon = new Common();
     $envs = $cliCommon->getEnvironmentList();
 
-    if (is_null($this->name) || $this->name == 1)
+    if (is_null($this->name()) || $this->name() == 1)
     {
       $env = $io->choice('Select the environment to switch to:', $envs);
       $this->set('name', $env);
@@ -56,7 +56,7 @@ class EnvironmentSwitch extends Command
     $writer = new Writer();
     $cliCommon = new Common();
 
-    $cliCommon->switchEnvironment($this->name);
+    $cliCommon->switchEnvironment($this->name());
 
     $writer->green('The new environment has been successfully switched to current');
     $writer->write("\n");

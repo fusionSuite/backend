@@ -32,7 +32,7 @@ final class ActionScript
     $actionScript = new ActionScript();
 
     // get all rules
-    $rules = \App\v1\Models\Rule::where('type', 'actionscript')->with('criteria', 'actions')->get();
+    $rules = \App\v1\Models\Rule::query()->where('type', 'actionscript')->with('criteria', 'actions')->get();
     foreach ($rules as $rule)
     {
       $criteria = [];

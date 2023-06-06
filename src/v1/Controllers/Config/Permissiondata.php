@@ -148,7 +148,7 @@ final class Permissiondata
   {
     // get all types defined on this permissiondata and for this role
     $permissionTypes = [];
-    $permissiondatas = \App\v1\Models\Config\Permissiondata::where('role_id', $roleId)->get();
+    $permissiondatas = \App\v1\Models\Config\Permissiondata::query()->where('role_id', $roleId)->get();
     foreach ($permissiondatas as $permission)
     {
       $permissionTypes[$permission->type->id] = true;
@@ -175,7 +175,7 @@ final class Permissiondata
    */
   public static function deleteTypes($roleId, $typeId = null)
   {
-    $permissiondata = \App\v1\Models\Config\Permissiondata::where('role_id', $roleId);
+    $permissiondata = \App\v1\Models\Config\Permissiondata::query()->where('role_id', $roleId);
     if (!is_null($typeId))
     {
       $permissiondata->where('type_id', $typeId);

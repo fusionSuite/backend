@@ -187,7 +187,7 @@ final class Property
 
     $params = $this->manageParams($request);
 
-    $property = \App\v1\Models\Config\Property::ofSort($params)
+    $property = \App\v1\Models\Config\Property::query()->ofSort($params)
     ->where(function ($query) use ($organizations, $parentsOrganizations)
     {
       $query->whereIn('organization_id', $organizations)
@@ -572,7 +572,7 @@ final class Property
     if ($property->valuetype == 'list' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
-      $propertylists = \App\v1\Models\Config\Propertylist::where('property_id', $property->id)->get();
+      $propertylists = \App\v1\Models\Config\Propertylist::query()->where('property_id', $property->id)->get();
       foreach ($propertylists as $proplist)
       {
         if (!in_array($proplist->value, $data->default))
@@ -599,7 +599,7 @@ final class Property
     if ($property->valuetype == 'itemlinks' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
-      $propertyitemlinks = \App\v1\Models\Config\Propertyitemlink::where('property_id', $property->id)->get();
+      $propertyitemlinks = \App\v1\Models\Config\Propertyitemlink::query()->where('property_id', $property->id)->get();
       foreach ($propertyitemlinks as $propitemlink)
       {
         if (!in_array($propitemlink->item_id, $data->default))
@@ -626,7 +626,7 @@ final class Property
     if ($property->valuetype == 'typelinks' && property_exists($data, 'default') && !is_null($data->default))
     {
       // get values, delete if not in list, and add is missing
-      $propertytypelinks = \App\v1\Models\Config\Propertytypelink::where('property_id', $property->id)->get();
+      $propertytypelinks = \App\v1\Models\Config\Propertytypelink::query()->where('property_id', $property->id)->get();
       foreach ($propertytypelinks as $proptypelink)
       {
         if (!in_array($proptypelink->type_id, $data->default))
@@ -656,7 +656,7 @@ final class Property
     )
     {
       // get values, delete if not in list, and add is missing
-      $propertyallowedtypes = \App\v1\Models\Config\Propertyallowedtype::where('property_id', $property->id)->get();
+      $propertyallowedtypes = \App\v1\Models\Config\Propertyallowedtype::query()->where('property_id', $property->id)->get();
       foreach ($propertyallowedtypes as $propallowedtype)
       {
         if (!in_array($propallowedtype->type_id, $data->allowedtypes))
@@ -713,7 +713,7 @@ final class Property
     $this->denyDeleteProperty($property->internalname);
     $propertyId = $args['id'];
     // Check this property is not used, else put an error and list of types id use it
-    $types = \App\v1\Models\Config\Type::whereHas('properties', function ($q) use ($propertyId)
+    $types = \App\v1\Models\Config\Type::query()->whereHas('properties', function ($q) use ($propertyId)
     {
       $q->where('property_id', $propertyId);
     })->get();
@@ -872,7 +872,7 @@ final class Property
 
   public static function deleteAllowedtypesByTypeId($typeId)
   {
-    $lines = \App\v1\Models\Config\Propertyallowedtype::where('type_id', $typeId)->get();
+    $lines = \App\v1\Models\Config\Propertyallowedtype::query()->where('type_id', $typeId)->get();
     foreach ($lines as $line)
     {
       $line->delete();

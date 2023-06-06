@@ -227,7 +227,7 @@ final class Role
 
     $params = $this->manageParams($request);
 
-    $role = \App\v1\Models\Config\Role::ofSort($params);
+    $role = \App\v1\Models\Config\Role::query()->ofSort($params);
 
     // manage permissions
     \App\v1\Permission::checkPermissionToStructure('view', 'config/role');
@@ -801,7 +801,7 @@ final class Role
     ];
 
     // get permission data for this type_id
-    // $permissionDatas = \App\v1\Models\Config\Permissiondata::where('role_id', $role_id)->get();
+    // $permissionDatas = \App\v1\Models\Config\Permissiondata::query()->where('role_id', $role_id)->get();
     foreach ($role->permissiondatas as $data)
     {
       $permission['custom']['data'][$data->type_id] = [

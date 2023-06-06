@@ -81,7 +81,9 @@ class Item extends Model
        * Manage id_bytype field
        * Get max id in DB for this type and increase 1 to get new id_bytype
        */
-      $model->id_bytype = DB::raw("(SELECT coalesce(max(id_bytype), 0) + 1 as id_bytype " .
+      $capsule = new \Illuminate\Database\Capsule\Manager();
+      $connection = $capsule->getConnection();
+      $model->id_bytype = $connection->raw("(SELECT coalesce(max(id_bytype), 0) + 1 as id_bytype " .
                                    "FROM items as item_alias WHERE type_id=" . intval($model->type_id) . ")");
       // manage sub_organization field
       if (!property_exists($model, 'sub_organization'))

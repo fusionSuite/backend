@@ -159,8 +159,8 @@ final class Item
 
     $params = $this->manageParams($request);
 
-    $items = \App\v1\Models\Item //::ofWhere($params)
-      ::ofSort($params)->where('type_id', $args['typeid'])
+    $items = \App\v1\Models\Item::query() //::ofWhere($params)
+      ->ofSort($params)->where('type_id', $args['typeid'])
       ->where(function ($query) use ($organizations, $parentsOrganizations)
       {
         $query->whereIn('organization_id', $organizations)
@@ -554,7 +554,9 @@ final class Item
     {
       $data->name = trim($data->name);
       $item->name = $data->name;
-      DB::transaction(function () use ($item, $data)
+      $capsule = new \Illuminate\Database\Capsule\Manager();
+      $connection = $capsule->getConnection();
+      $connection->transaction(function () use ($item, $data)
       {
         // Check if the name exists in case type has option unique_name enabled
         $this->checkUniqueName($data->name, $item->type_id, $item->id);
@@ -1119,7 +1121,7 @@ final class Item
         if (!$type->allowtreemultipleroots)
         {
           // check if have yet a root item
-          $otherItemsOfTree = \App\v1\Models\Item::where('type_id', $data->type_id)
+          $otherItemsOfTree = \App\v1\Models\Item::query()->where('type_id', $data->type_id)
             ->take(1)
             ->first();
           if (!is_null($otherItemsOfTree))
@@ -1195,7 +1197,9 @@ final class Item
     while ($loop)
     {
       try {
-        DB::transaction(function () use ($item, $data)
+        $capsule = new \Illuminate\Database\Capsule\Manager();
+        $connection = $capsule->getConnection();
+        $connection->transaction(function () use ($item, $data)
         {
           // Check if the name exists in case type has option unique_name enabled
           $this->checkUniqueName($data->name, $data->type_id);
@@ -1323,7 +1327,7 @@ final class Item
    */
   public static function deleteItemsByTypeId($typeId)
   {
-    $types = \App\v1\Models\Item::where('type_id', $typeId)->get();
+    $types = \App\v1\Models\Item::query()->where('type_id', $typeId)->get();
     foreach ($types as $type)
     {
       $type->forcedelete();
@@ -1335,7 +1339,7 @@ final class Item
    */
   public static function deleteItemlinkInProperties($itemId)
   {
-    $itemProperties = \App\v1\Models\ItemProperty::where('value_itemlink', $itemId)->get();
+    $itemProperties = \App\v1\Models\ItemProperty::query()->where('value_itemlink', $itemId)->get();
     foreach ($itemProperties as $itemProperty)
     {
       $itemProperty->delete();
@@ -1596,7 +1600,7 @@ final class Item
     }
 
     // get all rules
-    $rules = \App\v1\Models\Rule::where('type', 'rewritefield')->get();
+    $rules = \App\v1\Models\Rule::query()->where('type', 'rewritefield')->get();
     foreach ($rules as $rule)
     {
       if (!is_null($rule->serialized) && !empty($rule->serialized))
@@ -1753,7 +1757,7 @@ final class Item
   private function deleteItemsLinkedToUser($userId, Request $request)
   {
     // delete menuitemcustom
-    $customs = \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)->get();
+    $customs = \App\v1\Models\Display\Menu\Menuitemcustom::query()->where('user_id', $userId)->get();
     foreach ($customs as $custom)
     {
       \App\v1\Controllers\Log\Audit::addEntry(

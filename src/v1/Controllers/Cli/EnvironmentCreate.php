@@ -92,27 +92,27 @@ class EnvironmentCreate extends Command
     }
     else
     {
-      if (is_null($this->name) || $this->name == 1)
+      if (is_null($this->name()) || $this->name() == 1)
       {
         throw new \Exception("The name is not defined!");
       }
-      if (is_null($this->type) || $this->type == 1)
+      if (is_null($this->__get('type')) || $this->__get('type') == 1)
       {
         throw new \Exception("The type of database is not defined!");
       }
-      if (is_null($this->host) || $this->host == 1)
+      if (is_null($this->__get('host')) || $this->__get('host') == 1)
       {
         throw new \Exception("The database hostname is not defined!");
       }
-      if (is_null($this->databasename) || $this->databasename == 1)
+      if (is_null($this->__get('databasename')) || $this->__get('databasename') == 1)
       {
         throw new \Exception("The database name is not defined!");
       }
-      if (is_null($this->username) || $this->username == 1)
+      if (is_null($this->__get('username')) || $this->__get('username') == 1)
       {
         throw new \Exception("The database username is not defined!");
       }
-      if (is_null($this->password) || $this->password == 1)
+      if (is_null($this->__get('password')) || $this->__get('password') == 1)
       {
         throw new \Exception("The database password is not defined!");
       }
@@ -125,7 +125,7 @@ class EnvironmentCreate extends Command
     $cliCommon = new Common();
 
     // Convert name to restricted chars and lowercase
-    $name = preg_replace("/[^a-z0-9]+$/", "", strtolower($this->name));
+    $name = preg_replace("/[^a-z0-9]+$/", "", strtolower($this->name()));
 
     // Create folder
     $dirName = __DIR__ . '/../../../../config/' . $name;
@@ -137,7 +137,7 @@ class EnvironmentCreate extends Command
 
     $adapter = '';
     $port = 0;
-    switch ($this->type)
+    switch ($this->__get('type'))
     {
       case 'MySQL':
       case 'MariaDB':
@@ -167,9 +167,9 @@ class EnvironmentCreate extends Command
       default:
           throw new \Exception("The database type not right/supported!");
     }
-    if (!is_null($this->port) && $this->port != 1)
+    if (!is_null($this->__get('port')) && $this->__get('port') != 1)
     {
-      $port = $this->port;
+      $port = $this->__get('port');
     }
 
     $content = "<?php\n" .
@@ -184,10 +184,10 @@ class EnvironmentCreate extends Command
     "      'default_environment' => '" . $name . "',\n" .
     "      '" . $name . "' => [\n" .
     "          'adapter' => '" . $adapter . "',\n" .
-    "          'host'    => '" . $this->host . "',\n" .
-    "          'name'    => '" . $this->databasename . "',\n" .
-    "          'user'    => '" . $this->username . "',\n" .
-    "          'pass'    => '" . $this->password . "',\n" .
+    "          'host'    => '" . $this->__get('host') . "',\n" .
+    "          'name'    => '" . $this->__get('databasename') . "',\n" .
+    "          'user'    => '" . $this->__get('username') . "',\n" .
+    "          'pass'    => '" . $this->__get('password') . "',\n" .
     "          'port'    => '" . $port . "',\n" .
     "          'charset' => 'utf8',\n" .
     "      ]\n" .
@@ -207,7 +207,7 @@ class EnvironmentCreate extends Command
     "\n";
     file_put_contents($dirName . '/config.php', $content);
     // If current (switch to this environment), copy the file into current folder
-    if ($this->current == 1 || $this->current == 'yes')
+    if ($this->__get('current') == 1 || $this->__get('current') == 'yes')
     {
       $cliCommon->switchEnvironment($name);
     }

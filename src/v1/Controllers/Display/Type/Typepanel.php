@@ -80,7 +80,7 @@ final class Typepanel
   {
     $token = (object)$request->getAttribute('token');
 
-    $typepanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $args['typeId'])
+    $typepanel = \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $args['typeId'])
       ->with('items')
       ->orderBy('id')
       ->get();
@@ -213,7 +213,7 @@ final class Typepanel
       $typepanel->icon = \App\v1\Common::setDisplayIcon($data->icon);
     }
     // get the max position
-    $maxPanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $data->type_id)
+    $maxPanel = \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $data->type_id)
       ->orderBy('position', 'desc')
       ->first();
     if ($maxPanel !== null)
@@ -224,7 +224,7 @@ final class Typepanel
         {
           $typepanel->position = $maxPanel->position + 1;
         } else {
-          \App\v1\Models\Display\Type\Typepanel::where('type_id', $data->type_id)
+          \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $data->type_id)
             ->where('position', '>=', $data->position)
             ->increment('position', 1);
             $typepanel->position = $data->position;
@@ -357,7 +357,7 @@ final class Typepanel
     // \App\v1\Permission::checkPermissionToStructure('delete', 'config/property', $property->id);
 
     // Transfert all panelitems to default
-    $typepanelitems = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $args['panelId'])->get();
+    $typepanelitems = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $args['panelId'])->get();
     foreach ($typepanelitems as $typepanelitem)
     {
       \App\v1\Controllers\Display\Type\Typepanelitem::
@@ -413,7 +413,7 @@ final class Typepanel
   {
     $token = (object)$request->getAttribute('token');
 
-    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $args['panelId'])
+    $typepanelitem = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $args['panelId'])
       ->orderBy('id')->get();
 
     $response->getBody()->write($typepanelitem->toJson());
@@ -426,11 +426,11 @@ final class Typepanel
   public static function deleteAllPanels($typeId)
   {
     // loop panels of the type
-    $panels = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeId)->get();
+    $panels = \App\v1\Models\Display\Type\Typepanel::query()->where('type_id', $typeId)->get();
     foreach ($panels as $panel)
     {
       // loop panelitems
-      $panelitems = \App\v1\Models\Display\Type\Typepanelitem::where('typepanel_id', $panel->id);
+      $panelitems = \App\v1\Models\Display\Type\Typepanelitem::query()->where('typepanel_id', $panel->id);
       foreach ($panelitems as $panelitem)
       {
         // delete panel items

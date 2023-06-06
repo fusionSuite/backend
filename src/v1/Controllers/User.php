@@ -77,7 +77,7 @@ final class User
    */
   public function getUserparams(Request $request, Response $response, $args): Response
   {
-    $types = \App\v1\Models\Config\Type::whereIn('internalname', [
+    $types = \App\v1\Models\Config\Type::query()->whereIn('internalname', [
       'userparam.itemlist',
       'userparam.item',
       'userparam.csvimport',

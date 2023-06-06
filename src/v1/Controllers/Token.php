@@ -87,7 +87,7 @@ final class Token
     )
     {
       // Verify the account
-      $user = \App\v1\Models\Item::where('name', $data->login)->where('type_id', TYPE_USER_ID)->first();
+      $user = \App\v1\Models\Item::query()->where('name', $data->login)->where('type_id', TYPE_USER_ID)->first();
       if (is_null($user))
       {
         throw new \Exception('Error when authentication, login or password not right', 401);
@@ -102,7 +102,7 @@ final class Token
       }
       // TODO check password in property (need manage properties with password)
 
-      // $user = \App\v1\Models\User::where([['login', $data->login]])->get()->makeHidden(
+      // $user = \App\v1\Models\User::query()->where([['login', $data->login]])->get()->makeHidden(
       //   \App\v1\Common::getFieldsToHide($model->getVisible(), ['id', 'login', 'password',
       //   'jwtid', 'refreshtoken', 'firstname', 'lastname', 'displayname']))
       //   ->makeVisible(["password", "jwtid"])->toArray();

@@ -97,8 +97,8 @@ final class Permissiondataproperty
   {
     // get all types defined on this permissiondata and for this role
     $permissionProperties = [];
-    $permissiondataproperties = \App\v1\Models\Config\Permissiondataproperty::
-      where('permissiondata_id', $permissiondataId)
+    $permissiondataproperties = \App\v1\Models\Config\Permissiondataproperty::query()
+      ->where('permissiondata_id', $permissiondataId)
       ->get();
     foreach ($permissiondataproperties as $permission)
     {
@@ -126,8 +126,8 @@ final class Permissiondataproperty
    */
   public static function deleteProperties($datapermissionId, $propertyId = null)
   {
-    $permissiondataproperty = \App\v1\Models\Config\Permissiondataproperty::
-      where('permissiondata_id', $datapermissionId);
+    $permissiondataproperty = \App\v1\Models\Config\Permissiondataproperty::query()
+      ->where('permissiondata_id', $datapermissionId);
     if (!is_null($propertyId))
     {
       $permissiondataproperty->where('property_id', $propertyId);

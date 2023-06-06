@@ -26,7 +26,7 @@ final class GetType
   {
     $ruler   = new \Hoa\Ruler\Ruler();
     $context = new \Hoa\Ruler\Context();
-    $context['inventoryData'] = function () use ($context, $inventoryData)
+    $context['inventoryData'] = function () use ($inventoryData)
     {
       return $inventoryData->{'content'};
     };
@@ -51,7 +51,7 @@ final class GetType
     });
 
     // get all rules
-    $rules = \App\v1\Models\Rule::where('type', 'fusioninventorygettype')->with('criteria', 'actions')->get();
+    $rules = \App\v1\Models\Rule::query()->where('type', 'fusioninventorygettype')->with('criteria', 'actions')->get();
     foreach ($rules as $rule)
     {
       $criteria = [];

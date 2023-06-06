@@ -171,7 +171,7 @@ final class Menuitemcustom
     $token = (object)$request->getAttribute('token');
     $userId = $GLOBALS['user_id'];
 
-    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)->orderBy('id')->get();
+    $menuitemcustoms = \App\v1\Models\Display\Menu\Menuitemcustom::query()->where('user_id', $userId)->orderBy('id')->get();
 
     $response->getBody()->write($menuitemcustoms->toJson());
     return $response->withHeader('Content-Type', 'application/json');
@@ -379,7 +379,7 @@ final class Menuitemcustom
     $custom->menuitem_id = $data->menuitem_id;
 
     // get the max position
-    $maxItem = \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)
+    $maxItem = \App\v1\Models\Display\Menu\Menuitemcustom::query()->where('user_id', $userId)
       ->orderBy('position', 'desc')
       ->first();
     if ($maxItem !== null)
@@ -390,7 +390,7 @@ final class Menuitemcustom
         {
           $custom->position = $maxItem->position + 1;
         } else {
-          \App\v1\Models\Display\Menu\Menuitemcustom::where('user_id', $userId)
+          \App\v1\Models\Display\Menu\Menuitemcustom::query()->where('user_id', $userId)
             ->where('position', '>=', $data->position)
             ->increment('position', 1);
           $custom->position = $data->position;

@@ -148,7 +148,7 @@ final class Menuitem
   {
     $token = (object)$request->getAttribute('token');
 
-    $menuitem = \App\v1\Models\Display\Menu\Menuitem::orderBy('id')->get();
+    $menuitem = \App\v1\Models\Display\Menu\Menuitem::query()->orderBy('id')->get();
 
     $response->getBody()->write($menuitem->toJson());
     return $response->withHeader('Content-Type', 'application/json');
@@ -360,7 +360,7 @@ final class Menuitem
       $menuitem->icon = \App\v1\Common::setDisplayIcon($data->icon);
     }
     // get the max position
-    $maxItem = \App\v1\Models\Display\Menu\Menuitem::where('menu_id', $data->menu_id)
+    $maxItem = \App\v1\Models\Display\Menu\Menuitem::query()->where('menu_id', $data->menu_id)
       ->orderBy('position', 'desc')
       ->first();
     if ($maxItem !== null)
@@ -371,7 +371,7 @@ final class Menuitem
         {
           $menuitem->position = $maxItem->position + 1;
         } else {
-          \App\v1\Models\Display\Menu\Menuitem::where('menu_id', $data->menu_id)
+          \App\v1\Models\Display\Menu\Menuitem::query()->where('menu_id', $data->menu_id)
             ->where('position', '>=', $data->position)
             ->increment('position', 1);
             $menuitem->position = $data->position;
@@ -538,12 +538,12 @@ final class Menuitem
 
     // ====== Post delete actions ====== //
     // decrease position of others
-    \App\v1\Models\Display\Menu\Menuitem::where('menu_id', $menuitem->menu_id)
+    \App\v1\Models\Display\Menu\Menuitem::query()->where('menu_id', $menuitem->menu_id)
       ->where('position', '>=', $menuitem->position)
       ->decrement('position', 1);
 
     // delete menuitemcustom
-    $customs = \App\v1\Models\Display\Menu\Menuitemcustom::where('menuitem_id', $menuitem->id)->get();
+    $customs = \App\v1\Models\Display\Menu\Menuitemcustom::query()->where('menuitem_id', $menuitem->id)->get();
     foreach ($customs as $custom)
     {
       if (!is_null($request))
@@ -566,7 +566,7 @@ final class Menuitem
    */
   public static function deleteItemByTypeId($typeId)
   {
-    $menuitems = \App\v1\Models\Display\Menu\Menuitem::where('type_id', $typeId)->get();
+    $menuitems = \App\v1\Models\Display\Menu\Menuitem::query()->where('type_id', $typeId)->get();
     $CMenuitem = new self();
     foreach ($menuitems as $menuitem)
     {

@@ -133,17 +133,17 @@ class Property extends Model
 
   public function getListvaluesAttribute()
   {
-    if ($this->valuetype == 'list')
+    if ($this->attributes['valuetype'] == 'list')
     {
       return $this->listvalues()->get();
     }
-    elseif ($this->valuetype == 'itemlink' || $this->valuetype == 'itemlinks')
+    elseif ($this->attributes['valuetype'] == 'itemlink' || $this->attributes['valuetype'] == 'itemlinks')
     {
     }
-    elseif ($this->valuetype == 'typelink' || $this->valuetype == 'typelinks')
+    elseif ($this->attributes['valuetype'] == 'typelink' || $this->attributes['valuetype'] == 'typelinks')
     {
     }
-    elseif ($this->valuetype == 'propertylink')
+    elseif ($this->attributes['valuetype'] == 'propertylink')
     {
     }
     return [];
@@ -176,7 +176,7 @@ class Property extends Model
   public function getValueAttribute()
   {
     if (
-        ($this->valuetype == 'itemlink' || $this->valuetype == 'itemlinks')
+        ($this->attributes['valuetype'] == 'itemlink' || $this->attributes['valuetype'] == 'itemlinks')
         && isset($this->pivot->value_itemlink)
     )
     {
@@ -186,7 +186,7 @@ class Property extends Model
       return $item;
     }
     elseif (
-        ($this->valuetype == 'typelink' || $this->valuetype == 'typelinks')
+        ($this->attributes['valuetype'] == 'typelink' || $this->attributes['valuetype'] == 'typelinks')
         && isset($this->pivot->value_typelink)
     )
     {
@@ -194,7 +194,7 @@ class Property extends Model
       return $item;
     }
     elseif (
-        ($this->valuetype == 'propertylink')
+        ($this->attributes['valuetype'] == 'propertylink')
         && isset($this->pivot->value_propertylink)
     )
     {
@@ -202,7 +202,7 @@ class Property extends Model
       return $item;
     }
     elseif (
-        ($this->valuetype == 'list')
+        ($this->attributes['valuetype'] == 'list')
         && isset($this->pivot->value_list)
     )
     {
@@ -210,17 +210,17 @@ class Property extends Model
       return $item;
     }
 
-    if (isset($this->pivot->{'value_' . $this->valuetype}))
+    if (isset($this->pivot->{'value_' . $this->attributes['valuetype']}))
     {
-      if ($this->valuetype == 'boolean')
+      if ($this->attributes['valuetype'] == 'boolean')
       {
         return boolval($this->pivot->value_boolean);
       }
-      elseif ($this->valuetype == 'decimal')
+      elseif ($this->attributes['valuetype'] == 'decimal')
       {
         return floatval($this->pivot->value_decimal);
       }
-      return $this->pivot->{'value_' . $this->valuetype};
+      return $this->pivot->{'value_' . $this->attributes['valuetype']};
     }
     return null;
   }
@@ -236,21 +236,21 @@ class Property extends Model
 
   public function getDefaultAttribute()
   {
-    $valuetype = $this->valuetype;
+    $valuetype = $this->attributes['valuetype'];
     if (
-        in_array($this->valuetype, ['date', 'datetime', 'time'])
-        && $this->setcurrentdate
+        in_array($this->attributes['valuetype'], ['date', 'datetime', 'time'])
+        && $this->attributes['setcurrentdate']
     )
     {
       return '';
     }
-    elseif (is_null($this->{'default_' . $valuetype}))
+    elseif (is_null($this->attributes['default_' . $valuetype]))
     {
-      return $this->{'default_' . $valuetype};
+      return $this->attributes['default_' . $valuetype];
     }
-    if ($this->valuetype == 'itemlinks')
+    if ($this->attributes['valuetype'] == 'itemlinks')
     {
-      $items = \App\v1\Models\Config\Propertyitemlink::where('property_id', $this->id)->get();
+      $items = \App\v1\Models\Config\Propertyitemlink::query()->where('property_id', $this->attributes['id'])->get();
       $itemlinks = [];
       foreach ($items as $item)
       {
@@ -258,9 +258,9 @@ class Property extends Model
       }
       return $itemlinks;
     }
-    elseif ($this->valuetype == 'typelinks')
+    elseif ($this->attributes['valuetype'] == 'typelinks')
     {
-      $items = \App\v1\Models\Config\Propertytypelink::where('property_id', $this->id)->get();
+      $items = \App\v1\Models\Config\Propertytypelink::query()->where('property_id', $this->attributes['id'])->get();
       $typelinks = [];
       foreach ($items as $item)
       {
@@ -268,20 +268,20 @@ class Property extends Model
       }
       return $typelinks;
     }
-    elseif ($this->valuetype == 'boolean')
+    elseif ($this->attributes['valuetype'] == 'boolean')
     {
-      return boolval($this->{'default_boolean'});
+      return boolval($this->attributes['default_boolean']);
     }
-    elseif ($this->valuetype == 'decimal')
+    elseif ($this->attributes['valuetype'] == 'decimal')
     {
-      return floatval($this->{'default_decimal'});
+      return floatval($this->attributes['default_decimal']);
     }
     return $this->{'default_' . $valuetype};
   }
 
   public function getSetcurrentdateAttribute($value)
   {
-    if (!in_array($this->valuetype, ['date', 'datetime', 'time']))
+    if (!in_array($this->attributes['valuetype'], ['date', 'datetime', 'time']))
     {
       return null;
     }
@@ -296,9 +296,12 @@ class Property extends Model
   public function getAllowedtypesAttribute()
   {
     $allowedTypes = [];
-    if ($this->valuetype == 'itemlink' or $this->valuetype == 'itemlinks')
+    if ($this->attributes['valuetype'] == 'itemlink' or $this->attributes['valuetype'] == 'itemlinks')
     {
-      $types = \App\v1\Models\Config\Propertyallowedtype::where('property_id', $this->id)->orderBy('id')->get();
+      $types = \App\v1\Models\Config\Propertyallowedtype::query()
+        ->where('property_id', $this->attributes['id'])
+        ->orderBy('id')
+        ->get();
       $modelType = new \App\v1\Models\Config\Type();
       foreach ($types as $type)
       {
