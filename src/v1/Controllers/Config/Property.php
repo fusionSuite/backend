@@ -512,6 +512,11 @@ final class Property
     if (property_exists($data, 'default'))
     {
       $data->valuetype = $property->valuetype;
+      if ($property->valuetype == 'list')
+      {
+        // we get value because we can need compare the default value with the values of list in DB
+        $data->listvalues = array_column($property->getAttribute('listvalues')->toArray(), 'value');
+      }
       $this->validateDefaultForSaveMethods($data);
     }
 
@@ -542,7 +547,7 @@ final class Property
       }
     }
 
-    $properties = $this->fillArrayForSaveMethods($data, false);
+    $properties = $this->fillArrayForSaveMethods($data, false, $args['id']);
     foreach ($properties as $propertyName => $propertyValue)
     {
       $property->$propertyName = $propertyValue;
@@ -568,37 +573,10 @@ final class Property
       $property->save();
     }
 
-    // Special case for list, because store default values in another model
-    if ($property->valuetype == 'list' && property_exists($data, 'default') && !is_null($data->default))
-    {
-      // get values, delete if not in list, and add is missing
-      $propertylists = \App\v1\Models\Config\Propertylist::where('property_id', $property->id)->get();
-      foreach ($propertylists as $proplist)
-      {
-        if (!in_array($proplist->value, $data->default))
-        {
-          $proplist->delete();
-        } else {
-          $key = array_search($proplist->value, $data->default);
-          if ($key !== false) {
-            unset($data->default[$key]);
-          }
-          unset($data->default[$proplist]);
-        }
-      }
-      foreach ($data->default as $typeId)
-      {
-        $propertylist = new \App\v1\Models\Config\Propertylist();
-        $propertylist->property_id = $property->id;
-        $propertylist->value = $typeId;
-        $propertylist->save();
-      }
-    }
-
     // Special case for itemlinks, because store default values in another model
     if ($property->valuetype == 'itemlinks' && property_exists($data, 'default') && !is_null($data->default))
     {
-      // get values, delete if not in list, and add is missing
+      // get values, delete if not in list, and add if missing
       $propertyitemlinks = \App\v1\Models\Config\Propertyitemlink::where('property_id', $property->id)->get();
       foreach ($propertyitemlinks as $propitemlink)
       {
@@ -625,7 +603,7 @@ final class Property
     // Special case for typelinks, because store default values in another model
     if ($property->valuetype == 'typelinks' && property_exists($data, 'default') && !is_null($data->default))
     {
-      // get values, delete if not in list, and add is missing
+      // get values, delete if not in list, and add if missing
       $propertytypelinks = \App\v1\Models\Config\Propertytypelink::where('property_id', $property->id)->get();
       foreach ($propertytypelinks as $proptypelink)
       {
@@ -879,6 +857,157 @@ final class Property
     }
   }
 
+  /**
+   * @api {post} /v1/config/properties/:id/listvalues Add a value in listvalues when valuetype is 'list'
+   * @apiName PostConfigPropertiesListvalues
+   * @apiGroup Config/Properties
+   * @apiVersion 1.0.0-draft
+   *
+   * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id     Unique ID of the property.
+   *
+   * @apiSuccess {string}  value  value to add to listvalues.
+   *
+   * @apiParamExample {json} Request-Example:
+   * {
+   *   "value": "test value"
+   * }
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   *
+   */
+  public function postPropertyListvalue(Request $request, Response $response, $args): Response
+  {
+    $token = (object)$request->getAttribute('token');
+    $data = json_decode($request->getBody());
+    $args['id'] = intval($args['id']);
+
+    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
+    if (is_null($property))
+    {
+      throw new \Exception("The property has not be found", 404);
+    }
+
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/property', $property->id);
+
+    $dataFormat = [
+      'value' => 'required|type:string'
+    ];
+    \App\v1\Common::validateData($data, $dataFormat);
+
+    $propertylist = new \App\v1\Models\Config\Propertylist();
+    $propertylist->property_id = $property->id;
+    $propertylist->value = $data->value;
+    $propertylist->save();
+
+    \App\v1\Controllers\Log\Audit::addEntry(
+      $request,
+      'UPDATE',
+      'update a property',
+      'Config\Property',
+      $property->id
+    );
+
+    $response->getBody()->write(json_encode([]));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
+  /**
+   * @api {delete} /v1/config/properties/:id/listvalues/:listvalueid Delete a value in listvalues when valuetype
+   *    is 'list'
+   * @apiName DeleteConfigPropertiesListvalue
+   * @apiGroup Config/Properties
+   * @apiVersion 1.0.0-draft
+   *
+   * @apiUse AutorizationHeader
+   *
+   * @apiParam {Number}    id           Unique ID of the property.
+   * @apiParam {Number}    listvalueid  Unique ID of the listvalue.
+   *
+   * @apiSuccessExample {json} Success-Response:
+   * HTTP/1.1 200 OK
+   * [
+   * ]
+   *
+   */
+  public function deletePropertyListvalue(Request $request, Response $response, $args): Response
+  {
+    $token = (object)$request->getAttribute('token');
+    $data = json_decode($request->getBody());
+    $args['id'] = intval($args['id']);
+    $args['listvalueid'] = intval($args['listvalueid']);
+
+    // Validation of data
+    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
+    if (is_null($property))
+    {
+      throw new \Exception("The property has not be found", 404);
+    }
+    $propertylist = \App\v1\Models\Config\Propertylist::
+      where('property_id', $args['id'])
+      ->where('id', $args['listvalueid'])
+      ->first();
+
+    if (is_null($propertylist))
+    {
+      throw new \Exception("The listvalue has not be found for this property", 404);
+    }
+
+    if (!$property->canbenull && $property->default == $args['listvalueid'])
+    {
+      throw new \Exception("The property can't be null and the default value is this listvalue", 401);
+    }
+
+    // check permissions
+    \App\v1\Permission::checkPermissionToStructure('update', 'config/property', $property->id);
+
+    $propertylist->delete();
+
+    // need delete default if this listvalue in default in the porperty
+    if ($property->default == $args['listvalueid'])
+    {
+      $property->default = null;
+      $property->save();
+    }
+
+    // need delete all properties used in items with this listvalue
+    $items = \App\v1\Models\Item::withTrashed()->whereHas('properties', function ($query) use ($args)
+    {
+      $query->where('value_list', $args['listvalueid']);
+    })->get();
+    foreach ($items as $item)
+    {
+      $item->properties()->updateExistingPivot($args['id'], [
+        'value_list' => $property->default
+      ]);
+      $item->touch();
+
+      \App\v1\Controllers\Log\Audit::addEntry(
+        $request,
+        'UPDATE',
+        'update a property because valuelist has been deleted by an administrator',
+        'Item',
+        $item->id
+      );
+    }
+
+    \App\v1\Controllers\Log\Audit::addEntry(
+      $request,
+      'UPDATE',
+      'update a property',
+      'Config\Property',
+      $property->id
+    );
+
+    $response->getBody()->write(json_encode([]));
+    return $response->withHeader('Content-Type', 'application/json');
+  }
+
   /********************
    * Private functions
    ********************/
@@ -1093,7 +1222,7 @@ final class Property
   /**
    * Prepare an array with properties to save in the database
    */
-  private function fillArrayForSaveMethods($data, $generateInternalname = true)
+  private function fillArrayForSaveMethods($data, $generateInternalname = true, $propertyId = null)
   {
     $properties = [];
     if (property_exists($data, 'name'))
@@ -1138,7 +1267,17 @@ final class Property
           && !is_null($data->default)
       )
       {
-        $properties['default_' . $properties['valuetype']] = 0;
+        // have the name, must get the id
+        if (!is_null($propertyId))
+        {
+          $propertylist = \App\v1\Models\Config\Propertylist::
+            where('property_id', $propertyId)
+            ->where('value', $data->default)
+            ->first();
+            $properties['default_' . $properties['valuetype']] = $propertylist->id;
+        } else {
+          $properties['default_' . $properties['valuetype']] = 0;
+        }
       }
     }
     if (\App\v1\Post::postHasProperties($data, ['description']) === true)

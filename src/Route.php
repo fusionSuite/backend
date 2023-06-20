@@ -138,6 +138,20 @@ final class Route
             $propertyId->map(['GET'], '', \App\v1\Controllers\Config\Property::class . ':getOne');
             $propertyId->map(['PATCH'], '', \App\v1\Controllers\Config\Property::class . ':patchItem');
             $propertyId->map(['DELETE'], '', \App\v1\Controllers\Config\Property::class . ':deleteItem');
+
+            $propertyId->group("/listvalues", function (RouteCollectorProxy $propertyValuetypeId)
+            {
+              $propertyValuetypeId->map(
+                ['POST'],
+                '',
+                \App\v1\Controllers\Config\Property::class . ':postPropertyListvalue'
+              );
+              $propertyValuetypeId->map(
+                ['DELETE'],
+                '/{listvalueid:[0-9]+}',
+                \App\v1\Controllers\Config\Property::class . ':deletePropertyListvalue'
+              );
+            });
           });
         });
         $config->group("/roles", function (RouteCollectorProxy $role)
