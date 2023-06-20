@@ -24,7 +24,7 @@ use Slim\Factory\AppFactory;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Container\Container;
-use \Symfony\Component\ErrorHandler\ErrorHandler as SymfonyErrorHandler;
+use Symfony\Component\ErrorHandler\ErrorHandler as SymfonyErrorHandler;
 
 // use DateTime;
 
