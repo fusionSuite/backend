@@ -208,7 +208,7 @@ final class Token
       // we only want have the encryption and the data OK, no need to validate the time
       if ($exception->getMessage() != 'Expired token')
       {
-        throw $exception;
+        throw new \Exception($exception->getMessage(), 400);
       }
     }
     // decode the paylod

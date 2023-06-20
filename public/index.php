@@ -24,6 +24,7 @@ use Slim\Factory\AppFactory;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Container\Container;
+use Symfony\Component\ErrorHandler\ErrorHandler as SymfonyErrorHandler;
 
 // use DateTime;
 
@@ -163,6 +164,10 @@ $customErrorHandler = function (
       "status"  => "error",
       "message" => $exception->getMessage()
     ];
+    if ($exception->getCode() == 0 || $exception->getCode() >= 500)
+    {
+      $error['trace'] = $exception->getTraceAsString();
+    }
     $response = $app->getResponseFactory()->createResponse();
     $response->getBody()->write(json_encode($error));
     return $response->withStatus($exception->getCode())->withHeader('Content-Type', 'application/json');
@@ -172,6 +177,10 @@ $customErrorHandler = function (
     "status"  => "error",
     "message" => $exception->getMessage()
   ];
+  if ($exception->getCode() == 0 || $exception->getCode() >= 500)
+  {
+    $error['trace'] = $exception->getTraceAsString();
+  }
   $response = $app->getResponseFactory()->createResponse();
   $response->getBody()->write(json_encode($error));
   return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
@@ -188,5 +197,8 @@ $app->get('/', function (Request $request, Response $response, $args)
 
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $errorMiddleware->setDefaultErrorHandler($customErrorHandler);
+
+// get php errors (warning...)
+SymfonyErrorHandler::register();
 
 $app->run();

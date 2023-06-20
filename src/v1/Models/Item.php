@@ -209,6 +209,15 @@ class Item extends Model
   public function getOrganizationAttribute()
   {
     $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
+    // special case when delete an organization on itself (do warning when hard delete)
+    if (is_null($org) && $this->attributes['id'] == $this->attributes['organization_id'])
+    {
+      return [
+        'id'   => 0,
+        'name' => ''
+      ];
+    }
+    // normal case
     return [
       'id'   => $org->id,
       'name' => $org->name

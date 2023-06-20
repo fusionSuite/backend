@@ -133,7 +133,7 @@ describe('refresh token | usage of the refreshtoken', function () {
         refreshtoken: global.refreshTokenUser1,
       })
       .set('Accept', 'application/json')
-      .expect(500)
+      .expect(400)
       .expect('Content-Type', /json/)
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
@@ -156,7 +156,7 @@ describe('refresh token | usage of the refreshtoken', function () {
         refreshtoken: global.refreshTokenUser1,
       })
       .set('Accept', 'application/json')
-      .expect(500)
+      .expect(400)
       .expect('Content-Type', /json/)
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
