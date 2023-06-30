@@ -756,7 +756,7 @@ final class Type
     // Validate the data format
     $dataFormat = [
       'name'                   => 'required|type:string',
-      'internalname'           => 'type:string|regex:/^[a-z.]+$/|minchars:2|maxchars:255',
+      'internalname'           => 'type:string|regex:/^[a-z.0-9]+$/|minchars:2|maxchars:255',
       'tree'                   => 'type:boolean|boolean',
       'allowtreemultipleroots' => 'type:boolean|boolean',
       'organization_id'        => 'type:integer|integer',
@@ -779,7 +779,7 @@ final class Type
     }
     if (property_exists($data, 'internalname') === false)
     {
-      $type->internalname = preg_replace("/[^a-z.]+/", "", strtolower($data->name));
+      $type->internalname = uniqid(preg_replace("/[^a-z.0-9]+/", "", strtolower($data->name)));
     }
     else
     {
@@ -833,7 +833,7 @@ final class Type
     {
       $dataFormat = [
         'name'         => 'required|type:string',
-        'internalname' => 'type:string|regex:/^[a-z.]+$/'
+        'internalname' => 'type:string|regex:/^[a-z.0-9]+$/'
       ];
       \App\v1\Common::validateData($type, $dataFormat);
 
@@ -854,7 +854,7 @@ final class Type
             {
               $dataFormat = [
                 'name'         => 'required|type:string',
-                'internalname' => 'type:string|regex:/^[a-z.]+$/',
+                'internalname' => 'type:string|regex:/^[a-z.0-9]+$/',
                 'valuetype'    => 'required|in:boolean,date,datetime,decimal,integer,itemlink,itemlinks,list,number,' .
                                   'propertylink,string,text,time,typelink,typelinks|type:string',
                 'regexformat'  => 'present|type:string',
@@ -907,7 +907,7 @@ final class Type
         {
           if (property_exists($property, 'internalname') === false)
           {
-            $property->internalname = preg_replace("/[^a-z.]+/", "", strtolower($property->name));
+            $property->internalname = uniqid(preg_replace("/[^a-z.0-9]+/", "", strtolower($property->name)));
           }
           $prop = \App\v1\Models\Config\Property::firstWhere('internalname', $property->internalname);
           if (is_null($prop))

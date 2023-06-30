@@ -11,6 +11,7 @@ describe('itemPropertyWhenAddPropertyToType | create type', function () {
       .post('/v1/config/types')
       .send({
         name: 'testType',
+        internalname: 'testtype',
       })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)

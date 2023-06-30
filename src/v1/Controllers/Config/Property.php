@@ -1245,7 +1245,7 @@ final class Property
     {
       if (property_exists($data, 'internalname') === false)
       {
-        $properties['internalname'] = preg_replace("/[^a-z.]+/", "", strtolower($data->name));
+        $properties['internalname'] = uniqid(preg_replace("/[^a-z.0-9]+/", "", strtolower($data->name)));
       }
       else
       {
@@ -1310,7 +1310,7 @@ final class Property
   private function validateInternalnameAttribute($values = [])
   {
     $values[] = 'type:string';
-    $values[] = 'regex:/^[a-z.]+$/';
+    $values[] = 'regex:/^[a-z.0-9]+$/';
     $values[] = 'minchars:2';
     $values[] = 'maxchars:255';
     return implode('|', $values);

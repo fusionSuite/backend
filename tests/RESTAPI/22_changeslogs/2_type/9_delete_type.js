@@ -78,6 +78,7 @@ describe('changes | types | delete the type', function () {
         // replace dates to be easier to compare
         row.old_value = row.old_value.replace(/("20\d{2}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/g, '"**date**');
         row.old_value = row.old_value.replace(/("20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.000000Z)/g, '"**date**');
+        row.old_value = row.old_value.replace(/typeforchanges([a-z0-9.]+)"/, 'typeforchanges"');
         assert(
           is.equal(
             '{"id":' + global.typeId + ',"name":"test for a new name of the type","internalname":"typeforchanges","sub_organization":false,"modeling":"logical","tree":false,"allowtreemultipleroots":false,"unique_name":false,"created_at":"**date**","updated_at":"**date**","deleted_at":"**date**","created_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"updated_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"deleted_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"properties":[{"id":1,"name":"First name","internalname":"userfirstname","valuetype":"string","regexformat":null,"unit":null,"description":null,"canbenull":true,"setcurrentdate":null,"listvalues":[],"default":"","allowedtypes":[]},{"id":2,"name":"Last name","internalname":"userlastname","valuetype":"string","regexformat":null,"unit":null,"description":null,"canbenull":true,"setcurrentdate":null,"listvalues":[],"default":"","allowedtypes":[]}],"organization":{"id":1,"name":"My organization"}}',
