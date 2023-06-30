@@ -88,7 +88,9 @@ describe('roles | custom > structure > custom > type | get type(s)', function ()
       .expect(200)
       .expect('Content-Type', /json/)
       .expect(function (response) {
-        assert(is.equal('mytype', response.body.internalname));
+        assert(is.startWith(response.body.internalname, 'mytype'));
+        const pattern = /^([a-z0-9.]+)$/;
+        assert(pattern.test(response.body.internalname), 'internalname not in right format');
       })
       .end(function (err, response) {
         if (err) {

@@ -101,7 +101,9 @@ describe('roles | custom > structure > type | soft delete type(s)', function () 
       .expect(200)
       .expect('Content-Type', /json/)
       .expect(function (response) {
-        assert(is.equal('mytype', response.body.internalname));
+        assert(is.startWith(response.body.internalname, 'mytype'));
+        const pattern = /^([a-z0-9.]+)$/;
+        assert(pattern.test(response.body.internalname), 'internalname not in right format');
         assert(is.equal('mytypeupdated2', response.body.name));
         assert(is.not.null(response.body.deleted_at));
       })
