@@ -72,6 +72,7 @@ final class Properties extends AbstractMigration
           ->addColumn('canbenull', 'boolean', ['default' => true])
           ->addColumn('setcurrentdate', 'boolean', ['default' => false])
           ->addIndex(['internalname'], ['unique' => true])
+          ->addIndex(['id', 'deleted_at'])
           ->addIndex('deleted_at')
           ->create();
   }
