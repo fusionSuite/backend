@@ -322,9 +322,15 @@ class Common
             break;
 
         case 'list':
-          $propertylist = $property->listvalues()->where('id', $newValue->value)->first();
-          $newValue->value = $propertylist->value;
-          $oldValue->value = $oldValue->value->value;
+          if (is_null($newValue))
+          {
+            $newValue = null;
+            $message = '{username} added null to "{property.name}"';
+          } else {
+            $propertylist = $property->listvalues()->where('id', $newValue->value)->first();
+            $newValue->value = $propertylist->value;
+            $oldValue->value = $oldValue->value->value;
+          }
             break;
 
         case 'itemlink':

@@ -89,7 +89,7 @@ final class Audit
     $params = $this->manageParams($request);
 
     $logs = \App\v1\Models\Log\Audit::ofSort($params);
-    $logs = $this->paramFilters($paramsQuery, $logs);
+    $this->paramFilters($paramsQuery, $logs);
     $totalCnt = $logs->count();
     $logs->skip(($params['skip'] * $params['take']))->take($params['take']);
     $allLogs = $logs->get();

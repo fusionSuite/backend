@@ -48,6 +48,7 @@ final class Roles extends AbstractMigration
           ->addColumn('created_by', 'integer')
           ->addColumn('updated_by', 'integer', ['null' => true])
           ->addColumn('deleted_by', 'integer', ['null' => true])
+          ->addIndex(['id', 'deleted_at'])
           ->addIndex('deleted_at')
           ->create();
   }

@@ -61,6 +61,8 @@ final class ItemProperty extends AbstractMigration
           ->addColumn('created_at', 'datetime')
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addIndex(['property_id', 'item_id', 'value_itemlink'], ['unique' => true])
+          ->addIndex(['item_id', 'value_itemlink'])
+          ->addIndex(['value_itemlink'])
           ->create();
   }
 }

@@ -43,6 +43,8 @@ final class PropertyType extends AbstractMigration
           ->addColumn('updated_at', 'datetime', ['null' => true])
           ->addColumn('deleted_at', 'datetime', ['null' => true])
           ->addIndex(['property_id', 'type_id'], ['unique' => true])
+          ->addIndex('property_id')
+          ->addIndex('type_id')
           ->create();
   }
 }

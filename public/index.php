@@ -179,7 +179,7 @@ $customErrorHandler = function (
   ];
   if ($exception->getCode() == 0 || $exception->getCode() >= 500)
   {
-    $error['trace'] = $exception->getTraceAsString();
+    $error['trace'] = $exception->getFile() . ":" . $exception->getLine() . "\n" . $exception->getTraceAsString();
   }
   $response = $app->getResponseFactory()->createResponse();
   $response->getBody()->write(json_encode($error));
