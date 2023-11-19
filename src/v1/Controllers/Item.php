@@ -172,7 +172,7 @@ final class Item
       })
       ->with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues');
 
-    $items = $this->paramFilters($paramsQuery, $items);
+    $this->paramFilters($paramsQuery, $items, $args['typeid']);
     // Example filter on property value
     // $items->whereHas('properties', function ($q)
     // {
@@ -1244,15 +1244,16 @@ final class Item
             $item->properties()->attach($property->property_id, ['value_typelink' => $value]);
           }
         }
-        elseif ($propertyItem->valuetype == 'date' && $property->value == '')
+        elseif ($propertyItem->valuetype == 'date' && $property->value == '' && !is_null($property->value))
         {
+          print_r(is_null($data->properties[0]->value));
           $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d')]);
         }
-        elseif ($propertyItem->valuetype == 'datetime' && $property->value == '')
+        elseif ($propertyItem->valuetype == 'datetime' && $property->value == '' && !is_null($property->value))
         {
           $item->properties()->attach($property->property_id, [$fieldName => date('Y-m-d H:i:s')]);
         }
-        elseif ($propertyItem->valuetype == 'time' && $property->value == '')
+        elseif ($propertyItem->valuetype == 'time' && $property->value == '' && !is_null($property->value))
         {
           $item->properties()->attach($property->property_id, [$fieldName => date('H:i:s')]);
         }
@@ -1710,7 +1711,7 @@ final class Item
     }
   }
 
-  private function updatePropertyOfLinksToNotNull($type, $propertyId, $item, $value)
+  public function updatePropertyOfLinksToNotNull($type, $propertyId, $item, $value)
   {
     $currentItems = [];
     foreach ($item->{'property' . ucfirst($type) . 'links'}($propertyId)->get() as $t)

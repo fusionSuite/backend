@@ -56,7 +56,11 @@ final class Items extends AbstractMigration
           ->addColumn('deleted_by', 'integer', ['null' => true])
           ->addIndex('type_id')
           ->addIndex('id_bytype')
+          ->addIndex(['id', 'deleted_at'])
           ->addIndex(['type_id', 'id_bytype'], ['unique' => true])
+          ->addIndex(['type_id', 'id_bytype', 'deleted_at'])
+          ->addIndex(['type_id', 'treepath', 'deleted_at'])
+          ->addIndex(['type_id', 'organization_id', 'sub_organization', 'deleted_at'])
           ->addIndex('treepath')
           ->create();
   }

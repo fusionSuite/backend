@@ -46,7 +46,7 @@ describe('itemPropertyWhenAddPropertyToTypeByTemplate | add new property to type
       });
   });
 
-  it('verify the item have right the property 38 (installation date)', function (done) {
+  it('verify the item have right the property (installation date)', function (done) {
     request
       .get('/v1/items/' + global.itemId)
       .set('Accept', 'application/json')
@@ -57,7 +57,7 @@ describe('itemPropertyWhenAddPropertyToTypeByTemplate | add new property to type
         assert(is.not.empty(response.body), 'The body must contain something');
         assert(is.object(response.body), 'the body response must be an object');
         assert(is.equal(2, response.body.properties.length), 'must have 2 properties');
-        assert(is.equal(38, response.body.properties[1].id), 'the second property id must be 38');
+        assert(is.equal('installationdate', response.body.properties[1].internalname), 'the second property internalname must be installationdate');
       })
       .end(function (err, response) {
         if (err) {

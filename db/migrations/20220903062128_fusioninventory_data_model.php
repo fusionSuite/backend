@@ -232,6 +232,14 @@ final class FusioninventoryDataModel extends AbstractMigration
     $dataProp = $this->createPropObject('Software category', 'softwarecategory', 'list', null);
     $this->propertiesId['softwarecategory'] = $property->createProperty($dataProp, $token);
 
+    // Create supported by publisher
+    $dataProp = $this->createPropObject('Supported by publisher', 'publishersupported', 'boolean', true);
+    $this->propertiesId['publishersupported'] = $property->createProperty($dataProp, $token);
+
+    // Create last version
+    $dataProp = $this->createPropObject('Last version', 'lastversion', 'boolean', true);
+    $this->propertiesId['lastversion'] = $property->createProperty($dataProp, $token);
+
     // Create Uninstall command
     $dataProp = $this->createPropObject('Uninstall command', 'uninstallcommand');
     $this->propertiesId['uninstallcommand'] = $property->createProperty($dataProp, $token);
@@ -264,6 +272,45 @@ final class FusioninventoryDataModel extends AbstractMigration
     $dataProp = $this->createPropObject('Kernel name', 'kernelname', 'list', null);
     $this->propertiesId['kernelname'] = $property->createProperty($dataProp, $token);
 
+    // Create uuid
+    $dataProp = $this->createPropObject('UUID', 'uuid');
+    $this->propertiesId['uuid'] = $property->createProperty($dataProp, $token);
+
+    // Create filesystem
+    $dataProp = $this->createPropObject('Filesystem', 'filesystem', 'list', null);
+    $this->propertiesId['filesystem'] = $property->createProperty($dataProp, $token);
+
+    // Create mountpoint
+    $dataProp = $this->createPropObject('Mount point', 'mountpoint');
+    $this->propertiesId['mountpoint'] = $property->createProperty($dataProp, $token);
+
+    // Create disk size
+    $dataProp = $this->createPropObject('Disk size', 'disksize', 'number', 0);
+    $this->propertiesId['disksize'] = $property->createProperty($dataProp, $token);
+
+    // Create disk model
+    $dataProp = $this->createPropObject('Disk model', 'diskmodel', 'list', null);
+    $this->propertiesId['diskmodel'] = $property->createProperty($dataProp, $token);
+    
+    // Create disk type
+    $dataProp = $this->createPropObject('Disk type', 'disktype', 'list', null);
+    $this->propertiesId['disktype'] = $property->createProperty($dataProp, $token);
+    
+    // Create disk interface
+    $dataProp = $this->createPropObject('Disk interface', 'diskinterface', 'list', null);
+    $this->propertiesId['diskinterface'] = $property->createProperty($dataProp, $token);
+
+    // Create firmware
+    $dataProp = $this->createPropObject('Firmware', 'firmware');
+    $this->propertiesId['firmware'] = $property->createProperty($dataProp, $token);
+
+    // Create publication date
+    $dataProp = $this->createPropObject('Publication date', 'publicationdate', 'date');
+    $this->propertiesId['publicationdate'] = $property->createProperty($dataProp, $token);
+
+    // Create severity level
+    $dataProp = $this->createPropObject('Severity', 'severitylevel', 'list', null, null, ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']);
+    $this->propertiesId['severitylevel'] = $property->createProperty($dataProp, $token);
 
     // ***** Create types ***** //
 
@@ -414,6 +461,55 @@ final class FusioninventoryDataModel extends AbstractMigration
       $type->associateProperty($myType, $this->propertiesId['folder']);
       $type->associateProperty($myType, $this->propertiesId['informationsource']);
       $type->associateProperty($myType, $this->propertiesId['URLhelp']);
+      $type->associateProperty($myType, $this->propertiesId['softwarecategory']);
+
+    // Create Software property
+    $dataProp = $this->createPropObject('Software', 'software', 'itemlink', null, null, [], [$this->itemsId['software']]);
+    $this->propertiesId['software'] = $property->createProperty($dataProp, $token);
+
+    // Create CVE
+    $myType = $type->createType((object)[
+      'name'         => 'CVE',
+      'internalname' => 'cve',
+      'modeling'     => 'physical'
+    ], $token);
+    $this->itemsId['cve'] = $myType->id;
+
+      // Attach properties
+      $type->associateProperty($myType, $this->propertiesId['publicationdate']);
+      $type->associateProperty($myType, $this->propertiesId['severitylevel']);
+
+    // Create CVE property
+    $dataProp = $this->createPropObject('CVE', 'cve', 'itemlinks', null, null, [], [$this->itemsId['cve']]);
+    $this->propertiesId['cve'] = $property->createProperty($dataProp, $token);
+
+    // Create SoftwareVersion
+    $myType = $type->createType((object)[
+      'name'         => 'Softwareversion',
+      'internalname' => 'softwareversion',
+      'modeling'     => 'physical'
+    ], $token);
+    $this->itemsId['softwareversion'] = $myType->id;
+
+      // Attach properties
+      $type->associateProperty($myType, $this->propertiesId['software']);
+      $type->associateProperty($myType, $this->propertiesId['lastversion']);
+      $type->associateProperty($myType, $this->propertiesId['publishersupported']);
+      $type->associateProperty($myType, $this->propertiesId['cve']);
+
+    // Create Software version property
+    $dataProp = $this->createPropObject('Software version', 'softwareversion', 'itemlink', null, null, [], [$this->itemsId['softwareversion']]);
+    $this->propertiesId['softwareversion'] = $property->createProperty($dataProp, $token);
+
+    // Create Software installation
+    $myType = $type->createType((object)[
+      'name'         => 'Software installation',
+      'internalname' => 'softwareinstallation',
+      'modeling'     => 'physical'
+    ], $token);
+    $this->itemsId['softwareinstallation'] = $myType->id;
+
+      // Attach properties
       $type->associateProperty($myType, $this->propertiesId['installationdate']);
       $type->associateProperty($myType, $this->propertiesId['manufacturer']);
       $type->associateProperty($myType, $this->propertiesId['uninstallcommand']);
