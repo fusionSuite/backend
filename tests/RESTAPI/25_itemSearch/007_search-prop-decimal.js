@@ -1,5 +1,4 @@
 const supertest = require('supertest');
-const validator = require('validator');
 const assert = require('assert');
 const is = require('is_js');
 

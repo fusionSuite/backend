@@ -20,8 +20,6 @@
 
 namespace App\v1;
 
-use function PHPSTORM_META\type;
-
 trait Read
 {
   /**

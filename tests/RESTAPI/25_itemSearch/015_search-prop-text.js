@@ -87,7 +87,7 @@ describe('itemSearch | search | property | text', function () {
 
   it('property in `[Lorem ipsum,In est ante in nibh mauris]`', function (done) {
     request
-      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.text + "_in=Lorem ipsum,In est ante in nibh mauris")
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.text + '_in=Lorem ipsum,In est ante in nibh mauris')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)

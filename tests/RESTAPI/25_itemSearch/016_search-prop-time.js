@@ -1,5 +1,4 @@
 const supertest = require('supertest');
-const validator = require('validator');
 const assert = require('assert');
 const is = require('is_js');
 
@@ -370,7 +369,6 @@ describe('itemSearch | search | property | time', function () {
         return done();
       });
   });
-
 
   it('property not `22:22:01`', function (done) {
     request

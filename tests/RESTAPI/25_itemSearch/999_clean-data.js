@@ -1,7 +1,4 @@
 const supertest = require('supertest');
-const validator = require('validator');
-const assert = require('assert');
-const is = require('is_js');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
