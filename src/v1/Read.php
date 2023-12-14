@@ -24,7 +24,7 @@ trait Read
 {
   /**
    * Manage params of query (pagination only for this case)
-   * 
+   *
    */
   public function manageParams($request, $tokenInformation = null)
   {
@@ -39,7 +39,7 @@ trait Read
   /**
    * Manage the filter params (search filter).
    * It's mainly used by the getall items to reduce the elements to get/return
-   * 
+   *
    * Examples:
    *   name=toto
    *   name_in=toto,titi
@@ -68,7 +68,8 @@ trait Read
       // manage filtering by name
       if ($key == 'name')
       {
-        if (is_array($value)) {
+        if (is_array($value))
+        {
           foreach ($value as $singleValue)
           {
             $items = $this->paramFilterName(null, $singleValue, $items, $typeId);
@@ -81,7 +82,8 @@ trait Read
       if (str_starts_with($key, 'name_'))
       {
         $operator = str_replace('name_', '', $key);
-        if (is_array($value)) {
+        if (is_array($value))
+        {
           foreach ($value as $singleValue)
           {
             $items = $this->paramFilterName($operator, $singleValue, $items, $typeId);
@@ -94,11 +96,12 @@ trait Read
       // manage filtering by property
       preg_match('/^property(\d+)(_(in|contains|begin|end|not|less|greater|before|after)){0,1}$/', $key, $matches);
       // Validation of data
-      if (count($matches) != 2 AND count($matches) != 4)
+      if (count($matches) != 2 and count($matches) != 4)
       {
         throw new \Exception("This query is malformed", 400);
       } else {
-        if (is_array($value)) {
+        if (is_array($value))
+        {
           foreach ($value as $singleValue)
           {
             $items = $this->paramFilterProperty($matches, $singleValue, $items, $typeId);
@@ -114,10 +117,12 @@ trait Read
 
   private function paramFilterName($operator, $value, $items, $typeId = null)
   {
-    if (is_null($operator)) {
+    if (is_null($operator))
+    {
       $items->where('name', $value);
     } else {
-      switch ($operator) {
+      switch ($operator)
+      {
         case 'in':
           $values = explode(',', $value);
           $items->whereIn('name', $values);
@@ -134,14 +139,13 @@ trait Read
         case 'end':
           $items->where('name', 'like', '%' . $value);
             break;
-                
+
         case 'not':
           $items->whereNot('name', $value);
             break;
-  
+
         default:
-          throw new \Exception("The Searchvalue is not allowed", 400);
-            break;
+            throw new \Exception("The Searchvalue is not allowed", 400);
       }
     }
     return $items;
@@ -160,7 +164,7 @@ trait Read
     if ($value == 'null' && count($matches) == 2)
     {
       $value = null;
-    } else if ($property->valuetype == 'boolean')
+    } elseif ($property->valuetype == 'boolean')
     {
       $value = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
       if (count($matches) == 4)
@@ -170,7 +174,7 @@ trait Read
       elseif (is_null($value))
       {
         throw new \Exception("The Searchvalue is not in the right format", 400);
-      }      
+      }
     } elseif ($value == 'null' && count($matches) == 4)
     {
       $value = null;
@@ -182,7 +186,8 @@ trait Read
       if ($property->valuetype == 'list' && !is_null($value))
       {
         $ids = $this->getSpecialPropertyFilterIds($property, $value, '=');
-        if (count($ids) == 1) {
+        if (count($ids) == 1)
+        {
           $value = $ids[0];
         } else {
           $value = 0;
@@ -208,11 +213,11 @@ trait Read
       {
         $items = $this->paramFilterPropertySuffixTypeId($items, $property, $value, $matches);
       }
-      else if ($this->isValuetypeIsDatetime($property->valuetype))
+      elseif ($this->isValuetypeIsDatetime($property->valuetype))
       {
         $items = $this->paramFilterPropertySuffixTypeDateTime($items, $property, $value, $matches);
       }
-      else if ($this->isValuetypeIsString($property->valuetype))
+      elseif ($this->isValuetypeIsString($property->valuetype))
       {
         $items = $this->paramFilterPropertySuffixTypeString($items, $property, $value, $matches);
       } else {
@@ -227,11 +232,12 @@ trait Read
    */
   private function paramFilterPropertySuffixTypeNumber($items, $property, $value, $matches)
   {
-    switch ($matches[3]) {
+    switch ($matches[3])
+    {
       case 'in':
         $values = preg_split("#(?<!/),#", $value);
         $values = $this->convertNumericValue($values, $property->valuetype);
-        foreach ($values as $index=>$singleValue)
+        foreach ($values as $index => $singleValue)
         {
           $this->searchPropertyValidation($property->valuetype, $singleValue);
         }
@@ -245,7 +251,8 @@ trait Read
         {
           $this->propertyQueryWhereraw(
             $items,
-            'cast(CAST(item_property.' . $this->getPropertyValuetype($property) . ' as decimal(18,5)) as float) like \'%' . $value . '%\'',
+            'cast(CAST(item_property.' . $this->getPropertyValuetype($property) .
+            ' as decimal(18,5)) as float) like \'%' . $value . '%\'',
             $property
           );
         } else {
@@ -274,7 +281,8 @@ trait Read
         {
           $this->propertyQueryWhereraw(
             $items,
-            'cast(CAST(item_property.' . $this->getPropertyValuetype($property) . ' as decimal(18,5)) as float) like \'%' . $value . '\'',
+            'cast(CAST(item_property.' . $this->getPropertyValuetype($property) .
+            ' as decimal(18,5)) as float) like \'%' . $value . '\'',
             $property
           );
         } else {
@@ -309,9 +317,7 @@ trait Read
           break;
 
       default:
-        throw new \Exception("The search operator is not allowed", 400);
-          break;
-
+          throw new \Exception("The search operator is not allowed", 400);
     }
     return $items;
   }
@@ -321,11 +327,12 @@ trait Read
    */
   private function paramFilterPropertySuffixTypeString($items, $property, $value, $matches)
   {
-    switch ($matches[3]) {
+    switch ($matches[3])
+    {
       case 'in':
         $values = preg_split("#(?<!/),#", $value);
         $values = $this->convertNumericValue($values, $property->valuetype);
-        foreach ($values as $index=>$singleValue)
+        foreach ($values as $index => $singleValue)
         {
           if (gettype($singleValue) == 'string' && strstr($singleValue, '/,'))
           {
@@ -369,9 +376,7 @@ trait Read
           break;
 
       default:
-        throw new \Exception("The search operator is not allowed", 400);
-          break;
-  
+          throw new \Exception("The search operator is not allowed", 400);
     }
     return $items;
   }
@@ -386,11 +391,12 @@ trait Read
     {
       $values = $this->getSpecialPropertyFilterIds($property, $value, $matches[3]);
     }
-    switch ($matches[3]) {
+    switch ($matches[3])
+    {
       case 'in':
       case 'contains':
         $this->propertyQueryWherein($items, $values, $property);
-        break;
+          break;
 
       case 'begin':
       case 'end':
@@ -400,7 +406,7 @@ trait Read
         }
         $this->propertyQueryWherein($items, $values, $property);
           break;
-  
+
       case 'not':
         // $value = $this->convertNumericValue($value, $property->valuetype);
         if (is_null($value) && ($property->valuetype == 'itemlinks' || $property->valuetype == 'typelinks'))
@@ -411,7 +417,7 @@ trait Read
               ->whereNull('item_property.' . $this->getPropertyValuetype($property));
           });
         }
-        else if (is_null($value))
+        elseif (is_null($value))
         {
           $items->whereHas('properties', function ($q) use ($property)
           {
@@ -419,7 +425,7 @@ trait Read
               ->whereNotNull('item_property.value_' . $property->valuetype);
           });
         }
-        else if ($property->valuetype == 'itemlinks' || $property->valuetype == 'typelinks')
+        elseif ($property->valuetype == 'itemlinks' || $property->valuetype == 'typelinks')
         {
           // Special case for itemlinks / typelinks to manage when have multiple values
           $items->whereDoesntHave('properties', function ($q) use ($value, $property)
@@ -440,10 +446,9 @@ trait Read
           }
         }
           break;
-  
+
       default:
-        throw new \Exception("The search operator is not allowed", 400);
-        break;
+          throw new \Exception("The search operator is not allowed", 400);
     }
     return $items;
   }
@@ -453,11 +458,12 @@ trait Read
    */
   private function paramFilterPropertySuffixTypeDateTime($items, $property, $value, $matches)
   {
-    switch ($matches[3]) {
+    switch ($matches[3])
+    {
       case 'in':
         $values = preg_split("#(?<!/),#", $value);
         $values = $this->convertNumericValue($values, $property->valuetype);
-        foreach ($values as $index=>$singleValue)
+        foreach ($values as $index => $singleValue)
         {
           if (gettype($singleValue) == 'string' && strstr($singleValue, '/,'))
           {
@@ -508,9 +514,7 @@ trait Read
           break;
 
       default:
-        throw new \Exception("The search operator is not allowed", 400);
-          break;
-  
+          throw new \Exception("The search operator is not allowed", 400);
     }
     return $items;
   }
@@ -530,7 +534,7 @@ trait Read
   /**
    * Prepare item filter on property where
    */
-  private function propertyQueryWhereWithOperator($items, $value, $property, $operator='like')
+  private function propertyQueryWhereWithOperator($items, $value, $property, $operator = 'like')
   {
     $items->whereHas('properties', function ($q) use ($value, $property, $operator)
     {
@@ -714,7 +718,7 @@ trait Read
     return 'items ' . $begin . '-' . $end . '/' . $totalCnt;
   }
 
-  private function searchPropertyValidation($valuetype, $value, $enableNull=true)
+  private function searchPropertyValidation($valuetype, $value, $enableNull = true)
   {
     if (is_null($value) && $enableNull)
     {
@@ -728,42 +732,42 @@ trait Read
       'searchvalue' => 'required'
     ];
 
-    switch ($valuetype) {
+    switch ($valuetype)
+    {
       case 'integer':
         $dataFormat['searchvalue'] .= '|type:integer';
-        break;
+          break;
 
       case 'decimal':
         $dataFormat['searchvalue'] .= '|regex:/^[0-9]+\.[0-9]+$/';
-        break;
+          break;
 
       case 'number':
       case 'list':
-      case 'itemlink';
+      case 'itemlink':
       case 'itemlinks':
       case 'propertylink':
       case 'typelink':
       case 'typelinks':
         $dataFormat['searchvalue'] .= '|type:integer|regex:/^[0-9]+$/';
-        break;
-      
+          break;
+
       case 'date':
         $dataFormat['searchvalue'] .= '|type:string|dateformat';
-        break;
-    
+          break;
+
       case 'datetime':
         $dataFormat['searchvalue'] .= '|type:string|datetimeformat';
-        break;
-    
+          break;
+
       case 'time':
         $dataFormat['searchvalue'] .= '|type:string|timeformat';
-        break;
-  
+          break;
     }
     \App\v1\Common::validateData($data, $dataFormat);
   }
 
-  private function searchPropertyValidationIncomplete($valuetype, $value, $enableNull=true)
+  private function searchPropertyValidationIncomplete($valuetype, $value, $enableNull = true)
   {
     if (is_null($value) && $enableNull)
     {
@@ -777,33 +781,32 @@ trait Read
       'searchvalue' => 'required'
     ];
 
-    switch ($valuetype) {
+    switch ($valuetype)
+    {
       case 'integer':
         $dataFormat['searchvalue'] .= '|type:integer|regex:/^[\-]{0,1}[0-9]*$/';
-        break;
-      
+          break;
+
       case 'number':
         $dataFormat['searchvalue'] .= '|type:integer|regex:/^[0-9]+$/';
-        break;
-        break;
+          break;
 
       case 'decimal':
         $dataFormat['searchvalue'] .= '|regex:/^[0-9]*[\.]{0,1}[0-9]*$/';
-        break;
-        break;
-  
+          break;
+
       case 'date':
         $dataFormat['searchvalue'] .= '|type:string|regex:/^[0-9\-]+$/';
-        break;
-      
+          break;
+
       case 'datetime':
         $dataFormat['searchvalue'] .= '|type:string|regex:/^[0-9\-:]+$/';
-        break;
+          break;
 
       case 'time':
         $dataFormat['searchvalue'] .= '|type:string|regex:/^[0-9:]+$/';
-        break;
-      }
+          break;
+    }
     \App\v1\Common::validateData($data, $dataFormat);
   }
 
@@ -813,7 +816,12 @@ trait Read
     {
       return $value;
     }
-    if (!in_array($valuetype, ['number', 'integer', 'decimal', 'itemlink', 'itemlinks', 'propertylink', 'typelink', 'typelinks']))
+    if (
+        !in_array(
+          $valuetype,
+          ['number', 'integer', 'decimal', 'itemlink', 'itemlinks', 'propertylink', 'typelink', 'typelinks']
+        )
+    )
     {
       return $value;
     }
@@ -829,13 +837,15 @@ trait Read
             if (
                 ($singleValue === strval(floatval($singleValue)))
                 && (preg_match("/^[0-9]+\.[0-9]+$/", $singleValue))
-              )
+            )
             {
               $newValue[] = floatval($singleValue);
             } else {
               $newValue[] = $singleValue;
             }
-          } elseif ($singleValue === strval(intval($singleValue))) {
+          }
+          elseif ($singleValue === strval(intval($singleValue)))
+          {
             $newValue[] = intval($singleValue);
           } else {
             $newValue[] = $singleValue;
@@ -854,11 +864,13 @@ trait Read
         if (
             ($value === strval(floatval($value)))
             && (preg_match("/^[0-9]+\.[0-9]+$/", $value))
-          )
+        )
         {
           return floatval($value);
         }
-      } elseif ($value === strval(intval($value))) {
+      }
+      elseif ($value === strval(intval($value)))
+      {
         return intval($value);
       }
     }
@@ -867,10 +879,10 @@ trait Read
 
   /**
    * With param filter of property have valuetype = list, itemlink, itemlinks, propertylink, typelink, typelinks
-   * 
+   *
    * '=' or 'in' or 'not' => Id
    * begin, end, contains => name
-   * 
+   *
    */
   private function getSpecialPropertyFilterIds($property, $value, $operator)
   {
@@ -883,41 +895,44 @@ trait Read
       'searchvalue' => 'required'
     ];
 
-    switch ($operator) {
+    switch ($operator)
+    {
       case '=':
       case 'not':
         $dataFormat['searchvalue'] .= '|type:string|regex:/^[0-9]+$/';
-        break;
+          break;
 
       case 'in':
         $dataFormat['searchvalue'] .= '|type:string|regex:/^[0-9,]+$/';
-        break;
+          break;
 
       default:
         $dataFormat['searchvalue'] .= '|type:string';
-        break;
+          break;
     }
     \App\v1\Common::validateData($data, $dataFormat);
 
-    switch ($operator) {
+    switch ($operator)
+    {
       case '=':
       case 'not':
         $ids[] = intval($value);
-        break;
+          break;
 
       case 'in':
         $values = explode(',', $value);
         $values = array_map('intval', $values);
         $ids = array_merge($ids, $values);
-        break;
+          break;
 
       default:
         // TODO search in list, itemlink....
-        switch ($property->valuetype) {
+        switch ($property->valuetype)
+        {
           case 'list':
             $items = \App\v1\Models\Config\Propertylist::where('property_id', $property->id);
             $searchField = 'value';
-            break;
+              break;
 
           case 'itemlink':
           case 'itemlinks':
@@ -927,39 +942,40 @@ trait Read
               $allowedtypes[] = $type->id;
             }
             $items = \App\v1\Models\item::whereIn('type_id', $allowedtypes);
-            break;
+              break;
 
           case 'propertylink':
-            $items = \App\v1\Models\Config\Property::on();            
+            $items = \App\v1\Models\Config\Property::on();
             $searchField = 'name';
-            break;
+              break;
 
           case 'typelink':
           case 'typelinks':
-            $items = \App\v1\Models\Config\Type::on();            
+            $items = \App\v1\Models\Config\Type::on();
             $searchField = 'name';
-            break;
+              break;
         }
 
-        switch ($operator) {
+        switch ($operator)
+        {
           case 'contains':
             $items->where($searchField, 'like', '%' . $value . '%');
-            break;
+              break;
 
           case 'begin':
             $items->where($searchField, 'like', $value . '%');
-            break;
+              break;
 
           case 'end':
             $items->where($searchField, 'like', '%' . $value);
-            break;
-  
+              break;
         }
         $allItems = $items->get();
-        foreach ($allItems as $item) {
+        foreach ($allItems as $item)
+        {
           $ids[] = intval($item->id);
         }
-        break;
+          break;
     }
     return $ids;
   }
