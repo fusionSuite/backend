@@ -488,14 +488,8 @@ trait Read
   {
     $items->whereHas('properties', function ($q) use ($value, $property)
     {
-      if ($q->getConnection()->getDriverName() == 'pgsql' && in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
-      {
-        $q->where('item_property.property_id', $property->id)
-          ->whereRaw('LOWER(item_property.' . $this->getPropertyValuetype($property) . ') = \'' . strtolower($value) . '\'');
-      } else {
-        $q->where('item_property.property_id', $property->id)
-          ->where('item_property.' . $this->getPropertyValuetype($property), $value);
-      }
+      $q->where('item_property.property_id', $property->id)
+        ->where($this->getDBPropertyField($property), $this->convertSearchValue($property, $value));
     });
   }
 
@@ -506,14 +500,8 @@ trait Read
   {
     $items->whereHas('properties', function ($q) use ($value, $property, $operator)
     {
-      if ($q->getConnection()->getDriverName() == 'pgsql' && $operator == 'like' && in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
-      {
-        $q->where('item_property.property_id', $property->id)
-          ->whereRaw('LOWER(item_property.' . $this->getPropertyValuetype($property) . ') like \'' . strtolower($value) . '\'');
-      } else {
-        $q->where('item_property.property_id', $property->id)
-        ->where('item_property.' . $this->getPropertyValuetype($property), $operator, $value);
-      }
+      $q->where('item_property.property_id', $property->id)
+        ->where($this->getDBPropertyField($property), $operator, $this->convertSearchValue($property, $value));
     });
   }
 
@@ -548,13 +536,8 @@ trait Read
   {
     $items->whereHas('properties', function ($q) use ($value, $property)
     {
-      $field = 'item_property.' . $this->getPropertyValuetype($property);
-      if (in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
-      {
-        $field = DB::raw('lower(' . $field . ')');
-      }
       $q->where('item_property.property_id', $property->id)
-        ->whereNot($field, strtolower($value));
+        ->whereNot($this->getDBPropertyField($property), $this->convertSearchValue($property, $value));
     });
   }
 
@@ -1000,5 +983,24 @@ trait Read
     } else {
       $query->where($searchField, 'like', $value);
     }
+  }
+
+  private function getDBPropertyField($property)
+  {
+    $field = 'item_property.' . $this->getPropertyValuetype($property);
+    if (in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
+    {
+      $field = DB::raw('lower(' . $field . ')');
+    }
+    return $field;
+  }
+
+  private function convertSearchValue($property, $value)
+  {
+    if (in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
+    {
+      return strtolower($value);
+    }
+    return $value;
   }
 }
