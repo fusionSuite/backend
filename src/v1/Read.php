@@ -20,6 +20,8 @@
 
 namespace App\v1;
 
+use Illuminate\Database\Capsule\Manager as DB;
+
 trait Read
 {
   /**
@@ -119,7 +121,12 @@ trait Read
   {
     if (is_null($operator))
     {
-      $items->where('name', $value);
+      if ($items->getConnection()->getDriverName() == 'pgsql')
+      {
+        $items->whereRaw('LOWER(name) like \'' . strtolower($value) . '\'');
+      } else {
+        $items->where('name', $value);
+      }
     } else {
       switch ($operator)
       {
@@ -141,7 +148,8 @@ trait Read
             break;
 
         case 'not':
-          $items->whereNot('name', $value);
+          // $items->whereNot('name', $value);
+          $items->whereNot(DB::raw('lower(name)'), $value);
             break;
 
         default:
@@ -480,8 +488,14 @@ trait Read
   {
     $items->whereHas('properties', function ($q) use ($value, $property)
     {
-      $q->where('item_property.property_id', $property->id)
-        ->where('item_property.' . $this->getPropertyValuetype($property), $value);
+      if ($q->getConnection()->getDriverName() == 'pgsql' && in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
+      {
+        $q->where('item_property.property_id', $property->id)
+          ->whereRaw('LOWER(item_property.' . $this->getPropertyValuetype($property) . ') = \'' . strtolower($value) . '\'');
+      } else {
+        $q->where('item_property.property_id', $property->id)
+          ->where('item_property.' . $this->getPropertyValuetype($property), $value);
+      }
     });
   }
 
@@ -534,8 +548,13 @@ trait Read
   {
     $items->whereHas('properties', function ($q) use ($value, $property)
     {
+      $field = 'item_property.' . $this->getPropertyValuetype($property);
+      if (in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
+      {
+        $field = DB::raw('lower(' . $field . ')');
+      }
       $q->where('item_property.property_id', $property->id)
-        ->whereNot('item_property.' . $this->getPropertyValuetype($property), $value);
+        ->whereNot($field, strtolower($value));
     });
   }
 

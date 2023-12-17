@@ -7,7 +7,7 @@ const request = supertest('http://127.0.0.1/fusionsuite/backend');
 describe('itemSearch | search | property | string', function () {
   it('property is `little string`', function (done) {
     request
-      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.string + '=little string')
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.string + '=little sTring')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)
