@@ -44,9 +44,9 @@ describe('itemSearch | search | name', function () {
       });
   });
 
-  it('name contains `item`', function (done) {
+  it('name contains `iTem`', function (done) {
     request
-      .get('/v1/items/type/' + global.typeId + '?name_contains=item')
+      .get('/v1/items/type/' + global.typeId + '?name_contains=iTem')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)

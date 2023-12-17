@@ -86,6 +86,26 @@ describe('itemSearch | search NOT OK (error) | property | number', function () {
       });
   });
 
+  it('property contains `0`', function (done) {
+    request
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.number + '_contains=0')
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .expect(function (response) {
+        assert(is.propertyCount(response.body, 2));
+        assert(validator.equals(response.body.status, 'error'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
+      })
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
+
   it('property begin `null`', function (done) {
     request
       .get('/v1/items/type/' + global.typeId + '?property' + global.properties.number + '_begin=null')
@@ -96,7 +116,7 @@ describe('itemSearch | search NOT OK (error) | property | number', function () {
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
         assert(validator.equals(response.body.status, 'error'));
-        assert(validator.equals(response.body.message, 'The Searchvalue is not valid type, The Searchvalue is not valid format'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
       })
       .end(function (err, response) {
         if (err) {
@@ -116,7 +136,7 @@ describe('itemSearch | search NOT OK (error) | property | number', function () {
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
         assert(validator.equals(response.body.status, 'error'));
-        assert(validator.equals(response.body.message, 'The Searchvalue is not valid type, The Searchvalue is not valid format'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
       })
       .end(function (err, response) {
         if (err) {
@@ -136,7 +156,7 @@ describe('itemSearch | search NOT OK (error) | property | number', function () {
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
         assert(validator.equals(response.body.status, 'error'));
-        assert(validator.equals(response.body.message, 'The Searchvalue is not valid type, The Searchvalue is not valid format'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
       })
       .end(function (err, response) {
         if (err) {

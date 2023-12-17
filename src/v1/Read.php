@@ -129,15 +129,15 @@ trait Read
             break;
 
         case 'contains':
-          $items->where('name', 'like', '%' . $value . '%');
+          $this->whereLike($items, 'name', '%' . $value . '%');
             break;
 
         case 'begin':
-          $items->where('name', 'like', $value . '%');
+          $this->whereLike($items, 'name', $value . '%');
             break;
 
         case 'end':
-          $items->where('name', 'like', '%' . $value);
+          $this->whereLike($items, 'name', '%' . $value);
             break;
 
         case 'not':
@@ -242,52 +242,6 @@ trait Read
           $this->searchPropertyValidation($property->valuetype, $singleValue);
         }
         $this->propertyQueryWherein($items, $values, $property);
-          break;
-
-      case 'contains':
-        $value = $this->convertNumericValue($value, $property->valuetype);
-        $this->searchPropertyValidationIncomplete($property->valuetype, $value);
-        if ($property->valuetype == 'decimal')
-        {
-          $this->propertyQueryWhereraw(
-            $items,
-            'cast(CAST(item_property.' . $this->getPropertyValuetype($property) .
-            ' as decimal(18,5)) as float) like \'%' . $value . '%\'',
-            $property
-          );
-        } else {
-          $this->propertyQueryWhereWithOperator($items, '%' . $value . '%', $property);
-        }
-          break;
-
-      case 'begin':
-        if (is_null($value))
-        {
-          throw new \Exception("The Searchvalue is not valid type, The Searchvalue is not valid format", 400);
-        }
-        $value = $this->convertNumericValue($value, $property->valuetype);
-        $this->searchPropertyValidationIncomplete($property->valuetype, $value, false);
-        $this->propertyQueryWhereWithOperator($items, $value . '%', $property);
-          break;
-
-      case 'end':
-        if (is_null($value))
-        {
-          throw new \Exception("The Searchvalue is not valid type, The Searchvalue is not valid format", 400);
-        }
-        $value = $this->convertNumericValue($value, $property->valuetype);
-        $this->searchPropertyValidationIncomplete($property->valuetype, $value, false);
-        if ($property->valuetype == 'decimal')
-        {
-          $this->propertyQueryWhereraw(
-            $items,
-            'cast(CAST(item_property.' . $this->getPropertyValuetype($property) .
-            ' as decimal(18,5)) as float) like \'%' . $value . '\'',
-            $property
-          );
-        } else {
-          $this->propertyQueryWhereWithOperator($items, '%' . $value, $property);
-        }
           break;
 
       case 'not':
@@ -538,8 +492,14 @@ trait Read
   {
     $items->whereHas('properties', function ($q) use ($value, $property, $operator)
     {
-      $q->where('item_property.property_id', $property->id)
+      if ($q->getConnection()->getDriverName() == 'pgsql' && $operator == 'like' && in_array($this->getPropertyValuetype($property), ['value_string', 'value_text']))
+      {
+        $q->where('item_property.property_id', $property->id)
+          ->whereRaw('LOWER(item_property.' . $this->getPropertyValuetype($property) . ') like \'' . strtolower($value) . '\'');
+      } else {
+        $q->where('item_property.property_id', $property->id)
         ->where('item_property.' . $this->getPropertyValuetype($property), $operator, $value);
+      }
     });
   }
 
@@ -959,15 +919,15 @@ trait Read
         switch ($operator)
         {
           case 'contains':
-            $items->where($searchField, 'like', '%' . $value . '%');
+            $this->whereLike($items, $searchField, '%' . $value . '%');
               break;
 
           case 'begin':
-            $items->where($searchField, 'like', $value . '%');
+            $this->whereLike($items, $searchField, $value . '%');
               break;
 
           case 'end':
-            $items->where($searchField, 'like', '%' . $value);
+            $this->whereLike($items, $searchField, '%' . $value);
               break;
         }
         $allItems = $items->get();
@@ -1011,5 +971,15 @@ trait Read
       return true;
     }
     return false;
+  }
+
+  private function whereLike($query, $searchField, $value)
+  {
+    if ($query->getConnection()->getDriverName() == 'pgsql')
+    {
+      $query->whereRaw('LOWER(' . $searchField . ') like \'' . strtolower($value) . '\'');
+    } else {
+      $query->where($searchField, 'like', $value);
+    }
   }
 }

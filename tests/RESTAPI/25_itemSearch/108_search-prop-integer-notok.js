@@ -96,7 +96,7 @@ describe('itemSearch | search NOT OK (error) | property | integer', function () 
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
         assert(validator.equals(response.body.status, 'error'));
-        assert(validator.equals(response.body.message, 'The Searchvalue is not valid type'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
       })
       .end(function (err, response) {
         if (err) {
@@ -116,7 +116,7 @@ describe('itemSearch | search NOT OK (error) | property | integer', function () 
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
         assert(validator.equals(response.body.status, 'error'));
-        assert(validator.equals(response.body.message, 'The Searchvalue is not valid type, The Searchvalue is not valid format'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
       })
       .end(function (err, response) {
         if (err) {
@@ -126,9 +126,9 @@ describe('itemSearch | search NOT OK (error) | property | integer', function () 
       });
   });
 
-  it('property end `null`', function (done) {
+  it('property end `0`', function (done) {
     request
-      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.integer + '_end=null')
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.integer + '_end=0')
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(400)
@@ -136,7 +136,7 @@ describe('itemSearch | search NOT OK (error) | property | integer', function () 
       .expect(function (response) {
         assert(is.propertyCount(response.body, 2));
         assert(validator.equals(response.body.status, 'error'));
-        assert(validator.equals(response.body.message, 'The Searchvalue is not valid type, The Searchvalue is not valid format'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
       })
       .end(function (err, response) {
         if (err) {
