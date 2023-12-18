@@ -12,18 +12,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/intellitrend/zabbixapi-php.git",
-                "reference": "5bf9d1eca455d40922cf4b7ae492e90f27381676"
+                "reference": "6908f625f38effe83fb65a9fa35c7b63fd7d82b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/intellitrend/zabbixapi-php/zipball/5bf9d1eca455d40922cf4b7ae492e90f27381676",
-                "reference": "5bf9d1eca455d40922cf4b7ae492e90f27381676",
+                "url": "https://api.github.com/repos/intellitrend/zabbixapi-php/zipball/6908f625f38effe83fb65a9fa35c7b63fd7d82b2",
+                "reference": "6908f625f38effe83fb65a9fa35c7b63fd7d82b2",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "php": ">=5.6"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -42,7 +43,12 @@
                 }
             ],
             "description": "Zabbix API client for PHP with session cache and SSL management",
-            "time": "2021-09-14T15:09:30+00:00"
+            "support": {
+                "docs": "https://github.com/intellitrend/zabbixapi-php",
+                "issues": "https://github.com/intellitrend/zabbixapi-php/issues",
+                "source": "https://github.com/intellitrend/zabbixapi-php/tree/v3.2.0"
+            },
+            "time": "2022-07-25T11:40:12+00:00"
         }
     ],
     "packages-dev": [],
@@ -55,5 +61,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.3.0"
 }

@@ -39,7 +39,7 @@ class EnvironmentSwitch extends Command
       );
   }
 
-  public function interact(Interactor $io)
+  public function interact(Interactor $io): void
   {
     $cliCommon = new Common();
     $envs = $cliCommon->getEnvironmentList();

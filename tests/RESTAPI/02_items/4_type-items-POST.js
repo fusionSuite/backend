@@ -1,8 +1,16 @@
+// import { fakerEN, fakerAR, fakerFR, fakerJA, fakerRU, fakerZH_CN as fakerZH } from '@faker-js/faker';
+
 const supertest = require('supertest');
 const validator = require('validator');
 const assert = require('assert');
 const is = require('is_js');
-const { faker } = require('@faker-js/faker');
+
+const { fakerEN } = require('@faker-js/faker');
+const { fakerAR } = require('@faker-js/faker');
+const { fakerFR } = require('@faker-js/faker');
+const { fakerJA } = require('@faker-js/faker');
+const { fakerRU } = require('@faker-js/faker');
+const { fakerZH_CN: fakerZH } = require('@faker-js/faker');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
@@ -10,21 +18,22 @@ describe('items | Endpoint /v1/items', function () {
   it('create laptops with random names and serials, also in different langs', function (done) {
     // Generate random
     for (let i = 1; i <= 60; i++) {
+      let faker = fakerEN;
       if (i < 10) {
-        faker.setLocale('en');
+        faker = fakerEN;
       } else if (i < 20) {
-        faker.setLocale('ar');
+        faker = fakerAR;
       } else if (i < 30) {
-        faker.setLocale('fr');
+        faker = fakerFR;
       } else if (i < 40) {
-        faker.setLocale('ja');
+        faker = fakerJA;
       } else if (i < 50) {
-        faker.setLocale('ru');
+        faker = fakerRU;
       } else if (i < 60) {
-        faker.setLocale('zh_CN');
+        faker = fakerZH;
       }
-      const name = faker.random.word();
-      const serial = faker.random.word() + faker.datatype.number();
+      const name = faker.word.sample();
+      const serial = faker.word.sample() + faker.number.int({ max: 99999 });
       let myId = 0;
       request
         .post('/v1/items')

@@ -4,29 +4,29 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5686c2e354d3448e6d0b220dbbd6a3b0",
+    "content-hash": "06ceb11bf5c902c59c11bb0c55ada60d",
     "packages": [
         {
             "name": "woeler/phpdiscord",
-            "version": "3.0.0",
+            "version": "4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Woeler/discord-php.git",
-                "reference": "7e1610a0b0e3d23b35efeeb7488cbad10750d8f0"
+                "reference": "075abb9a376da98fbec0f135dbecc385222a6b97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Woeler/discord-php/zipball/7e1610a0b0e3d23b35efeeb7488cbad10750d8f0",
-                "reference": "7e1610a0b0e3d23b35efeeb7488cbad10750d8f0",
+                "url": "https://api.github.com/repos/Woeler/discord-php/zipball/075abb9a376da98fbec0f135dbecc385222a6b97",
+                "reference": "075abb9a376da98fbec0f135dbecc385222a6b97",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*",
-                "php": "^7.4|^8.0"
+                "php": "^8.1"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.19"
+                "friendsofphp/php-cs-fixer": "^3.8"
             },
             "type": "library",
             "autoload": {
@@ -45,9 +45,13 @@
                 }
             ],
             "description": "A php library to use Discord webhooks and embeds.",
+            "support": {
+                "issues": "https://github.com/Woeler/discord-php/issues",
+                "source": "https://github.com/Woeler/discord-php/tree/4.0.1"
+            },
             "funding": [
                 {
-                    "url": "https://woeler.tech",
+                    "url": "https://woeler.dev",
                     "type": "custom"
                 },
                 {
@@ -55,7 +59,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-06-30T13:45:06+00:00"
+            "time": "2023-01-27T15:07:31+00:00"
         }
     ],
     "packages-dev": [],
@@ -66,5 +70,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.3.0"
 }
