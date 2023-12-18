@@ -114,7 +114,7 @@ class Item extends Model
       $model->deleted_by = null;
     });
 
-    static::pivotUpdating(function ($model, $modelClassName, $relationName, $pivotIds)
+    static::pivotUpdating(function ($model, $relationName, $pivotIds)
     {
       foreach ($pivotIds as $propertyId)
       {
@@ -185,17 +185,17 @@ class Item extends Model
       \App\v1\Controllers\Item::deleteItemlinkInProperties($model->id);
     });
 
-    static::pivotUpdated(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    static::pivotUpdated(function ($model, $relationName, $pivotIds, $pivotIdsAttributes)
     {
       \App\v1\Models\Common::changesOnPivotUpdated($model, $pivotIds, $pivotIdsAttributes);
     });
 
-    static::pivotAttached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes)
     {
       \App\v1\Models\Common::changesOnPivotAttached($model, $pivotIds, $pivotIdsAttributes);
     });
 
-    static::pivotDetached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    static::pivotDetached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes)
     {
       \App\v1\Models\Common::changesOnPivotDetached($model, $pivotIds, $pivotIdsAttributes);
     });

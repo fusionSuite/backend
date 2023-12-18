@@ -131,12 +131,12 @@ class Type extends Model
       \App\v1\Controllers\Display\Menu\Menuitem::deleteItemByTypeId(($model->id));
     });
 
-    static::pivotAttached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    static::pivotAttached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes)
     {
       self::changesOnPivotAttached($model, $pivotIds, $pivotIdsAttributes);
     });
 
-    static::pivotDetached(function ($model, $modelClassName, $relationName, $pivotIds, $pivotIdsAttributes)
+    static::pivotDetached(function ($model, $relationName, $pivotIds, $pivotIdsAttributes)
     {
       self::changesOnPivotDetached($model, $pivotIds, $pivotIdsAttributes);
     });
