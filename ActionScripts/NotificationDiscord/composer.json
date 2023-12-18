@@ -1,5 +1,5 @@
 {
     "require": {
-        "woeler/phpdiscord": "^3.0"
+        "woeler/phpdiscord": "4.*"
     }
 }

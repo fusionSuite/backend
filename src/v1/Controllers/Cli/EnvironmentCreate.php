@@ -53,7 +53,7 @@ class EnvironmentCreate extends Command
   }
 
   // This method is auto called before `self::execute()` and receives `Interactor $io` instance
-  public function interact(Interactor $io)
+  public function interact(Interactor $io): void
   {
     $color = new Color();
     $writer = new Writer();

@@ -117,14 +117,13 @@ final class Token
     }
     else
     {
-        throw new \Exception('Missing request body, check the documentation', 400);
+      throw new \Exception('Missing request body, check the documentation', 400);
     }
 
     $responseData = $this->generateJWTToken($user);
     $GLOBALS['user_id'] = $user->id;
 
     \App\v1\Controllers\Log\Audit::addEntry($request, 'CONNECTION', '', 'User', $user->id);
-
     $response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES));
     return $response->withHeader("Content-Type", "application/json");
   }
