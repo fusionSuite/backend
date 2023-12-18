@@ -107,6 +107,8 @@ jobs:
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -158,6 +160,8 @@ jobs:
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -266,6 +270,8 @@ jobs:
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -373,6 +379,8 @@ jobs:
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-versions }}
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
