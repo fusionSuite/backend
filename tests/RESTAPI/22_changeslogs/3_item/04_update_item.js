@@ -42,6 +42,12 @@ describe('changes | items | update an item', function () {
         assert(is.equal('laptop xxx5xx', firstChanges.old_value), 'old value is wrong');
         assert(is.equal('laptop yyy6yy', firstChanges.new_value), 'new value is wrong');
         assert(is.equal('admin changed name to "laptop yyy6yy"', firstChanges.message), 'wrong message');
+
+        assert(is.equal(4, Object.keys(firstChanges.user).length), 'user must have 4 attributes: id, name, first_name, last_name');
+        assert(is.equal(2, firstChanges.user.id, 'user must be filled with admin id'));
+        assert(is.equal('admin', firstChanges.user.name, 'user.name must be filled with `admin'));
+        assert(is.equal('Steve', firstChanges.user.first_name, 'user.first_name must be `Steve`'));
+        assert(is.equal('Rogers', firstChanges.user.last_name, 'user.last_name must be `Rogers`'));
       })
       .end(function (err, response) {
         if (err) {

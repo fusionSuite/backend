@@ -245,4 +245,24 @@ describe('itemSearch | search NOT OK (error) | property | date', function () {
         return done();
       });
   });
+
+  it('property unknownoperator `2023-05-01`', function (done) {
+    request
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.date + '_yol=2023-05-01')
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .expect(function (response) {
+        assert(is.propertyCount(response.body, 2));
+        assert(validator.equals(response.body.status, 'error'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
+      })
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
 });

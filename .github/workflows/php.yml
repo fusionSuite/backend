@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 env:
-  NODE_VERSION: '16.x'
+  NODE_VERSION: '16'
   DB_DATABASE: fusionsuite_testing
   DB_USER: root
   DB_PASSWORD: root
@@ -22,7 +22,7 @@ jobs:
         php-versions: ['8.1', '8.2', '8.3']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -37,7 +37,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -75,10 +75,10 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'yarn'
@@ -103,7 +103,7 @@ jobs:
         php-versions: ['8.1', '8.2', '8.3']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -115,7 +115,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -156,7 +156,7 @@ jobs:
           MARIADB_ROOT_PASSWORD: rootpassword
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -168,7 +168,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -221,7 +221,7 @@ jobs:
         sudo cp -fr ./ /var/www/
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'yarn'
@@ -265,7 +265,7 @@ jobs:
         pg-versions: ['12', '13', '14', '15']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -277,7 +277,7 @@ jobs:
 
     - name: Cache Composer packages
       id: composer-cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: vendor
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
@@ -330,7 +330,7 @@ jobs:
         sudo cp -fr ./ /var/www/
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'yarn'
@@ -374,7 +374,7 @@ jobs:
   #       options: --name=mssql --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
 
   #   steps:
-  #   - uses: actions/checkout@v2
+  #   - uses: actions/checkout@v4
 
   #   - name: Setup PHP
   #     uses: shivammathur/setup-php@v2
@@ -384,7 +384,7 @@ jobs:
 
   #   - name: Cache Composer packages
   #     id: composer-cache
-  #     uses: actions/cache@v2
+  #     uses: actions/cache@v3
   #     with:
   #       path: vendor
   #       key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}

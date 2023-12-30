@@ -51,6 +51,12 @@ class Role extends Model
     'deleted_by'
   ];
 
+  protected $with = [
+    'created_by.properties',
+    'updated_by.properties',
+    'deleted_by.properties'
+  ];
+
   public static function boot()
   {
     parent::boot();
@@ -85,24 +91,9 @@ class Role extends Model
     $users = $this->users()->get();
     foreach ($users as $user)
     {
-      $userList[] = \App\v1\Models\Common::getUserAttributes($user->id);
+      $userList[] = $this->getUserAttributes($user->id);
     }
     return $userList;
-  }
-
-  public function getCreatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getUpdatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getDeletedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
   }
 
   public function getPermissiondatasAttribute()
@@ -130,8 +121,83 @@ class Role extends Model
     return $this->hasMany('App\v1\Models\Config\Permissionstructure');
   }
 
+  public function created_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'created_by')
+    ->with('properties')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->created_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
+  }
+
+  public function updated_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'updated_by')
+      ->with('properties')
+      ->withDefault(function ($user, $item)
+      {
+        if (is_numeric($item->original['updated_by']))
+        {
+          $user->id         = 0;
+          $user->name       = 'deleted user';
+          $user->first_name = '';
+          $user->last_name  = '';
+        }
+      });
+  }
+
+  public function deleted_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'deleted_by')
+    ->with('properties')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->deleted_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
+  }
+
   public function scopeofSort($query, $params)
   {
     return \App\v1\Models\Common::scopeofSort($query, $params);
+  }
+
+  /**
+   * Get the user attributes.
+   */
+  private static function getUserAttributes($user_id)
+  {
+    if (is_null($user_id))
+    {
+      return null;
+    }
+    $user = \App\v1\Models\Useraudit::find($user_id);
+    if (is_null($user))
+    {
+      return [
+        'id'         => 0,
+        'name'       => 'deleted user',
+        'first_name' => '',
+        'last_name'  => ''
+      ];
+    }
+    return [
+      'id'         => $user->id,
+      'name'       => $user->name,
+      'first_name' => $user->first_name,
+      'last_name'  => $user->last_name
+    ];
   }
 }

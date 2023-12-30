@@ -34,7 +34,6 @@ class Property extends Model
     'default',
     'allowedtypes',
     'byfusioninventory',
-    'organization',
     'changes'
   ];
   protected $visible = [
@@ -49,7 +48,7 @@ class Property extends Model
     'description',
     'canbenull',
     'setcurrentdate',
-    'regexformat'
+    'regexformat',
   ];
 
   /**
@@ -63,7 +62,9 @@ class Property extends Model
   ];
 
   protected $hidden = [];
-  protected $with = [];
+  protected $with = [
+    'organization:id,name'
+  ];
 
   public function __construct(array $attributes = [])
   {
@@ -133,44 +134,7 @@ class Property extends Model
 
   public function getListvaluesAttribute()
   {
-    if ($this->valuetype == 'list')
-    {
-      return $this->listvalues()->get();
-    }
-    elseif ($this->valuetype == 'itemlink' || $this->valuetype == 'itemlinks')
-    {
-    }
-    elseif ($this->valuetype == 'typelink' || $this->valuetype == 'typelinks')
-    {
-    }
-    elseif ($this->valuetype == 'propertylink')
-    {
-    }
     return [];
-  }
-
-  public function getOrganizationAttribute()
-  {
-    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
-    return [
-      'id'   => $org->id,
-      'name' => $org->name
-    ];
-  }
-
-  public function getCreatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getUpdatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getDeletedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
   }
 
   public function getValueAttribute()
@@ -338,5 +302,64 @@ class Property extends Model
   public function scopeofSort($query, $params)
   {
     return \App\v1\Models\Common::scopeofSort($query, $params);
+  }
+
+  public function organization()
+  {
+    return $this->belongsTo('App\v1\Models\Item')->without('created_by', 'updated_by', 'deleted_by', 'organization');
+  }
+
+  public function created_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'created_by')
+      ->with('properties')
+      ->without('created_by', 'updated_by', 'deleted_by', 'organization')
+      ->without('properties:created_by,updated_by,deleted_by,organization')
+      ->withDefault(function ($user, $item)
+      {
+        if (is_numeric($item->created_by))
+        {
+          $user->id         = 0;
+          $user->name       = 'deleted user';
+          $user->first_name = '';
+          $user->last_name  = '';
+        }
+      });
+  }
+
+  public function updated_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'updated_by')
+      ->with('properties')
+      ->without('created_by', 'updated_by', 'deleted_by', 'organization')
+      ->without('properties:created_by,updated_by,deleted_by,organization')
+      ->withDefault(function ($user, $item)
+      {
+        if (is_numeric($item->original['updated_by']))
+        {
+          $user->id         = 0;
+          $user->name       = 'deleted user';
+          $user->first_name = '';
+          $user->last_name  = '';
+        }
+      });
+  }
+
+  public function deleted_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'deleted_by')
+    ->with('properties')
+    ->without('created_by', 'updated_by', 'deleted_by', 'organization')
+    ->without('properties:created_by,updated_by,deleted_by,organization')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->deleted_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
   }
 }

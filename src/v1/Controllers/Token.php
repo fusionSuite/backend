@@ -87,7 +87,10 @@ final class Token
     )
     {
       // Verify the account
-      $user = \App\v1\Models\Item::where('name', $data->login)->where('type_id', TYPE_USER_ID)->first();
+      $user = \App\v1\Models\Item::
+          where('name', $data->login)
+        ->where('type_id', TYPE_USER_ID)
+        ->first();
       if (is_null($user))
       {
         throw new \Exception('Error when authentication, login or password not right', 401);

@@ -170,7 +170,10 @@ final class Item
                        ->where('sub_organization', true);
               });
       })
-      ->with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues');
+      ->with(
+        'properties:id,name,internalname,valuetype,unit,organization_id',
+        'properties.listvalues'
+      );
 
     $this->paramFilters($paramsQuery, $items, $args['typeid']);
     // Example filter on property value
@@ -349,7 +352,10 @@ final class Item
     $parentsOrganizations = \App\v1\Common::getParentsOrganizationsIds($token);
 
     $item = \App\v1\Models\Item::
-      with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues')
+      with(
+        'properties:id,name,internalname,valuetype,unit,organization_id',
+        'properties.listvalues'
+      )
       ->withTrashed()->find($args['id']);
     if (is_null($item))
     {
@@ -679,7 +685,11 @@ final class Item
     $token = (object)$request->getAttribute('token');
     $args['propertyid'] = intval($args['propertyid']);
     $data = json_decode($request->getBody());
-    $item = \App\v1\Models\Item::find($args['id']);
+    $item = \App\v1\Models\Item::with(
+      'properties:id,name,internalname,valuetype,unit,organization_id',
+      'properties.listvalues'
+    )
+    ->find($args['id']);
 
     if (is_null($item))
     {
@@ -696,7 +706,7 @@ final class Item
 
     \App\v1\Permission::checkPermissionToData('update', $item->type_id, $args['propertyid']);
 
-    $property = \App\v1\Models\Config\Property::find($args['propertyid']);
+    $property = \App\v1\Models\Config\Property::with('listvalues')->find($args['propertyid']);
     if (property_exists($data, 'reset_to_default') && $data->reset_to_default)
     {
       if ($property->valuetype == 'date' && $property->default == '' && !is_null($property->default))
@@ -1368,7 +1378,7 @@ final class Item
     ];
     \App\v1\Common::validateData($data, $dataFormat);
 
-    $property = \App\v1\Models\Config\Property::find($data->property_id);
+    $property = \App\v1\Models\Config\Property::with('listvalues')->find($data->property_id);
     $dataFormat = [
       'property_id' => 'present',
       'value'       => 'required'

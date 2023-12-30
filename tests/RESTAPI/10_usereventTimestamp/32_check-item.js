@@ -5,23 +5,7 @@ const is = require('is_js');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
-describe('usereventTimestamp | restore item', function () {
-  it('update the item with admin user to restore the item', function (done) {
-    request
-      .patch('/v1/items/' + global.itemId)
-      .send({})
-      .set('Accept', 'application/json')
-      .set('Authorization', 'Bearer ' + global.tokenUser2)
-      .expect(200)
-      .expect('Content-Type', /json/)
-      .end(function (err, response) {
-        if (err) {
-          return done(err + ' | Response: ' + response.text);
-        }
-        return done();
-      });
-  });
-
+describe('usereventTimestamp | check item after user deleted', function () {
   it('check the item fields', function (done) {
     request
       .get('/v1/items/' + global.itemId)
@@ -40,8 +24,17 @@ describe('usereventTimestamp | restore item', function () {
         assert(is.object(response.body.created_by), 'created_by must be object');
         assert(is.equal(4, Object.keys(response.body.created_by).length), 'created_by must have 4 attributes: id, name, first_name, last_name');
         assert(is.equal(2, response.body.created_by.id, 'created_by must be filled with admin user id'));
+        assert(is.equal('admin', response.body.created_by.name, 'created_by.name must be filled with `admin'));
+        assert(is.equal('Steve', response.body.created_by.first_name, 'created_by.first_name must be filled with `Steve`'));
+        assert(is.equal('Rogers', response.body.created_by.last_name, 'created_by.last_name must be filled with `Rogers`'));
+
+        assert(is.object(response.body.updated_by), 'updated_by must be object');
         assert(is.equal(4, Object.keys(response.body.updated_by).length), 'updated_by must have 4 attributes: id, name, first_name, last_name');
-        assert(is.equal(global.user2, response.body.updated_by.id, 'updated_by must be filled with admin id'));
+        assert(is.equal(0, response.body.updated_by.id, 'updated_by must be filled with deleted id: 0'));
+        assert(is.equal('deleted user', response.body.updated_by.name, 'updated_by.name must be filled with `deleted user`'));
+        assert(is.equal('', response.body.updated_by.first_name, 'updated_by.first_name must be filled with empty value'));
+        assert(is.equal('', response.body.updated_by.last_name, 'updated_by.last_name must be filled with empty value'));
+
         assert(is.null(response.body.deleted_by, 'deleted_by must be null'));
       })
       .end(function (err, response) {

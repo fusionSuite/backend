@@ -69,7 +69,7 @@ describe('changes | properties | delete the property', function () {
 
         assert(
           is.equal(
-            '{"id":' + global.propertyId + ',"name":"original name ;)","internalname":"testforstring","sub_organization":false,"valuetype":"string","regexformat":"","unit":"smileys","description":"Test of the type string","created_at":"**date**","updated_at":"**date**","deleted_at":"**date**","created_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"updated_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"deleted_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"canbenull":true,"setcurrentdate":null,"listvalues":[],"default":"default value","allowedtypes":[],"organization":{"id":1,"name":"My organization"}}',
+            '{"id":' + global.propertyId + ',"name":"original name ;)","internalname":"testforstring","sub_organization":false,"valuetype":"string","regexformat":"","unit":"smileys","description":"Test of the type string","created_at":"**date**","updated_at":"**date**","deleted_at":"**date**","created_by":2,"updated_by":2,"deleted_by":2,"canbenull":true,"setcurrentdate":null,"listvalues":[],"default":"default value","allowedtypes":[],"organization":{"id":1,"name":"My organization"}}',
             response.body.rows[0].old_value,
           ),
           'old value is wrong ' + response.body.rows[0].old_value,

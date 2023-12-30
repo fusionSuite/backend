@@ -15,9 +15,9 @@ const { fakerZH_CN: fakerZH } = require('@faker-js/faker');
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
 describe('items | Endpoint /v1/items', function () {
-  it('create laptops with random names and serials, also in different langs', function (done) {
-    // Generate random
-    for (let i = 1; i <= 60; i++) {
+  // Generate random
+  for (let i = 1; i <= 60; i++) {
+    it('create laptops with random names and serials, also in different langs (' + i + ')', function (done) {
       let faker = fakerEN;
       if (i < 10) {
         faker = fakerEN;
@@ -37,7 +37,7 @@ describe('items | Endpoint /v1/items', function () {
       let myId = 0;
       request
         .post('/v1/items')
-        .send({ name, type_id: 3, properties: [{ property_id: global.propertyid, value: serial }] })
+        .send({ name, type_id: global.mytypeId, properties: [{ property_id: global.propertyid, value: serial }] })
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + global.token)
         .expect(200)
@@ -71,8 +71,8 @@ describe('items | Endpoint /v1/items', function () {
           if (err) {
             return done(err + ' ' + name + ' ' + ' | Response: ' + response.text);
           }
+          return done();
         });
-    }
-    return done();
-  });
+    });
+  }
 });
