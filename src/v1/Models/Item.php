@@ -31,9 +31,6 @@ class Item extends Model
   use PivotEventTrait;
 
   protected $appends = [
-    'properties',
-    // 'child_items',
-    'organization',
     'changes',
     'type_id',
   ];
@@ -54,10 +51,12 @@ class Item extends Model
     'deleted_by',
   ];
   protected $hidden = [
-    //  'child_items'
   ];
   protected $with = [
-    // 'getItems'
+    'created_by.properties',
+    'updated_by.properties',
+    'deleted_by.properties',
+    'organization:id,name'
   ];
   protected $fillable = ['name', 'type_id'];
 
@@ -206,43 +205,9 @@ class Item extends Model
     return [];
   }
 
-  public function getOrganizationAttribute()
-  {
-    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
-    // special case when delete an organization on itself (do warning when hard delete)
-    if (is_null($org) && $this->attributes['id'] == $this->attributes['organization_id'])
-    {
-      return [
-        'id'   => 0,
-        'name' => ''
-      ];
-    }
-    // normal case
-    return [
-      'id'   => $org->id,
-      'name' => $org->name
-    ];
-  }
-
-  public function getCreatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getUpdatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getDeletedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
   public function getChildItemsAttribute()
   {
     return [];
-    return $this->getItems()->get()->makeHidden(['properties']);
   }
 
   public function getChangesAttribute()
@@ -274,7 +239,9 @@ class Item extends Model
       'value_password',
       'value_passwordhash',
       'byfusioninventory'
-    )->withTimestamps()->orderByPivot('id', 'asc');
+    )
+      ->withTimestamps()
+      ->orderByPivot('id', 'asc');
   }
 
   public function propertiesLinks()
@@ -315,6 +282,59 @@ class Item extends Model
       return null;
     }
     return $this->belongsToMany(\App\v1\Models\Config\Role::class);
+  }
+
+  public function organization()
+  {
+    return $this->belongsTo('App\v1\Models\Item')->without('created_by', 'updated_by', 'deleted_by', 'organization');
+  }
+
+  public function created_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'created_by')
+    ->with('properties')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->created_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
+  }
+
+  public function updated_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'updated_by')
+      ->with('properties')
+      ->withDefault(function ($user, $item)
+      {
+        if (is_numeric($item->original['updated_by']))
+        {
+          $user->id         = 0;
+          $user->name       = 'deleted user';
+          $user->first_name = '';
+          $user->last_name  = '';
+        }
+      });
+  }
+
+  public function deleted_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'deleted_by')
+    ->with('properties')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->deleted_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
   }
 
   public function getItems()

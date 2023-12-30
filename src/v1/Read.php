@@ -97,7 +97,7 @@ trait Read
         continue;
       }
       // manage filtering by property of the item
-      preg_match('/^property(\d+)(_(in|contains|begin|end|not|less|greater|before|after)){0,1}$/', $key, $matches);
+      preg_match('/^property(\d+)(_(\w+)){0,1}$/', $key, $matches);
       // Validation of data
       if (count($matches) != 2 and count($matches) != 4)
       {

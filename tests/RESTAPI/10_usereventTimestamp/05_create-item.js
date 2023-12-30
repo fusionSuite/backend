@@ -44,6 +44,9 @@ describe('usereventTimestamp | create item', function () {
         assert(validator.isISO8601(response.body.created_at, 'created_at must be filled with creation date'));
         assert(validator.isISO8601(response.body.updated_at, 'updated_at must be filled with creation date'));
         assert(is.null(response.body.deleted_at, 'deleted_at must be null'));
+
+        assert(is.object(response.body.created_by), 'created_by must be object');
+        assert(is.equal(4, Object.keys(response.body.created_by).length), 'created_by must have 4 attributes: id, name, first_name, last_name');
         assert(is.equal(2, response.body.created_by.id, 'created_by must be filled with admin user id'));
         assert(is.null(response.body.updated_by, 'updated_by must be null'));
         assert(is.null(response.body.deleted_by, 'deleted_by must be null'));

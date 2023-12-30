@@ -39,7 +39,11 @@ describe('usereventTimestamp | update item', function () {
         assert(is.null(response.body.deleted_at, 'deleted_at must be null'));
         assert(is.not.equal(response.body.created_at, response.body.updated_at, 'created_at and updated_at must be different'));
 
+        assert(is.object(response.body.created_by), 'created_by must be object');
+        assert(is.equal(4, Object.keys(response.body.created_by).length), 'created_by must have 4 attributes: id, name, first_name, last_name');
         assert(is.equal(2, response.body.created_by.id, 'created_by must be filled with admin user id'));
+        assert(is.equal(4, Object.keys(response.body.updated_by).length), 'updated_by must have 4 attributes: id, name, first_name, last_name');
+        assert(is.not.equal(2, response.body.updated_by.id, 'updated_by must not be filled with admin id'));
         assert(is.equal(global.user1, response.body.updated_by.id, 'updated_by must be filled with user1 id'));
         assert(is.null(response.body.deleted_by, 'deleted_by must be null'));
       })

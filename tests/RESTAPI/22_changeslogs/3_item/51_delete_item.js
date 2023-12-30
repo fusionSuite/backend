@@ -68,7 +68,7 @@ describe('changes | items | delete the item', function () {
         response.body.rows[0].old_value = response.body.rows[0].old_value.replace(/("20\d{2}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.000000Z)/g, '"**date**');
         assert(
           is.equal(
-            '{"id":' + global.itemId + ',"name":"laptop yyy6yy","id_bytype":1,"sub_organization":false,"parent_id":null,"treepath":null,"created_at":"**date**","updated_at":"**date**","deleted_at":"**date**","created_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"updated_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"deleted_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"properties":[],"organization":{"id":1,"name":"My organization"}}',
+            '{"id":' + global.itemId + ',"name":"laptop yyy6yy","id_bytype":1,"sub_organization":false,"parent_id":null,"treepath":null,"created_at":"**date**","updated_at":"**date**","deleted_at":"**date**","created_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"updated_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"deleted_by":{"id":2,"name":"admin","first_name":"Steve","last_name":"Rogers"},"organization":{"id":1,"name":"My organization"}}',
             response.body.rows[0].old_value,
           ),
           'old value is wrong ' + response.body.rows[0].old_value,

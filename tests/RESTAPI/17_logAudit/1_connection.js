@@ -106,6 +106,7 @@ describe('logAudit | log connections', function () {
         assert(is.equal('', successLogin.message));
         assert(validator.isISO8601(successLogin.created_at), 'the log created_at must be a valid ISO8601 date');
         assert(is.object(successLogin.user));
+        assert(is.equal(4, Object.keys(successLogin.user).length), 'the user data must have 4 attributes');
         assert(is.equal(2, successLogin.user.id));
         assert(is.equal('admin', successLogin.user.name));
         assert(is.equal('Steve', successLogin.user.first_name));

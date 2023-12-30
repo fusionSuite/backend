@@ -17,6 +17,10 @@ describe('organizations | items | get each item | ok and notok', function () {
         assert(is.not.empty(response.body), 'response body must not be empty');
         assert(is.object(response.body), 'response body must be an object');
         assert(is.equal(response.body.id, global.myitem1), 'must have the id of the myitem1');
+        assert(is.object(response.body.organization));
+        assert(is.equal(2, Object.keys(response.body.organization).length), 'organization must have only 2 attributes');
+        assert(is.equal(1, response.body.organization.id), 'organization id must be 1');
+        assert(is.equal('My organization', response.body.organization.name), 'organization name must be `My organization`');
       })
       .end(function (err, response) {
         if (err) {

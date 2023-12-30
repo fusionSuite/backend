@@ -245,4 +245,44 @@ describe('itemSearch | search NOT OK (error) | property | boolean', function () 
         return done();
       });
   });
+
+  it('property boolean unknownoperator `test`', function (done) {
+    request
+      .get('/v1/items/type/' + global.typeId + '?property' + global.properties.boolean + '_yolo=test')
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .expect(function (response) {
+        assert(is.propertyCount(response.body, 2));
+        assert(validator.equals(response.body.status, 'error'));
+        assert(validator.equals(response.body.message, 'The search operator is not allowed'));
+      })
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
+
+  it('property boolean unknown property id is `false`', function (done) {
+    request
+      .get('/v1/items/type/' + global.typeId + '?property9999999=false')
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect(400)
+      .expect('Content-Type', /json/)
+      .expect(function (response) {
+        assert(is.propertyCount(response.body, 2));
+        assert(validator.equals(response.body.status, 'error'));
+        assert(validator.equals(response.body.message, 'This property does not exist'));
+      })
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
 });

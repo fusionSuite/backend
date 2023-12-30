@@ -27,9 +27,7 @@ class Change extends Model
   // disable UPDATED_AT because will have only write in this table
   public const UPDATED_AT = null;
 
-  protected $appends = [
-    'user'
-  ];
+  protected $appends = [];
   protected $visible = [
     'id',
     'user',
@@ -41,9 +39,24 @@ class Change extends Model
     'created_at'
   ];
 
-  public function getUserAttribute()
+  protected $with = [
+    'user.properties',
+  ];
+
+  public function user()
   {
-    return \App\v1\Models\Common::getUserAttributes($this->attributes['userid']);
+    return $this->belongsTo('App\v1\Models\Useraudit', 'userid')
+    ->with('properties')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->created_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
   }
 
   public function scopeofSort($query, $params)

@@ -33,7 +33,6 @@ class Type extends Model
   protected $fillable = ['name', 'internalname'];
   protected $appends = [
     'properties',
-    'organization',
     'changes'
   ];
   protected $visible = [
@@ -56,7 +55,11 @@ class Type extends Model
   ];
   protected $hidden = [];
   protected $with = [
-    'properties'
+    'properties',
+    'created_by.properties',
+    'updated_by.properties',
+    'deleted_by.properties',
+    'organization:id,name'
   ];
 
   /**
@@ -140,31 +143,6 @@ class Type extends Model
     {
       self::changesOnPivotDetached($model, $pivotIds, $pivotIdsAttributes);
     });
-  }
-
-
-  public function getOrganizationAttribute()
-  {
-    $org = \App\v1\Models\Item::find($this->attributes['organization_id']);
-    return [
-      'id'   => $org->id,
-      'name' => $org->name
-    ];
-  }
-
-  public function getCreatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getUpdatedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
-  }
-
-  public function getDeletedByAttribute($value)
-  {
-    return \App\v1\Models\Common::getUserAttributes($value);
   }
 
   public function getPropertiesAttribute()
@@ -258,5 +236,58 @@ class Type extends Model
     }
 
     $message = '{username} deleted "{property.name}"';
+  }
+
+  public function organization()
+  {
+    return $this->belongsTo('App\v1\Models\Item')->without('created_by', 'updated_by', 'deleted_by', 'organization');
+  }
+
+  public function created_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'created_by')
+    ->with('properties')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->created_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
+  }
+
+  public function updated_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'updated_by')
+      ->with('properties')
+      ->withDefault(function ($user, $item)
+      {
+        if (is_numeric($item->original['updated_by']))
+        {
+          $user->id         = 0;
+          $user->name       = 'deleted user';
+          $user->first_name = '';
+          $user->last_name  = '';
+        }
+      });
+  }
+
+  public function deleted_by() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Useraudit', 'deleted_by')
+    ->with('properties')
+    ->withDefault(function ($user, $item)
+    {
+      if (is_numeric($item->deleted_by))
+      {
+        $user->id         = 0;
+        $user->name       = 'deleted user';
+        $user->first_name = '';
+        $user->last_name  = '';
+      }
+    });
   }
 }

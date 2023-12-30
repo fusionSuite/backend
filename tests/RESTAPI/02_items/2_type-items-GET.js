@@ -5,10 +5,10 @@ const is = require('is_js');
 
 const request = supertest('http://127.0.0.1/fusionsuite/backend');
 
-describe('items | Endpoint /v1/items/type/3 (GET all)', function () {
+describe('items | Endpoint /v1/items/type/xx (GET all)', function () {
   it('Get the items of the type', function (done) {
     request
-      .get('/v1/items/type/3')
+      .get('/v1/items/type/' + global.mytypeId)
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)
       .expect(200)

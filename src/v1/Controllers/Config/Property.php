@@ -188,15 +188,16 @@ final class Property
     $params = $this->manageParams($request);
 
     $property = \App\v1\Models\Config\Property::ofSort($params)
-    ->where(function ($query) use ($organizations, $parentsOrganizations)
-    {
-      $query->whereIn('organization_id', $organizations)
-            ->orWhere(function ($query2) use ($parentsOrganizations)
-            {
-              $query2->whereIn('organization_id', $parentsOrganizations)
-                     ->where('sub_organization', true);
-            });
-    });
+      ->where(function ($query) use ($organizations, $parentsOrganizations)
+      {
+        $query->whereIn('organization_id', $organizations)
+              ->orWhere(function ($query2) use ($parentsOrganizations)
+              {
+                $query2->whereIn('organization_id', $parentsOrganizations)
+                      ->where('sub_organization', true);
+              });
+      })
+      ->with('listvalues', 'created_by.properties', 'updated_by.properties', 'deleted_by.properties');
     // manage permissions
     \App\v1\Permission::checkPermissionToStructure('view', 'config/property');
     $permissionIds = \App\v1\Permission::getStructureViewIds('config/property');
@@ -316,7 +317,9 @@ final class Property
     // check permissions
     \App\v1\Permission::checkPermissionToStructure('view', 'config/property', $args['id']);
 
-    $item = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
+    $item = \App\v1\Models\Config\Property::
+         with('listvalues', 'created_by.properties', 'updated_by.properties', 'deleted_by.properties')
+        ->withTrashed()->find($args['id']);
     if (is_null($item))
     {
       throw new \Exception("This item has not be found", 404);
@@ -476,7 +479,9 @@ final class Property
     $token = (object)$request->getAttribute('token');
 
     $data = json_decode($request->getBody());
-    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
+    $property = \App\v1\Models\Config\Property::
+        with('listvalues')
+      ->withTrashed()->find($args['id']);
 
     if (is_null($property))
     {
@@ -515,7 +520,7 @@ final class Property
       if ($property->valuetype == 'list')
       {
         // we get value because we can need compare the default value with the values of list in DB
-        $data->listvalues = array_column($property->getAttribute('listvalues')->toArray(), 'value');
+        $data->listvalues = array_column($property->listvalues()->get()->toArray(), 'value');
       }
       $this->validateDefaultForSaveMethods($data);
     }
@@ -886,7 +891,10 @@ final class Property
     $data = json_decode($request->getBody());
     $args['id'] = intval($args['id']);
 
-    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
+    $property = \App\v1\Models\Config\Property::
+        with('listvalues')
+      ->withTrashed()
+      ->find($args['id']);
     if (is_null($property))
     {
       throw new \Exception("The property has not be found", 404);
@@ -943,13 +951,13 @@ final class Property
     $args['listvalueid'] = intval($args['listvalueid']);
 
     // Validation of data
-    $property = \App\v1\Models\Config\Property::withTrashed()->find($args['id']);
+    $property = \App\v1\Models\Config\Property::withTrashed()->with('listvalues')->find($args['id']);
     if (is_null($property))
     {
       throw new \Exception("The property has not be found", 404);
     }
     $propertylist = \App\v1\Models\Config\Propertylist::
-      where('property_id', $args['id'])
+        where('property_id', $args['id'])
       ->where('id', $args['listvalueid'])
       ->first();
 
@@ -976,10 +984,14 @@ final class Property
     }
 
     // need delete all properties used in items with this listvalue
-    $items = \App\v1\Models\Item::withTrashed()->whereHas('properties', function ($query) use ($args)
-    {
-      $query->where('value_list', $args['listvalueid']);
-    })->get();
+    $items = \App\v1\Models\Item::
+      withTrashed()
+      ->with('properties.listvalues')
+      ->whereHas('properties', function ($query) use ($args)
+      {
+        $query->where('value_list', $args['listvalueid']);
+      })
+      ->get();
     foreach ($items as $item)
     {
       $item->properties()->updateExistingPivot($args['id'], [
