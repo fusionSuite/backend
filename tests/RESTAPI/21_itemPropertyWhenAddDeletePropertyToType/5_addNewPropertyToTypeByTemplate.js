@@ -66,4 +66,45 @@ describe('itemPropertyWhenAddPropertyToTypeByTemplate | add new property to type
         return done();
       });
   });
+
+  it('Attach a property to the type (a second times to verify not have error)', function (done) {
+    request
+      .post('/v1/config/types/templates')
+      .send({
+        license: [],
+        types: [
+          {
+            name: 'testType',
+            internalname: 'testtype',
+            panels: [
+              {
+                name: 'Main',
+                properties: [
+                  {
+                    name: 'Installation date',
+                    internalname: 'installationdate',
+                    valuetype: 'date',
+                    regexformat: '',
+                    listvalues: [],
+                    unit: '',
+                    default: null,
+                    description: '',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      })
+      .set('Accept', 'application/json')
+      .set('Authorization', 'Bearer ' + global.token)
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function (err, response) {
+        if (err) {
+          return done(err + ' | Response: ' + response.text);
+        }
+        return done();
+      });
+  });
 });
