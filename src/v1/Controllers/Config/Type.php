@@ -889,18 +889,24 @@ final class Type
         $newData = new \stdClass();
         $newData->name = $panel->name;
         $propertyListId = [];
-        $typepanel = new \App\v1\Models\Display\Type\Typepanel();
-        $typepanel->name = $panel->name;
-        if (property_exists($panel, 'icon'))
+        $typepanel = \App\v1\Models\Display\Type\Typepanel::where('type_id', $typeItem->id)
+          ->where('name', $panel->name)
+          ->first();
+        if (is_null($typepanel))
         {
-          $typepanel->icon = $panel->icon;
+          $typepanel = new \App\v1\Models\Display\Type\Typepanel();
+          $typepanel->name = $panel->name;
+          if (property_exists($panel, 'icon'))
+          {
+            $typepanel->icon = $panel->icon;
+          }
+          if (property_exists($panel, 'displaytype') && $panel->displaytype == 'timeline')
+          {
+            $typepanel->displaytype = 'timeline';
+          }
+          $typepanel->type_id = $typeId;
+          $typepanel->save();
         }
-        if (property_exists($panel, 'displaytype') && $panel->displaytype == 'timeline')
-        {
-          $typepanel->displaytype = 'timeline';
-        }
-        $typepanel->type_id = $typeId;
-        $typepanel->save();
 
         // create properties or get id if yet exists
         foreach ($panel->properties as $property)
