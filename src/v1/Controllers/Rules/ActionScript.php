@@ -46,7 +46,19 @@ final class ActionScript
       {
         foreach ($rule->actions as $action)
         {
-          $actionItem = \App\v1\Models\Item::find($action->values);
+          $actionItem = \App\v1\Models\Item::
+              with(
+                'properties:id,name,internalname,valuetype,unit,organization_id',
+                'properties.listvalues',
+                'properties.property_itemlink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,' .
+                'deleted_by,id_bytype',
+                'properties.property_typelink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,' .
+                'deleted_by',
+                'properties.property_list:id,value',
+                'properties.property_propertylink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,' .
+                'deleted_by',
+              )
+            ->find($action->values);
           $args = new stdClass();
           $args->itemid = $input['id'];
           $args->itemname = $input['name'];
@@ -55,44 +67,45 @@ final class ActionScript
           $args->fusionsuiteurl = 'http://xxxx';
           $actionNamespace = '';
           $actionFunctionName = '';
-          foreach ($actionItem->properties()->get() as $property)
+          $aActionItem = $actionItem->toArray();
+          foreach ($aActionItem['properties'] as $property)
           {
-            if (preg_match('/action.[\w]+.classname/', $property->internalname))
+            if (preg_match('/action.[\w]+.classname/', $property['internalname']))
             {
-              $actionNamespace = $property->value;
+              $actionNamespace = $property['value'];
               continue;
             }
-            if (preg_match('/action.[\w]+.associatedaction/', $property->internalname))
+            if (preg_match('/action.[\w]+.associatedaction/', $property['internalname']))
             {
-              $actionFunctionName = $property->value->value;
+              $actionFunctionName = $property['value']['value'];
               continue;
             }
 
-            if ($property->valuetype == 'propertyId')
+            if ($property['valuetype'] == 'propertyId')
             {
-              if ($property->value == 0)
+              if ($property['value'] == 0)
               {
                 // it's name
-                $args->{$property->name} = $input['name'];
+                $args->{$property['name']} = $input['name'];
               }
               else
               {
                 // get value from properties
-                $args->{$property->internalname} = $input[$property->id];
+                $args->{$property['internalname']} = $input[$property['id']];
               }
             }
-            elseif ($property->valuetype == 'itemlink')
+            elseif ($property['valuetype'] == 'itemlink')
             {
               // get properties of itemlink
-              $args->{$property->internalname} = $actionScript->getItemProperties($property->value->id);
+              $args->{$property['internalname']} = $actionScript->getItemProperties($property['value']['id']);
             }
-            elseif ($property->valuetype == 'list')
+            elseif ($property['valuetype'] == 'list')
             {
-              $args->{$property->internalname} = $property->value->value;
+              $args->{$property['internalname']} = $property['value']['value'];
             }
             else
             {
-              $args->{$property->internalname} = $property->value;
+              $args->{$property['internalname']} = $property['value'];
             }
           }
 

@@ -29,6 +29,7 @@ describe('changes | types | create a type', function () {
       .send(
         {
           name: 'Type for changes',
+          internalname: 'typeforchanges',
         })
       .set('Accept', 'application/json')
       .set('Authorization', 'Bearer ' + global.token)

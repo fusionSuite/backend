@@ -34,7 +34,12 @@ class Property extends Model
     'default',
     'allowedtypes',
     'byfusioninventory',
-    'changes'
+    'changes',
+    'itemlinks',
+    'property_itemlink',
+    'property_typelink',
+    'property_list',
+    'property_propertylink'
   ];
   protected $visible = [
     'id',
@@ -49,6 +54,10 @@ class Property extends Model
     'canbenull',
     'setcurrentdate',
     'regexformat',
+    'property_itemlink',
+    'property_typelink',
+    'property_list',
+    'property_propertylink'
   ];
 
   /**
@@ -63,7 +72,8 @@ class Property extends Model
 
   protected $hidden = [];
   protected $with = [
-    'organization:id,name'
+    'organization:id,name',
+    'allowedtypes',
   ];
 
   public function __construct(array $attributes = [])
@@ -110,6 +120,10 @@ class Property extends Model
     parent::booted();
     static::updated(function ($model)
     {
+      $model->makeHidden('property_itemlink');
+      $model->makeHidden('property_typelink');
+      $model->makeHidden('property_list');
+      $model->makeHidden('property_propertylink');
       \App\v1\Models\Common::changesOnUpdated($model, $model->original);
     });
 
@@ -117,17 +131,41 @@ class Property extends Model
     {
       if (!$model->isForceDeleting())
       {
+        if ($model->valuetype == 'itemlink')
+        {
+          $model->value = $model->property_itemlink;
+        }
+        $model->makeHidden('property_itemlink');
+        $model->makeHidden('property_typelink');
+        $model->makeHidden('property_list');
+        $model->makeHidden('property_propertylink');
         \App\v1\Models\Common::changesOnSoftDeleted($model, $model->original);
       }
     });
 
     static::restored(function ($model)
     {
+      if ($model->valuetype == 'itemlink')
+      {
+        $model->value = $model->property_itemlink;
+      }
+      $model->makeHidden('property_itemlink');
+      $model->makeHidden('property_typelink');
+      $model->makeHidden('property_list');
+      $model->makeHidden('property_propertylink');
       \App\v1\Models\Common::changesOnRestored($model, $model->original);
     });
 
     static::forceDeleted(function ($model)
     {
+      if ($model->valuetype == 'itemlink')
+      {
+        $model->value = $model->property_itemlink;
+      }
+      $model->makeHidden('property_itemlink');
+      $model->makeHidden('property_typelink');
+      $model->makeHidden('property_list');
+      $model->makeHidden('property_propertylink');
       \App\v1\Models\Common::changesOnDeleted($model, $model->original);
     });
   }
@@ -137,6 +175,26 @@ class Property extends Model
     return [];
   }
 
+  public function getPropertyItemlinkAttribute()
+  {
+    return null;
+  }
+
+  public function getPropertyTypelinkAttribute()
+  {
+    return null;
+  }
+
+  public function getPropertyListAttribute()
+  {
+    return null;
+  }
+
+  public function getPropertyPropertylinkAttribute()
+  {
+    return null;
+  }
+
   public function getValueAttribute()
   {
     if (
@@ -144,34 +202,28 @@ class Property extends Model
         && isset($this->pivot->value_itemlink)
     )
     {
-      $item = \App\v1\Models\Item
-        ::with('properties:id,name,internalname,valuetype,unit,organization_id', 'properties.listvalues')
-        ->find(intval($this->pivot->value_itemlink));
-      return $item;
+      return $this->pivot->value_itemlink;
     }
     elseif (
         ($this->valuetype == 'typelink' || $this->valuetype == 'typelinks')
         && isset($this->pivot->value_typelink)
     )
     {
-      $item = \App\v1\Models\Config\Type::find(intval($this->pivot->value_typelink));
-      return $item;
+      return $this->pivot->value_typelink;
     }
     elseif (
         ($this->valuetype == 'propertylink')
         && isset($this->pivot->value_propertylink)
     )
     {
-      $item = \App\v1\Models\Config\Property::find(intval($this->pivot->value_propertylink));
-      return $item;
+      return $this->pivot->value_propertylink;
     }
     elseif (
         ($this->valuetype == 'list')
         && isset($this->pivot->value_list)
     )
     {
-      $item = \App\v1\Models\Config\Propertylist::find(intval($this->pivot->value_list));
-      return $item;
+      return $this->pivot->value_list;
     }
 
     if (isset($this->pivot->{'value_' . $this->valuetype}))
@@ -197,6 +249,11 @@ class Property extends Model
     return null;
   }
 
+  public function getItemlinksAttribute()
+  {
+    return [];
+  }
+
   public function getByfusioninventoryAttribute()
   {
     if (isset($this->pivot->byfusioninventory))
@@ -208,6 +265,11 @@ class Property extends Model
 
   public function getDefaultAttribute()
   {
+    // case field not get
+    if (is_null($this->valuetype))
+    {
+      return null;
+    }
     $valuetype = $this->valuetype;
     if (
         in_array($this->valuetype, ['date', 'datetime', 'time'])
@@ -276,24 +338,6 @@ class Property extends Model
   public function getAllowedtypesAttribute()
   {
     $allowedTypes = [];
-    if ($this->valuetype == 'itemlink' or $this->valuetype == 'itemlinks')
-    {
-      $types = \App\v1\Models\Config\Propertyallowedtype::where('property_id', $this->id)->orderBy('id')->get();
-      $modelType = new \App\v1\Models\Config\Type();
-      foreach ($types as $type)
-      {
-        $mytype = \App\v1\Models\Config\Type::find($type->type_id);
-        if (!is_null($mytype))
-        {
-          $mytype->makeHidden(
-            \App\v1\Common::getFieldsToHide($modelType->getVisible(), ['id', 'name', 'internalname'])
-          );
-          $allowedTypes[] = $mytype;
-        } else {
-          // TODO it's a type _id deleted, must never go here
-        }
-      }
-    }
     return $allowedTypes;
   }
 
@@ -377,5 +421,38 @@ class Property extends Model
         $user->last_name  = '';
       }
     });
+  }
+
+  public function allowedtypes()
+  {
+    return $this->belongsToMany('App\v1\Models\Config\Type', 'propertyallowedtypes')
+      ->without('created_by', 'updated_by', 'deleted_by', 'organization', 'properties')
+      ->select('types.id', 'types.name', 'types.internalname')
+      ->orderByPivot('id', 'asc');
+  }
+
+  // Function used with eagerloading to get relationship based on pivot attributes
+  public function property_itemlink() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Item', 'value')
+      ->without('created_by', 'updated_by', 'deleted_by', 'organization', 'properties')
+      ->withTrashed();
+  }
+
+  public function property_typelink() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Config\Type', 'value')
+      ->withTrashed();
+  }
+
+  public function property_list() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Config\Propertylist', 'value');
+  }
+
+  public function property_propertylink() // phpcs:ignore
+  {
+    return $this->belongsTo('App\v1\Models\Config\Property', 'value')
+      ->withTrashed();
   }
 }
