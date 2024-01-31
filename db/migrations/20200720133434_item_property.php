@@ -54,7 +54,7 @@ final class ItemProperty extends AbstractMigration
           ->addColumn('value_typelink', 'integer', ['null' => true])
           ->addColumn('value_typelinks', 'integer', ['null' => true])
           ->addColumn('value_propertylink', 'integer', ['null' => true])
-          ->addColumn('value_list', 'string', ['null' => true])
+          ->addColumn('value_list', 'integer', ['null' => true])
           ->addColumn('value_password', 'string', ['null' => true])
           ->addColumn('value_passwordhash', 'string', ['null' => true])
           ->addColumn('byfusioninventory', 'boolean', ['default' => false])

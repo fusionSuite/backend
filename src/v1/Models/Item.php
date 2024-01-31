@@ -43,6 +43,10 @@ class Item extends Model
     'parent_id',
     'treepath',
     'properties',
+    'propertyItemlink',
+    'propertyTypelink',
+    'propertyList',
+    'propertyPropertylink',
     'created_at',
     'updated_at',
     'deleted_at',
@@ -118,7 +122,51 @@ class Item extends Model
       foreach ($pivotIds as $propertyId)
       {
         $currentItemProperty = $model->properties()->where('property_id', $propertyId)->first();
-        $model->oldProperties[$propertyId] = $currentItemProperty->value;
+        // Special case for itemlink / itemlinks
+        if (in_array($currentItemProperty->valuetype, ['itemlink', 'itemlinks']))
+        {
+          foreach ($currentItemProperty->property_itemlink()->get() as $itemlink)
+          {
+            if ($itemlink->id == $currentItemProperty->value)
+            {
+              $model->oldProperties[$propertyId] = $itemlink;
+            }
+          }
+        // Special case for typelink / typelinks
+        }
+        elseif (in_array($currentItemProperty->valuetype, ['typelink', 'typelinks']))
+        {
+          foreach ($currentItemProperty->property_typelink()->get() as $typelink)
+          {
+            if ($typelink->id == $currentItemProperty->value)
+            {
+              $model->oldProperties[$propertyId] = $typelink;
+            }
+          }
+        // Special case for list
+        }
+        elseif ($currentItemProperty->valuetype == 'list')
+        {
+          foreach ($currentItemProperty->property_list()->get() as $list)
+          {
+            if ($list->id == $currentItemProperty->value)
+            {
+              $model->oldProperties[$propertyId] = $list;
+            }
+          }
+          // Special case for propertylink
+        } elseif ($currentItemProperty->valuetype == 'propertylink')
+        {
+          foreach ($currentItemProperty->property_propertylink()->get() as $propertylink)
+          {
+            if ($propertylink->id == $currentItemProperty->value)
+            {
+              $model->oldProperties[$propertyId] = $propertylink;
+            }
+          }
+        } else {
+          $model->oldProperties[$propertyId] = $currentItemProperty->value;
+        }
       }
     });
   }
@@ -205,6 +253,26 @@ class Item extends Model
     return [];
   }
 
+  public function getPropertyItemlinkAttribute()
+  {
+    return [];
+  }
+
+  public function getPropertyTypelinkAttribute()
+  {
+    return [];
+  }
+
+  public function getPropertyListAttribute()
+  {
+    return [];
+  }
+
+  public function getPropertyPropertylinkAttribute()
+  {
+    return [];
+  }
+
   public function getChildItemsAttribute()
   {
     return [];
@@ -239,6 +307,15 @@ class Item extends Model
       'value_password',
       'value_passwordhash',
       'byfusioninventory'
+    )
+      ->withTimestamps()
+      ->orderByPivot('id', 'asc');
+  }
+
+  public function itemlink()
+  {
+    return $this->belongsToMany('App\v1\Models\Item', 'item_property', 'item_id', 'value_itemlink')->withPivot(
+      'property_id',
     )
       ->withTimestamps()
       ->orderByPivot('id', 'asc');
@@ -372,6 +449,60 @@ class Item extends Model
       {
         return $property->{$attribute};
       }
+    }
+    return null;
+  }
+
+  // Make some modification in toArray to have the property* in root into the properties tree
+  public function toArray()
+  {
+    if (isset($this->id)) {
+      $data = parent::toArray();
+
+      // Manage it
+      if (isset($data['properties']))
+      {
+        foreach ($data['properties'] as $idxProperties => $property)
+        {
+          if ($property['valuetype'] == 'itemlinks' || $property['valuetype'] == 'itemlink')
+          {
+            if (is_numeric($property['value']))
+            {
+              $data['properties'][$idxProperties]['value'] = $property['property_itemlink'];
+            }
+          }
+
+          if ($property['valuetype'] == 'typelinks' || $property['valuetype'] == 'typelink')
+          {
+            if (is_numeric($property['value']))
+            {
+              $data['properties'][$idxProperties]['value'] = $property['property_typelink'];
+            }
+          }
+
+          if ($property['valuetype'] == 'list')
+          {
+            if (is_numeric($property['value']))
+            {
+              $data['properties'][$idxProperties]['value'] = $property['property_list'];
+            }
+          }
+
+          if ($property['valuetype'] == 'propertylink')
+          {
+            if (is_numeric($property['value']))
+            {
+              $data['properties'][$idxProperties]['value'] = $property['property_propertylink'];
+            }
+          }
+
+          unset($data['properties'][$idxProperties]['property_itemlink']);
+          unset($data['properties'][$idxProperties]['property_typelink']);
+          unset($data['properties'][$idxProperties]['property_list']);
+          unset($data['properties'][$idxProperties]['property_propertylink']);
+        }
+      }
+      return $data;
     }
     return null;
   }

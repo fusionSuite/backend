@@ -42,7 +42,6 @@ class Type extends Model
     'organization',
     'sub_organization',
     'modeling',
-    'properties',
     'tree',
     'allowtreemultipleroots',
     'unique_name',

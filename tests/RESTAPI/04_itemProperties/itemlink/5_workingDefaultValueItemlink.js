@@ -15,6 +15,10 @@ describe('itemProperties | itemlink type | working set | default value', functio
       common.createProperty(done, global.itemId1, true, [3]);
     });
 
+    it('Get the property to check allowedtypes is good', function (done) {
+      common.checkProperty(done, global.itemId1, [3]);
+    });
+
     it('Attach a property to the type itemlink', function (done) {
       common.attachPropertyToType(done);
     });
