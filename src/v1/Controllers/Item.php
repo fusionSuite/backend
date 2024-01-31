@@ -172,7 +172,11 @@ final class Item
       })
       ->with(
         'properties:id,name,internalname,valuetype,unit,organization_id',
-        'properties.listvalues'
+        'properties.listvalues',
+        'properties.property_itemlink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,deleted_by,id_bytype',
+        'properties.property_typelink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,deleted_by',
+        'properties.property_list:id,value',
+        'properties.property_propertylink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,deleted_by',
       );
 
     $this->paramFilters($paramsQuery, $items, $args['typeid']);
@@ -183,7 +187,9 @@ final class Item
     // });
     $totalCnt = $items->count();
     $items->skip(($params['skip'] * $params['take']))->take($params['take']);
-    $allItems = $items->get()->toArray();
+    $allItems = $items
+      ->get()
+      ->toArray();
     // permission to view or not properties
     $permissionProps = \App\v1\Controllers\Config\Permissiondataproperty::getPropertiesCanView($args['typeid']);
     foreach ($allItems as $key => $item)
@@ -354,7 +360,12 @@ final class Item
     $item = \App\v1\Models\Item::
       with(
         'properties:id,name,internalname,valuetype,unit,organization_id',
-        'properties.listvalues'
+        'properties.listvalues',
+        'properties.property_itemlink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,deleted_by,id_bytype',
+        'properties.property_typelink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,deleted_by',
+        'properties.property_list:id,value',
+        'properties.property_propertylink:id,name,created_at,created_by,updated_at,updated_by,deleted_at,deleted_by',
+        'properties.property_itemlink.properties'
       )
       ->withTrashed()->find($args['id']);
     if (is_null($item))
@@ -1452,7 +1463,12 @@ final class Item
       // check if the item id exists
       if ($property->valuetype == 'itemlink')
       {
-        $allowedtypesIds = array_column($property->allowedtypes, 'id');
+        $allowedtypesIds = [];
+        foreach ($property->allowedtypes()->get() as $allowedtype)
+        {
+          $allowedtypesIds[] = $allowedtype->id;
+        }
+
         $item = \App\v1\Models\Item::find($data->value);
         if (is_null($item))
         {
@@ -1474,7 +1490,11 @@ final class Item
 
       if ($property->valuetype == 'itemlinks')
       {
-        $allowedtypesIds = array_column($property->allowedtypes, 'id');
+        $allowedtypesIds = [];
+        foreach ($property->allowedtypes()->get() as $allowedtype)
+        {
+          $allowedtypesIds[] = $allowedtype->id;
+        }
         $extend = '';
         if ($extendedError)
         {

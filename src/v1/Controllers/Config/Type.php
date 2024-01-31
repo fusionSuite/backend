@@ -145,6 +145,7 @@ final class Type
                      ->where('sub_organization', true);
             });
     });
+
     // manage permissions
     \App\v1\Permission::checkPermissionToStructure('view', 'config/type');
     $permissionIds = \App\v1\Permission::getStructureViewIds('config/type');
@@ -153,7 +154,8 @@ final class Type
       $type->where('id', $permissionIds);
     }
 
-    $items = $type->get();
+    $items = $type->get()
+      ->makeVisible(['properties']);
     $response->getBody()->write($items->toJson());
     return $response->withHeader('Content-Type', 'application/json');
   }
@@ -278,7 +280,7 @@ final class Type
       throw new \Exception("This type is not in your organization", 403);
     }
 
-    $item->makeVisible('changes');
+    $item->makeVisible(['changes', 'properties']);
 
     $response->getBody()->write($item->toJson());
     return $response->withHeader('Content-Type', 'application/json');

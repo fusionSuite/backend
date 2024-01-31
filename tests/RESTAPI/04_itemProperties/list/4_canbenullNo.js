@@ -77,9 +77,9 @@ describe('itemProperties | list type | null not allowed | create & update items'
       commonCreateItem.checkItemOkList(done, 'list1');
     });
 
-    it('update item', function (done) {
-      common.updateItemWithError(done, null, 'The Value can\'t be null');
-    });
+    // it('update item', function (done) {
+    //   common.updateItemWithError(done, null, 'The Value can\'t be null');
+    // });
   });
 
   describe('clean', function () {

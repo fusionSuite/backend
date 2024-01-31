@@ -841,7 +841,7 @@ trait Read
           case 'itemlink':
           case 'itemlinks':
             $allowedtypes = [];
-            foreach ($property->allowedtypes as $type)
+            foreach ($property->allowedtypes()->get() as $type)
             {
               $allowedtypes[] = $type->id;
             }
